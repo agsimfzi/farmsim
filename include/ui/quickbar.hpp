@@ -6,7 +6,7 @@
 
 #include "inventory_cell.hpp"
 
-class Quickbar : public sf::Drawable{
+class Quickbar : public sf::Drawable {
 public:
     Quickbar(Player_Inventory& inventory);
 

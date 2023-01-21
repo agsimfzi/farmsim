@@ -19,18 +19,19 @@ Tile::Tile(sf::Vector2i ncoord, const sf::Texture& texture)
 
 Wall::Wall(sf::Vector2i ncoord, const sf::Texture& texture)
     : Tile { ncoord, texture }
-{}
+{
+}
 
 //////////////////////////////////////////////////////////////
 
 Floor::Floor(sf::Vector2i ncoord, const sf::Texture& texture)
     : Tile { ncoord, texture }
-{}
+{
+}
 
 void Floor::setType(Floor_Type ntype)
 {
-    if (type != ntype)
-    {
+    if (type != ntype) {
         type = ntype;
         sf::Vector2i pos(0, (static_cast<int>(type)) * 64);
         sf::Vector2i size(tileSize, tileSize);
@@ -48,8 +49,10 @@ Detail::Detail(sf::Vector2i ncoord, const sf::Texture& texture, bool ntiled)
 
 //////////////////////////////////////////////////////////////
 
-Door::Door(sf::Vector2i ncoord, const sf::Texture& texture, sf::Vector2i openCoord) :
-    Wall { ncoord, texture }, closePos{ getPosition() }, openPos{ sf::Vector2f(openCoord) * tileSize }
+Door::Door(sf::Vector2i ncoord, const sf::Texture& texture, sf::Vector2i openCoord)
+    : Wall { ncoord, texture }
+    , closePos { getPosition() }
+    , openPos { sf::Vector2f(openCoord) * tileSize }
 {
     closePos = getPosition();
     openPos = sf::Vector2f(openCoord) * tileSize;
@@ -64,14 +67,14 @@ void Door::open()
 
 void Door::close()
 {
-    if(!locked) {
+    if (!locked) {
         opened = false;
     }
 }
 
 void Door::toggleOpened()
 {
-    if(!locked) {
+    if (!locked) {
         if (opened) {
             close();
         }

@@ -53,5 +53,5 @@ private:
 
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
 
-    std::unique_ptr<sf::Shader> shadow{ nullptr };
+    std::unique_ptr<sf::Shader> shadow { nullptr };
 };

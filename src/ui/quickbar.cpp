@@ -1,7 +1,7 @@
 #include <ui/quickbar.hpp>
 
 Quickbar::Quickbar(Player_Inventory& inventory)
-    : inventory{ inventory }
+    : inventory { inventory }
 {
     readInventory();
 

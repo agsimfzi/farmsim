@@ -131,6 +131,8 @@ T scalarProduct(const sf::Vector2<T>& v, const sf::Vector2<T>& w)
 
 int roundFloat(float f);
 
-template <typename T> int sign(T val) {
+template <typename T>
+int sign(T val)
+{
     return (T(0) < val) - (val < T(0));
 }

@@ -41,7 +41,8 @@ Player& Game::getPlayer()
 }
 
 void Game::enter()
-{}
+{
+}
 
 World& Game::getWorld()
 {
@@ -51,8 +52,7 @@ World& Game::getWorld()
 void Game::clickLeft()
 {
     Item* equipped = inventory.equippedItem();
-    if (equipped)
-    {
+    if (equipped) {
         world.useItem(equipped);
         inventory.changed = true;
     }
@@ -106,7 +106,7 @@ Player_Inventory& Game::getInventory()
 
 Entity* Game::mousedEntity(sf::Vector2f mpos)
 {
-    if(player.getSprite().getGlobalBounds().contains(mpos)) {
+    if (player.getSprite().getGlobalBounds().contains(mpos)) {
         return &player;
     }
 

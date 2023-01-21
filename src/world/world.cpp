@@ -16,12 +16,13 @@
 const sf::Vector2i World::renderDistance { 16, 10 };
 
 World::World(Item_Library& item_library)
-    : item_library{ item_library }
+    : item_library { item_library }
     , textureFloors { Texture_Manager::get("FLOOR") }
     , textureWalls { Texture_Manager::get("WALL") }
     , textureDetails { Texture_Manager::get("DETAILS") }
     , textureTiledDetail { Texture_Manager::get("TILING") }
-{}
+{
+}
 
 void World::reset()
 {
@@ -48,11 +49,10 @@ void World::update(Player_Inventory& inventory)
 
 void World::interact(Player_Inventory& inventory)
 {
-    if (player_target.active)
-    {
+    if (player_target.active) {
         sf::Vector2i t = player_target.coordinates;
         Floor* f = floor[t.x][t.y].get();
-        if (f->planted ) {
+        if (f->planted) {
             if (!crops[t.x].contains(t.y)) {
                 std::cout << "FAILED TO FIND CROP AT TILE " << t << '\n';
             }
@@ -77,7 +77,7 @@ void World::checkMouseTarget(sf::Vector2f mpos, sf::Vector2i playerCoords)
 
     // check for tile at coordinates
     if (floor.contains(coords.x) && floor[coords.x].contains(coords.y)
-    && inRange(coords, playerCoords)) {
+        && inRange(coords, playerCoords)) {
         player_target.setActive(true);
         player_target.place(coords);
     }
@@ -91,7 +91,7 @@ bool World::inRange(sf::Vector2i c1, sf::Vector2i c2)
     sf::Vector2i diff = c1 - c2;
 
     return ((diff.x >= -1 && diff.x <= 1)
-          && diff.y >= -1 && diff.y <= 1);
+        && diff.y >= -1 && diff.y <= 1);
 }
 
 void World::makeFloor()
@@ -117,7 +117,8 @@ void World::makeWalls()
 }
 
 void World::makeDetails()
-{}
+{
+}
 
 bool World::hasOrthogonalFloor(sf::Vector2i v)
 {
@@ -191,29 +192,29 @@ std::vector<sf::FloatRect> World::getLocalWalls(sf::Vector2f p)
 
 void World::useItem(Item* item)
 {
-    switch(item->getType()) {
-    case Item_Type::TOOL:
-        useTool(item);
-        break;
-    case Item_Type::SEED:
-        plantCrop(item);
-        break;
-    default:
-        break;
+    switch (item->getType()) {
+        case Item_Type::TOOL:
+            useTool(item);
+            break;
+        case Item_Type::SEED:
+            plantCrop(item);
+            break;
+        default:
+            break;
     }
 }
 
 void World::useTool(Item* item)
 {
-    switch(item->getUID()) {
-    case 0:
-        hoe();
-        break;
-    case 1:
-        water();
-        break;
-    default:
-        break;
+    switch (item->getUID()) {
+        case 0:
+            hoe();
+            break;
+        case 1:
+            water();
+            break;
+        default:
+            break;
     }
 }
 
@@ -231,27 +232,25 @@ void World::water()
 
 void World::plantCrop(Item* item)
 {
-    if (player_target.active)
-    {
+    if (player_target.active) {
         sf::Vector2i t = player_target.coordinates;
         Floor* f = floor[t.x][t.y].get();
         if ((f->type == Floor_Type::TILLED
-          || f->type == Floor_Type::WATERED)
-         && !f->planted)
-        {
+                || f->type == Floor_Type::WATERED)
+            && !f->planted) {
             Crop_Data d;
-                d.uid = item->getUID() + 1000;
-                d.coordinates = t;
-                d.growth_coef = 0.01f;
+            d.uid = item->getUID() + 1000;
+            d.coordinates = t;
+            d.growth_coef = 0.01f;
 
             sf::Sprite sprite;
-                std::string texture = "CROPS" + std::to_string((item->getUID() % 1000) / 100);
-                sprite.setTexture(Texture_Manager::get(texture));
-                sf::Vector2i pos(0, (item->getUID() %  100) * 64);
-                sf::Vector2i size(64, 64);
-                sprite.setTextureRect(sf::IntRect(pos, size));
-                sprite.setOrigin(sf::Vector2f(size) / 2.f);
-                sprite.setPosition(sf::Vector2f(t) * Tile::tileSize);
+            std::string texture = "CROPS" + std::to_string((item->getUID() % 1000) / 100);
+            sprite.setTexture(Texture_Manager::get(texture));
+            sf::Vector2i pos(0, (item->getUID() % 100) * 64);
+            sf::Vector2i size(64, 64);
+            sprite.setTextureRect(sf::IntRect(pos, size));
+            sprite.setOrigin(sf::Vector2f(size) / 2.f);
+            sprite.setPosition(sf::Vector2f(t) * Tile::tileSize);
 
             item->take(1);
             f->planted = true;
@@ -266,12 +265,10 @@ bool World::changeActiveTile(Floor_Type prereq, Floor_Type ntype)
 {
     bool change = false;
 
-    if (player_target.active)
-    {
+    if (player_target.active) {
         sf::Vector2i t = player_target.coordinates;
         change = (floor[t.x][t.y]->type == prereq);
-        if (change)
-        {
+        if (change) {
             floor[t.x][t.y]->setType(ntype);
         }
     }

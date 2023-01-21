@@ -17,15 +17,15 @@ Item_Library::Item_Library()
         std::string texture;
 
         switch (item.uid / 1000) {
-        case 0:
-            texture = "ITEMS";
-            break;
-        case 1:
-            texture = "SEEDS";
-            break;
-        case 2:
-            texture = "PLANTS";
-            break;
+            case 0:
+                texture = "ITEMS";
+                break;
+            case 1:
+                texture = "SEEDS";
+                break;
+            case 2:
+                texture = "PLANTS";
+                break;
         }
 
         size_t sheet_id = item.uid % 1000;
@@ -35,8 +35,8 @@ Item_Library::Item_Library()
         sprite.setTexture(Texture_Manager::get(texture));
 
         sf::Vector2i pos;
-            pos.x = (sheet_id % 10) * 64;
-            pos.y = (sheet_id / 10) * 64;
+        pos.x = (sheet_id % 10) * 64;
+        pos.y = (sheet_id / 10) * 64;
         sf::Vector2i size(64, 64);
         sprite.setTextureRect(sf::IntRect(pos, size));
         i.setSprite(sprite);

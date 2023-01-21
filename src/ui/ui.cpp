@@ -8,10 +8,11 @@
 
 UI::UI(Game& game)
     : game { game }
-    , font{ Font_Manager::get(Font::UI) }
-    , entityInfo{ Font_Manager::get(Font::UI) }
-    , quickbar{ Quickbar(game.getInventory()) }
-{}
+    , font { Font_Manager::get(Font::UI) }
+    , entityInfo { Font_Manager::get(Font::UI) }
+    , quickbar { Quickbar(game.getInventory()) }
+{
+}
 
 void UI::init()
 {
@@ -54,7 +55,7 @@ void UI::scale(sf::RenderWindow& window)
     pos.x *= window.getSize().x;
     pos.y *= window.getSize().y;
     sf::Vector2f size(256, 256);
-        pos.y += size.y + 8.f;
+    pos.y += size.y + 8.f;
     //size.y = 320.f;
 
     entityInfo.set(pos, size);
@@ -66,7 +67,8 @@ void UI::stopInput()
 }
 
 void UI::resize(sf::Vector2u windowSize)
-{}
+{
+}
 
 void UI::openInventory()
 {
@@ -92,5 +94,4 @@ void UI::draw(sf::RenderTarget& target, sf::RenderStates states) const
     }
 
     target.draw(quickbar, states);
-
 }

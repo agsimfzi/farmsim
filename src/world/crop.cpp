@@ -6,7 +6,8 @@ const float Crop::stage_threshold = 1.f;
 
 Crop::Crop(Crop_Data d)
     : Crop_Data(d)
-{}
+{
+}
 
 void Crop::setSprite(sf::Sprite sprite)
 {
@@ -20,8 +21,7 @@ void Crop::tick(bool watered)
         float stage_factor = growth_coef + (growth_coef * watered);
         growth += stage_factor;
 
-        if (growth >= stage_threshold)
-        {
+        if (growth >= stage_threshold) {
             nextStage();
         }
     }

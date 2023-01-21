@@ -53,7 +53,7 @@ private:
 
     Item_Library item_library;
 
-    World world{ item_library };
+    World world { item_library };
 
     Player player;
     Player_Inventory inventory;
@@ -64,6 +64,6 @@ private:
     Game_State state { Game_State::PEACE };
 
     const static float interactThreshold;
-        // distance at which a player can interact with something
-        // probably should deprecate with SDV-type aim
+    // distance at which a player can interact with something
+    // probably should deprecate with SDV-type aim
 };

@@ -157,7 +157,7 @@ Entity_Data Database::readEntity(sqlite3_stmt* statement)
     Entity_Data d;
     int column = 0;
 
-//base data
+    //base data
     //name text
     //description text
     //speed double
@@ -166,7 +166,7 @@ Entity_Data Database::readEntity(sqlite3_stmt* statement)
     d.description = reinterpret_cast<const char*>(sqlite3_column_text(statement, column++));
     d.speed = sqlite3_column_double(statement, column++);
 
-//size data
+    //size data
     //size_x int
     //size_y int
 
@@ -174,14 +174,14 @@ Entity_Data Database::readEntity(sqlite3_stmt* statement)
     int y = sqlite3_column_int(statement, column++);
     d.size = sf::Vector2i(x, y);
 
-//animation counts
+    //animation counts
     //idle_count int
     //moving_count int
 
     d.aCount[Entity_State::IDLE] = static_cast<unsigned int>(sqlite3_column_int(statement, column++));
     d.aCount[Entity_State::MOVING] = static_cast<unsigned int>(sqlite3_column_int(statement, column++));
 
-//animation thresholds
+    //animation thresholds
     //idle_threshold int
     //moving_threshold int
 
@@ -263,7 +263,6 @@ std::vector<Item_Data> Database::getItemPrototypes()
         d.stack_size = sqlite3_column_int(statement, column++);
 
         items.push_back(d);
-
     }
 
     close();

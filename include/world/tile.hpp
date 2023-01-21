@@ -54,8 +54,8 @@ public:
     void setLocked(bool locked);
 
 private:
-    bool opened{ false };
-    bool locked{ false };
+    bool opened { false };
+    bool locked { false };
 
     sf::Vector2f closePos;
     sf::Vector2f openPos;

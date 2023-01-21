@@ -69,20 +69,16 @@ Input_Handler::Input_Handler(sf::RenderWindow& nwindow, Game& game, UI& ui, Menu
     p_g.focus_lost = std::bind(&Game::stopInput, &game);
 
     p_g.mouse[Mouse_Event::LEFT_CLICK]
-        = std::make_pair("use equipped item"
-                       , std::bind(&Game::clickLeft, &game));
+        = std::make_pair("use equipped item", std::bind(&Game::clickLeft, &game));
 
     p_g.mouse[Mouse_Event::LEFT_RELEASE]
-        = std::make_pair("null"
-                       , std::bind(&Game::releaseLeft, &game));
+        = std::make_pair("null", std::bind(&Game::releaseLeft, &game));
 
     p_g.mouse[Mouse_Event::RIGHT_CLICK]
-        = std::make_pair("interact"
-                       , std::bind(&Game::clickRight, &game));
+        = std::make_pair("interact", std::bind(&Game::clickRight, &game));
 
     p_g.mouse[Mouse_Event::RIGHT_RELEASE]
-        = std::make_pair("end interact"
-                       , std::bind(&Game::releaseRight, &game));
+        = std::make_pair("end interact", std::bind(&Game::releaseRight, &game));
 
     // some event also should end interaction
 

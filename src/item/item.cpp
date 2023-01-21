@@ -4,7 +4,8 @@
 
 Item::Item(Item_Data d)
     : Item_Data(d)
-{}
+{
+}
 
 void Item::setSprite(sf::Sprite sprite)
 {

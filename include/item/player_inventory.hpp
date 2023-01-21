@@ -12,7 +12,7 @@ public:
     size_t rowCount = 3;
     size_t rowWidth = 8;
 
-    Item* operator ()(const size_t row, const size_t col) { return items[row][col].get(); }
+    Item* operator()(const size_t row, const size_t col) { return items[row][col].get(); }
 
     void resize(const size_t rows, const size_t cols);
 

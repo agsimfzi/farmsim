@@ -13,7 +13,7 @@ public:
     void set(sf::Vector2f framePos, sf::Vector2f size);
 
 private:
-    bool opened{ false };
+    bool opened { false };
 
     sf::Sprite sprite;
 

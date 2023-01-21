@@ -15,7 +15,7 @@ Music_Player::Music_Player()
 void Music_Player::setSong(const std::string filename)
 {
     if (filename != this->filename) {
-            std::cout << "now playing " << filename << '\n';
+        std::cout << "now playing " << filename << '\n';
         this->filename = filename;
         state = FADING_OUT;
         fadeClock.restart();

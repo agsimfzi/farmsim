@@ -14,7 +14,7 @@ void Entity_Mouseover::update(Entity* entity)
 {
     if (entity != nullptr) {
         if (!opened
-         || std::string(nameText.getString()) != entity->getName()) {
+            || std::string(nameText.getString()) != entity->getName()) {
             open(entity);
         }
         sprite = entity->getSprite();
@@ -57,7 +57,7 @@ bool Entity_Mouseover::isOpen()
 
 void Entity_Mouseover::open(Entity* entity)
 {
-    if(entity != nullptr) {
+    if (entity != nullptr) {
         opened = true;
         sprite = entity->getSprite();
         sprite.setPosition(spritePos);

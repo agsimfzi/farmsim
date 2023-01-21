@@ -82,8 +82,7 @@ Item* Player_Inventory::equippedItem()
 
 void Player_Inventory::setEquipped(size_t index)
 {
-    if (index >= rowWidth)
-    {
+    if (index >= rowWidth) {
         index = 0;
     }
 

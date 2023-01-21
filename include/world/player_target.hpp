@@ -11,7 +11,7 @@ public:
     void setActive(bool active);
     void place(sf::Vector2i coords);
 
-    sf::Vector2i coordinates{ 0, 0 };
+    sf::Vector2i coordinates { 0, 0 };
 
 private:
     sf::RectangleShape frame;
