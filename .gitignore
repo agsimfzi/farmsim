@@ -1,0 +1,82 @@
+# Prerequisites
+*.d
+
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Fortran module files
+*.mod
+*.smod
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
+
+# Executables
+*.exe
+*.out
+*.app
+
+# generated and obsolete directories
+/src_old/
+/doxygen/
+
+# database
+/src/sqlite/
+/include/sqlite/
+data.db
+
+# textures
+/textures/
+
+# fonts
+*.ttf
+
+# Code::Blocks files
+*.cbp
+*.depend
+*.layout
+
+# build folders
+/bin/
+
+# what the fuck is this???
+_resources
+
+# misc
+.gitattributes
+todo.hpp
+/palettes/
+*.png
+
+# sourcetrail files
+*.srctrlbm
+*.srctrldb
+*.srctrlprj
+
+
+# database loading
+/db/
+
+# music
+/soundtrack/
+
+# deprecated code
+node.cpp
+weapon.hpp
+weapon.cpp
+song.hpp
