@@ -14,11 +14,6 @@ Animated_Sprite::Animated_Sprite(sf::Texture& ntexture,
     direction = Direction::N;
     setAnimationState(Entity_State::IDLE);
     setOrigin(sf::Vector2f(size) / 2.f);
-
-    blip.setPointCount(4);
-    blip.setRadius(4);
-    blip.setFillColor(sf::Color::Red);
-    blip.setOrigin(sf::Vector2f(2, 2));
 }
 
 void Animated_Sprite::setAnimationState(Entity_State nstate)
@@ -47,7 +42,6 @@ Direction Animated_Sprite::getDirection()
 
 void Animated_Sprite::update()
 {
-    blip.setPosition(getPosition());
     if (frameTimer.getElapsedTime().asMilliseconds() >= frameThreshold) {
         frameTimer.restart();
         updateFrame();

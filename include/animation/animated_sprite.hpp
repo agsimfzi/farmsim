@@ -39,8 +39,6 @@ public:
 
     sf::Vector2f getSize();
 
-    sf::CircleShape blip;
-
 private:
     void loadCounts(std::map<Entity_State, unsigned int> counts);
     void loadThresholds(std::map<Entity_State, int> thresholds);

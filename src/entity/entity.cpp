@@ -257,5 +257,4 @@ const std::string& Entity::getDescription() const
 void Entity::draw(sf::RenderTarget& target, sf::RenderStates states) const
 {
     target.draw(sprite, states);
-    target.draw(sprite.blip, states);
 }
