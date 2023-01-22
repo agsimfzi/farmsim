@@ -37,22 +37,26 @@ void UI::setMouseover(Entity* entity)
 
 void UI::scroll(float delta)
 {
-    // parse "reverse inventory_interface scroll" setting
-    if (delta > 0.f) {
-        inventory_interface.scrollLeft();
-    }
-    else if (delta < 0.f) {
-        inventory_interface.scrollRight();
-    }
+    if (!overlay_active && !inventory_interface.expanded) {
+        // parse "reverse inventory_interface scroll" setting
+        if (delta > 0.f) {
+            inventory_interface.scrollLeft();
+        }
+        else if (delta < 0.f) {
+            inventory_interface.scrollRight();
+        }
 
-    game.getInventory().setEquipped(inventory_interface.getEquippedIndex());
+        game.getInventory().setEquipped(inventory_interface.getEquippedIndex());
+    }
 }
 
 void UI::numRelease(int num)
 {
-    inventory_interface.setEquippedIndex(num);
+    if (!overlay_active && !inventory_interface.expanded) {
+        inventory_interface.setEquippedIndex(num);
 
-    game.getInventory().setEquipped(inventory_interface.getEquippedIndex());
+        game.getInventory().setEquipped(inventory_interface.getEquippedIndex());
+    }
 }
 
 void UI::scale(sf::RenderWindow& window)

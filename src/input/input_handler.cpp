@@ -28,7 +28,15 @@ Input_Handler::Input_Handler(sf::RenderWindow& nwindow, Game& game, UI& ui, Menu
     //
     Input_Package& p_g = context[Main_State::GAME];
 
-    p_g.keyReleased[sf::Keyboard::Escape] = std::bind(&Game::escape, &game);
+    p_g.keyReleased[sf::Keyboard::Escape] = [&]()
+                                            {
+                                                if (ui.overlayActive()) {
+                                                    ui.closeOverlay();
+                                                }
+                                                else {
+                                                    game.escape();
+                                                }
+                                            };
 
     std::map<std::string, Action_Trigger> actions = Database::getActions();
 
