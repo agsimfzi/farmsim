@@ -31,11 +31,17 @@ public:
 
     void init();
 
-    void openInventory();
+    void toggleInventory();
     void closeOverlay();
 
     bool overlayActive();
     void setOverlay(bool active);
+
+    bool clickLeft();
+    bool releaseLeft();
+
+    bool clickRight();
+    bool releaseRight();
 
 private:
     Game& game;
@@ -45,7 +51,7 @@ private:
 
     sf::RectangleShape overlay;
 
-    Quickbar quickbar;
+    Inventory_Interface inventory_interface;
 
     bool overlay_active = false;
 

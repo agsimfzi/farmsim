@@ -5,9 +5,9 @@
 const sf::Vector2f Inventory_Cell::frameSize = sf::Vector2f(64.f, 64.f);
 const float Inventory_Cell::frameOutlineSize = 2.f;
 
-const sf::Color Inventory_Cell::colorActive = sf::Color::Green;
-const sf::Color Inventory_Cell::colorInactive = sf::Color::Yellow;
-const sf::Color Inventory_Cell::colorOutline = sf::Color::Magenta;
+const sf::Color Inventory_Cell::colorActive = sf::Color(252, 244, 212);
+const sf::Color Inventory_Cell::colorInactive = sf::Color(230, 209, 135);
+const sf::Color Inventory_Cell::colorOutline = sf::Color(25, 25, 25);
 
 Inventory_Cell::Inventory_Cell(Item* item)
 {
@@ -15,6 +15,7 @@ Inventory_Cell::Inventory_Cell(Item* item)
     frame.setOutlineColor(colorOutline);
     frame.setOutlineThickness(frameOutlineSize);
     frame.setSize(frameSize);
+    frame.setOrigin(frameSize / 2.f);
     deactivate();
     numberText.setFont(Font_Manager::get(Font::UI));
     numberText.setFillColor(sf::Color::Black);
@@ -26,7 +27,7 @@ void Inventory_Cell::setPosition(sf::Vector2f pos)
     if (item) {
         item->setPosition(pos);
     }
-    pos.y += frame.getSize().y * .5f;
+    pos.x -= frame.getSize().x * .4f;
     numberText.setPosition(pos);
 }
 
@@ -68,6 +69,11 @@ void Inventory_Cell::setItem(Item* i)
 void Inventory_Cell::clearItem()
 {
     item = nullptr;
+}
+
+Item* Inventory_Cell::getItem()
+{
+    return item.get();
 }
 
 void Inventory_Cell::draw(sf::RenderTarget& target, sf::RenderStates states) const

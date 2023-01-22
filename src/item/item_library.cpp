@@ -39,6 +39,7 @@ Item_Library::Item_Library()
         pos.y = (sheet_id / 10) * 64;
         sf::Vector2i size(64, 64);
         sprite.setTextureRect(sf::IntRect(pos, size));
+        sprite.setOrigin(sf::Vector2f(size) / 2.f);
         i.setSprite(sprite);
 
         std::shared_ptr<Item> iptr = std::make_shared<Item>(i);

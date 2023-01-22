@@ -10,18 +10,24 @@ UI::UI(Game& game)
     : game { game }
     , font { Font_Manager::get(Font::UI) }
     , entityInfo { Font_Manager::get(Font::UI) }
-    , quickbar { Quickbar(game.getInventory()) }
+    , inventory_interface { Inventory_Interface(game.getInventory()) }
 {
+    overlay.setPosition(sf::Vector2f(0.f, 0.f));
+    overlay.setSize(sf::Vector2f(1920.f, 1080.f));
+    overlay.setFillColor(sf::Color(50, 50, 50, 120));
 }
 
 void UI::init()
 {
-    quickbar.readInventory();
+    inventory_interface.readInventory();
 }
 
 void UI::update()
 {
-    quickbar.pollChanges();
+    if (inventory_interface.expanded) {
+        inventory_interface.checkDrag();
+    }
+    inventory_interface.pollChanges();
 }
 
 void UI::setMouseover(Entity* entity)
@@ -31,22 +37,22 @@ void UI::setMouseover(Entity* entity)
 
 void UI::scroll(float delta)
 {
-    // parse "reverse quickbar scroll" setting
+    // parse "reverse inventory_interface scroll" setting
     if (delta > 0.f) {
-        quickbar.scrollLeft();
+        inventory_interface.scrollLeft();
     }
     else if (delta < 0.f) {
-        quickbar.scrollRight();
+        inventory_interface.scrollRight();
     }
 
-    game.getInventory().setEquipped(quickbar.getActiveIndex());
+    game.getInventory().setEquipped(inventory_interface.getEquippedIndex());
 }
 
 void UI::numRelease(int num)
 {
-    quickbar.setActiveCell(num);
+    inventory_interface.setEquippedIndex(num);
 
-    game.getInventory().setEquipped(quickbar.getActiveIndex());
+    game.getInventory().setEquipped(inventory_interface.getEquippedIndex());
 }
 
 void UI::scale(sf::RenderWindow& window)
@@ -70,19 +76,67 @@ void UI::resize(sf::Vector2u windowSize)
 {
 }
 
-void UI::openInventory()
+void UI::toggleInventory()
 {
-    overlay_active = true;
+    if (inventory_interface.expanded) {
+        inventory_interface.expanded = false;
+        overlay_active = false;
+    }
+    else {
+        inventory_interface.expanded = true;
+        overlay_active = true;
+    }
 }
 
 void UI::closeOverlay()
 {
     overlay_active = false;
+    if (inventory_interface.expanded) {
+        inventory_interface.close();
+    }
 }
 
 bool UI::overlayActive()
 {
     return overlay_active;
+}
+
+bool UI::clickLeft()
+{
+    bool parsed = overlay_active;
+
+    if (parsed) {
+        inventory_interface.startDrag();
+    }
+
+    return parsed;
+}
+
+bool UI::releaseLeft()
+{
+    bool parsed = overlay_active;
+
+    if (parsed) {
+        inventory_interface.endDrag();
+    }
+
+    return parsed;
+}
+
+bool UI::clickRight()
+{
+    return overlay_active;
+}
+
+bool UI::releaseRight()
+{
+    bool parsed = overlay_active;
+
+    if (parsed) {
+        closeOverlay();
+    }
+
+    return parsed;
 }
 
 void UI::draw(sf::RenderTarget& target, sf::RenderStates states) const
@@ -93,5 +147,5 @@ void UI::draw(sf::RenderTarget& target, sf::RenderStates states) const
         target.draw(overlay, states);
     }
 
-    target.draw(quickbar, states);
+    target.draw(inventory_interface, states);
 }

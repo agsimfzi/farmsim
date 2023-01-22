@@ -55,7 +55,7 @@
  *     for selected rows
  *
  *
- * EXAMPLE ************************************************************************
+ * * EXAMPLE ************************************************************************
  *
  * Input_Mapper input_mapper();
  * input_mapper.setPosition(sf::Vector2f(128.f, 128.f));

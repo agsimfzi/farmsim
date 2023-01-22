@@ -3,6 +3,7 @@
 Player_Inventory::Player_Inventory()
 {
     resize(rowCount, rowWidth);
+    setEquipped(0);
 }
 
 void Player_Inventory::resize(const size_t rows, const size_t cols)
@@ -59,6 +60,16 @@ size_t Player_Inventory::takeItem(size_t x, size_t y, size_t count)
     changed = true;
 
     return remainder;
+}
+
+void Player_Inventory::clearItem(size_t x, size_t y)
+{
+    items[x][y] = nullptr;
+}
+
+void Player_Inventory::placeItem(size_t x, size_t y, Item* item)
+{
+    items[x][y] = std::make_shared<Item>(*item);
 }
 
 void Player_Inventory::update()

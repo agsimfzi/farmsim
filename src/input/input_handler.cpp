@@ -52,6 +52,10 @@ Input_Handler::Input_Handler(sf::RenderWindow& nwindow, Game& game, UI& ui, Menu
             press = std::bind(&Player::rightStart, player);
             release = std::bind(&Player::rightEnd, player);
         }
+        else if (action.first == "Open Inventory") {
+            press = [](){};
+            release = std::bind(&UI::toggleInventory, &ui);
+        }
 
         placeActionTrigger(action, press, release);
     }
@@ -68,17 +72,41 @@ Input_Handler::Input_Handler(sf::RenderWindow& nwindow, Game& game, UI& ui, Menu
 
     p_g.focus_lost = std::bind(&Game::stopInput, &game);
 
+    auto clickLeft = [&]()
+                {
+                    if (!ui.clickLeft()) {
+                        game.clickLeft();
+                    }
+                };
     p_g.mouse[Mouse_Event::LEFT_CLICK]
-        = std::make_pair("use equipped item", std::bind(&Game::clickLeft, &game));
+        = std::make_pair("clickLeft", clickLeft);
 
+    auto releaseLeft = [&]()
+                    {
+                        if (!ui.releaseLeft()) {
+                            game.releaseLeft();
+                        }
+                    };
     p_g.mouse[Mouse_Event::LEFT_RELEASE]
-        = std::make_pair("null", std::bind(&Game::releaseLeft, &game));
+        = std::make_pair("releaseLeft", releaseLeft);
 
+    auto clickRight = [&]()
+                    {
+                        if (!ui.clickRight()) {
+                            game.clickRight();
+                        }
+                    };
     p_g.mouse[Mouse_Event::RIGHT_CLICK]
-        = std::make_pair("interact", std::bind(&Game::clickRight, &game));
+        = std::make_pair("clickRight", clickRight);
 
+    auto releaseRight = [&]()
+                    {
+                        if (!ui.releaseRight()) {
+                            game.releaseRight();
+                        }
+                    };
     p_g.mouse[Mouse_Event::RIGHT_RELEASE]
-        = std::make_pair("end interact", std::bind(&Game::releaseRight, &game));
+        = std::make_pair("releaseRight", releaseRight);
 
     // some event also should end interaction
 

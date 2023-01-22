@@ -22,10 +22,17 @@ public:
 
     void setItem(Item* i);
     void clearItem();
+    Item* getItem();
+
+    template <typename T>
+    bool contains(sf::Vector2<T> pos)
+    {
+        return frame.getGlobalBounds().contains(sf::Vector2f(pos));
+    }
 
 private:
     sf::RectangleShape frame;
-    std::shared_ptr<Item> item;
+    std::shared_ptr<Item> item = nullptr;
 
     sf::Text numberText;
 
