@@ -25,9 +25,9 @@ public:
 
     size_t add(size_t diff);
     size_t take(size_t diff);
-    void setCount(size_t m_count);
 
     size_t count();
+    void setCount(size_t n_count);
 
 private:
     sf::Sprite sprite;

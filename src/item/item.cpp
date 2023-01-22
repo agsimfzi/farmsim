@@ -1,7 +1,5 @@
 #include <item/item.hpp>
 
-#include <iostream>
-
 Item::Item(Item_Data d)
     : Item_Data(d)
 {
@@ -77,14 +75,14 @@ size_t Item::take(size_t diff)
     return remainder;
 }
 
-void Item::setCount(size_t m_count)
-{
-    this->m_count = m_count;
-}
-
 size_t Item::count()
 {
     return m_count;
+}
+
+void Item::setCount(size_t n_count)
+{
+    m_count = n_count;
 }
 
 void Item::draw(sf::RenderTarget& target, sf::RenderStates states) const

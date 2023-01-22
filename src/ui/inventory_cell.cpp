@@ -46,17 +46,24 @@ void Inventory_Cell::deactivate()
 void Inventory_Cell::setItem(Item* i)
 {
     if (i) {
-        if (!item || i->getUID() != item->getUID()) {
+        bool item_exists = item.get();
+        bool uid_match = (item_exists && i->getUID() != item->getUID());
+
+        if (!item_exists || !uid_match) {
             item = std::make_shared<Item>(*i);
             item->setPosition(frame.getPosition());
         }
+        else if(uid_match) {
+            item->setCount(i->count());
+        }
+
 
         size_t count = i->count();
 
         if (i->count() == 1) {
             numberText.setString("");
         }
-        else if (i->count()) {
+        else {
             numberText.setString(std::to_string(count));
         }
     }
