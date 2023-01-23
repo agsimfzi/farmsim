@@ -107,6 +107,7 @@ private:
 
     void updateAutotiledDetails(sf::Vector2i start, sf::Vector2i end);
     int autotileX(sf::Vector2i i, std::variant<Floor_Type, Detail_Type> type);
+    int autotileX(bool n, bool w, bool s, bool e);
     bool adjacentDetailMatch(sf::Vector2i i, Detail_Type type);
     bool adjacentFloorMatch(sf::Vector2i i, Floor_Type type);
 

@@ -11,6 +11,8 @@
 #include <util/prng.hpp>
 #include <util/vector2_stream.hpp>
 
+#include <world/automaton.hpp>
+
 //////////////////////////////////////////////////////////////
 
 const sf::Vector2i World::renderDistance { 32, 24 };
@@ -133,23 +135,24 @@ void World::makeWater()
         pos.x = prng::number(worldMin.x + size.x, worldMax.x - (size.x * 2));
         pos.y = prng::number(worldMin.y + size.y, worldMax.y - (size.y * 2));
 
-        std::cout << "making pond at " << pos << '\n';
+        size_t iterations = 9;
 
-        sf::Vector2i bound(pos + size);
+        sf::Vector2i padding(2, 2);
 
-        for (int x = pos.x; x < bound.x; x++) {
-            for (int y = pos.y; y < bound.y; y++) {
-                floor[x][y]->setType(Floor_Type::WATER);
-                floor[x][y]->setTexture(Texture_Manager::get("WATER"));
-            }
-        }
+        Automaton pond_maker(iterations, .85f, pos, pos + size, padding);
 
-        for (int x = pos.x; x < bound.x; x++) {
-            for (int y = pos.y; y < bound.y; y++) {
-                if (floor[x][y]->type == Floor_Type::WATER) {
+        std::cout << "making pond at " << pos << ", size " << size << '\n';
+
+        Automaton_Cells pond = pond_maker.iterate();
+
+        for (int x = pos.x - padding.x; x <= pos.x + size.x + (padding.x * 2); x++) {
+            for (int y = pos.y - padding.y; y <= pos.y + size.y + (padding.y * 2); y++) {
+                if (pond[x][y] && floor[x][y]) {
+                    floor[x][y]->setType(Floor_Type::WATER);
+                    floor[x][y]->setTexture(Texture_Manager::get("WATER"));
                     sf::Vector2i r_size(64, 64);
                     sf::Vector2i pos(0, 0);
-                    pos.x = autotileX(sf::Vector2i(x, y), Floor_Type::WATER);
+                    pos.x = autotileX(pond[x][y - 1], pond[x - 1][y], pond[x][y + 1], pond[x + 1][y]);
                     floor[x][y]->setTextureRect(sf::IntRect(pos, r_size));
                 }
             }
@@ -210,6 +213,11 @@ int World::autotileX(sf::Vector2i i, std::variant<Floor_Type, Detail_Type> type)
         e = adjacentDetailMatch(i + sf::Vector2i(1, 0), std::get<Detail_Type>(type));
     }
 
+    return autotileX(n, w, s, e);
+}
+
+int World::autotileX(bool n, bool w, bool s, bool e)
+{
     int sum = 0;
     if (n) {
         sum += 1;
