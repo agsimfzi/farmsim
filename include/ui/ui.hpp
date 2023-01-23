@@ -49,6 +49,8 @@ private:
 
     Entity_Mouseover entityInfo;
 
+    sf::Text player_pos;
+
     sf::RectangleShape overlay;
 
     Inventory_Interface inventory_interface;

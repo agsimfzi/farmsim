@@ -15,6 +15,10 @@ UI::UI(Game& game)
     overlay.setPosition(sf::Vector2f(0.f, 0.f));
     overlay.setSize(sf::Vector2f(1920.f, 1080.f));
     overlay.setFillColor(sf::Color(50, 50, 50, 120));
+
+    player_pos.setPosition(sf::Vector2f(1800.f, 1000.f));
+    player_pos.setFont(font);
+    player_pos.setFillColor(sf::Color(200, 200, 200));
 }
 
 void UI::init()
@@ -28,6 +32,12 @@ void UI::update()
         inventory_interface.checkDrag();
     }
     inventory_interface.pollChanges();
+
+    std::string p = std::to_string(game.getPlayer().getCoordinates(Tile::tileSize).x)
+                  + ','
+                  + std::to_string(game.getPlayer().getCoordinates(Tile::tileSize).y);
+
+    player_pos.setString(p);
 }
 
 void UI::setMouseover(Entity* entity)
@@ -152,4 +162,6 @@ void UI::draw(sf::RenderTarget& target, sf::RenderStates states) const
     }
 
     target.draw(inventory_interface, states);
+
+    target.draw(player_pos, states);
 }

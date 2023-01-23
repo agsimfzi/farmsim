@@ -44,6 +44,8 @@ void Floor::setType(Floor_Type ntype)
         sf::Vector2i size(tileSize, tileSize);
         setTextureRect(sf::IntRect(pos, size));
     }
+
+    details.clear();
 }
 
 //////////////////////////////////////////////////////////////

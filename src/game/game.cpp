@@ -28,7 +28,7 @@ void Game::update(float deltaTime)
 {
 
     player.update();
-    view.move(player.move(world.getLocalWalls(player.getCoordinates(Tile::tileSize)), deltaTime));
+    view.move(player.move(world.getLocalImpassableTiles(player.getCoordinates(Tile::tileSize)), deltaTime));
 
     inventory.update();
 

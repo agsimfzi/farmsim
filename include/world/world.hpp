@@ -4,6 +4,7 @@
 
 #include <map>
 #include <memory>
+#include <variant>
 
 #include <entity/player.hpp>
 
@@ -35,6 +36,7 @@ public:
 
     void erase();
     void makeFloor();
+    void makeWater();
     void makeWalls();
     void makeDetails();
     void tileAutomata();
@@ -42,8 +44,7 @@ public:
     void makeHazards();
     void makeCover();
 
-    std::vector<sf::FloatRect> getLocalWalls(sf::Vector2i p);
-    std::vector<sf::FloatRect> getLocalWalls(sf::Vector2f p);
+    std::vector<sf::FloatRect> getLocalImpassableTiles(sf::Vector2i p);
 
     void reset();
 
@@ -64,6 +65,8 @@ public:
     void setInteracting(bool interacting);
 
     void interact(Player_Inventory& inventory);
+
+    sf::Vector2i posToCoords(sf::Vector2f pos);
 
 private:
     bool changeActiveTile(Floor_Type prereq, Floor_Type ntype);
@@ -103,8 +106,9 @@ private:
     sf::Vector2i worldMax { 128, 128 };
 
     void updateAutotiledDetails(sf::Vector2i start, sf::Vector2i end);
-    int autotileX(sf::Vector2i i, Detail_Type type);
-    bool adjacentDetailMatch(sf::Vector2i i, Detail_Type type);
+    int autotileX(sf::Vector2i i, std::variant<Floor_Type, Detail_Type> type);
+    bool adjacentTileMatch(sf::Vector2i i, Detail_Type type);
+    bool adjacentTileMatch(sf::Vector2i i, Floor_Type type);
 
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
 };

@@ -13,7 +13,7 @@
 
 //////////////////////////////////////////////////////////////
 
-const sf::Vector2i World::renderDistance { 64, 64 };
+const sf::Vector2i World::renderDistance { 32, 24 };
 
 World::World(Item_Library& item_library)
     : item_library { item_library }
@@ -104,6 +104,7 @@ void World::makeFloor()
     }
 
     // place water
+    makeWater();
 
     // then place grass on dirt
     for (int x = worldMin.x; x <= worldMax.x; x++) {
@@ -120,6 +121,40 @@ void World::makeFloor()
     // add additional details here based on detail type (or tile type if there is no detail yet)
 
     std::cout << "\n\tfloor is made!";
+}
+
+void World::makeWater()
+{
+    size_t pondCount = 3;
+    size_t i = 0;
+    while (i++ < pondCount) {
+        sf::Vector2i size(prng::number(8u, 24u), prng::number(8u, 24u));
+        sf::Vector2i pos;
+        pos.x = prng::number(worldMin.x + size.x, worldMax.x - (size.x * 2));
+        pos.y = prng::number(worldMin.y + size.y, worldMax.y - (size.y * 2));
+
+        std::cout << "making pond at " << pos << '\n';
+
+        sf::Vector2i bound(pos + size);
+
+        for (int x = pos.x; x < bound.x; x++) {
+            for (int y = pos.y; y < bound.y; y++) {
+                floor[x][y]->setType(Floor_Type::WATER);
+                floor[x][y]->setTexture(Texture_Manager::get("WATER"));
+            }
+        }
+
+        for (int x = pos.x; x < bound.x; x++) {
+            for (int y = pos.y; y < bound.y; y++) {
+                if (floor[x][y]->type == Floor_Type::WATER) {
+                    sf::Vector2i r_size(64, 64);
+                    sf::Vector2i pos(0, 0);
+                    pos.x = autotileX(sf::Vector2i(x, y), Floor_Type::WATER);
+                    floor[x][y]->setTextureRect(sf::IntRect(pos, r_size));
+                }
+            }
+        }
+    }
 }
 
 void World::updateAutotiledDetails(sf::Vector2i start, sf::Vector2i end)
@@ -145,12 +180,18 @@ void World::updateAutotiledDetails(sf::Vector2i start, sf::Vector2i end)
     }
 }
 
-int World::autotileX(sf::Vector2i i, Detail_Type type)
+int World::autotileX(sf::Vector2i i, std::variant<Floor_Type, Detail_Type> type)
 {
-    bool n = adjacentDetailMatch(i + sf::Vector2i(0, -1), type);
-    bool w = adjacentDetailMatch(i + sf::Vector2i(-1, 0), type);
-    bool s = adjacentDetailMatch(i + sf::Vector2i(0, 1), type);
-    bool e = adjacentDetailMatch(i + sf::Vector2i(1, 0), type);
+    // define a lambda for visiting the variant
+    auto match = [&](auto&& x) -> bool { return adjacentTileMatch(i, x); };
+    i += sf::Vector2i(0, -1);
+    bool n = std::visit(match, type);
+    i += sf::Vector2i(-1, 1);
+    bool w = std::visit(match, type);
+    i += sf::Vector2i(1, 1);
+    bool s = std::visit(match, type);
+    i += sf::Vector2i(-1, 1);
+    bool e = std::visit(match, type);
 
     int sum = 0;
     if (n) {
@@ -168,9 +209,14 @@ int World::autotileX(sf::Vector2i i, Detail_Type type)
     return (sum * roundFloat(Tile::tileSize));
 }
 
-bool World::adjacentDetailMatch(sf::Vector2i i, Detail_Type type)
+bool World::adjacentTileMatch(sf::Vector2i i, Detail_Type type)
 {
-    return (floor[i.x][i.y] && floor[i.x][i.y]->details.size() > 0 && floor[i.x][i.y]->details.back().type == type);
+    return (floor[i.x][i.y] && floor[i.x][i.y]->details.size() > 0 && floor[i.x][i.y]->details.front().type == type);
+}
+
+bool World::adjacentTileMatch(sf::Vector2i i, Floor_Type type)
+{
+    return (floor[i.x][i.y] && floor[i.x][i.y]->type == type);
 }
 
 void World::makeWalls()
@@ -230,27 +276,28 @@ void World::erase()
     doors.clear();
 }
 
-std::vector<sf::FloatRect> World::getLocalWalls(sf::Vector2i p)
+std::vector<sf::FloatRect> World::getLocalImpassableTiles(sf::Vector2i p)
 {
-    std::vector<sf::FloatRect> cWalls;
+    std::vector<sf::FloatRect> tiles;
 
     const static int depth = 1;
 
     for (int x = p.x - depth; x <= p.x + depth; ++x) {
         for (int y = p.y - depth; y <= p.y + depth; ++y) {
-            Tile* wall = getWall(x, y);
-            if (wall != nullptr) {
-                cWalls.push_back(wall->getGlobalBounds());
+            Tile* t = getWall(x, y);
+            if (t != nullptr) {
+                tiles.push_back(t->getGlobalBounds());
+            }
+            else {
+                Floor* f = floor[x][y].get();
+                if (f != nullptr && f->type == Floor_Type::WATER) {
+                    tiles.push_back(f->getGlobalBounds());
+                }
             }
         }
     }
 
-    return cWalls;
-}
-
-std::vector<sf::FloatRect> World::getLocalWalls(sf::Vector2f p)
-{
-    return getLocalWalls(sf::Vector2i(p / Tile::tileSize));
+    return tiles;
 }
 
 void World::useItem(Item* item)
