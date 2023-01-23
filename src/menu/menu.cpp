@@ -6,12 +6,15 @@
 #include <resources/font_manager.hpp>
 
 #include <system/database.hpp>
+#include <system/version.h>
 
 //////////////////////////////////////////////////////////////
 
 std::vector<Nav> Menu::nav = std::vector<Nav>();
 
 sf::Font& Menu::font = Font_Manager::get(Font::MENU);
+
+sf::Text Menu::version_text = sf::Text();
 
 Menu::Menu()
 {
@@ -31,6 +34,23 @@ Menu::Menu()
     logos.push_back(Logo("https://github.com/surfactants/", sf::Vector2f(1100.f, 900.f), "SURFACTANT"));
 
     logos.push_back(Logo("https://www.sfml-dev.org", sf::Vector2f(1600.f, 900.f), "SFML"));
+
+    std::string status = AutoVersion::STATUS;
+    std::string major = std::to_string(AutoVersion::MAJOR);
+    std::string minor = std::to_string(AutoVersion::MINOR);
+    while (minor.length() < 4) {
+        minor = '0' + minor;
+    }
+    std::string build = std::to_string(AutoVersion::BUILD);
+    while (build.length() < 6) {
+        build = '0' + build;
+    }
+
+    std::string version = status + ' ' + major + '.' + minor + " build " + build;
+
+    version_text =  sf::Text(version, font, 36);
+    version_text.setPosition(sf::Vector2f(1500.f, 24.f));
+    version_text.setFillColor(sf::Color(200, 200, 200));
 }
 
 void Menu::clickLeft()
@@ -129,8 +149,10 @@ void Menu::draw(sf::RenderTarget& target, sf::RenderStates states) const
         target.draw(slider.second, states);
     }
     for (const auto& logo : logos) {
-        target.draw(logo);
+        target.draw(logo, states);
     }
+
+    target.draw(version_text, states);
 }
 
 Menu_Main::Menu_Main()

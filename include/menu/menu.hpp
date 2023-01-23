@@ -39,6 +39,8 @@ protected:
 
 private:
     static std::vector<Nav> nav;
+
+    static sf::Text version_text;
 };
 
 /////////////////////////////////////////////////////////////

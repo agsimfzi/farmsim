@@ -1,7 +1,5 @@
 #include <system/shell.hpp>
 
-#include <system/version.h>
-
 #include <util/fmouse.hpp>
 #include <util/primordial.hpp>
 
@@ -38,23 +36,6 @@ Shell::Shell()
     alignState();
 
     ui.init();
-
-    std::string status = AutoVersion::STATUS;
-    std::string major = std::to_string(AutoVersion::MAJOR);
-    std::string minor = std::to_string(AutoVersion::MINOR);
-    while (minor.length() < 4) {
-        minor = '0' + minor;
-    }
-    std::string build = std::to_string(AutoVersion::BUILD);
-    while (build.length() < 4) {
-        minor = '0' + minor;
-    }
-
-    std::string version = status + ' ' + major + '.' + minor + " build " + build;
-
-    version_text =  sf::Text(version, Font_Manager::get(Font::UI), 36);
-    version_text.setPosition(sf::Vector2f(1600.f, 24.f));
-    version_text.setFillColor(sf::Color(200, 200, 200));
 }
 
 void Shell::run()
