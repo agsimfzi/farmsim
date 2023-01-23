@@ -63,4 +63,6 @@ private:
 
     Sound_Interface sound;
     Music_Interface music;
+
+    sf::Text version_text;
 };

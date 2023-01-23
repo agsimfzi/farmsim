@@ -24,6 +24,13 @@ Wall::Wall(sf::Vector2i ncoord, const sf::Texture& texture)
 
 //////////////////////////////////////////////////////////////
 
+Detail::Detail(Detail_Type type, const sf::Texture& texture)
+    : sf::Sprite(texture)
+    , type{ type }
+{}
+
+//////////////////////////////////////////////////////////////
+
 Floor::Floor(sf::Vector2i ncoord, const sf::Texture& texture)
     : Tile { ncoord, texture }
 {
@@ -37,14 +44,6 @@ void Floor::setType(Floor_Type ntype)
         sf::Vector2i size(tileSize, tileSize);
         setTextureRect(sf::IntRect(pos, size));
     }
-}
-
-//////////////////////////////////////////////////////////////
-
-Detail::Detail(sf::Vector2i ncoord, const sf::Texture& texture, bool ntiled)
-    : Floor { ncoord, texture }
-    , autotiled { ntiled }
-{
 }
 
 //////////////////////////////////////////////////////////////

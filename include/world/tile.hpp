@@ -1,13 +1,8 @@
 #pragma once
 
-#include <SFML/Graphics.hpp>
+#include <deque>
 
-enum class Floor_Type {
-    DIRT = 0,
-    GRASS,
-    TILLED,
-    WATERED
-};
+#include <SFML/Graphics.hpp>
 
 class Tile : public sf::Sprite {
 public:
@@ -23,6 +18,25 @@ public:
     Wall(sf::Vector2i ncoord, const sf::Texture& texture);
 };
 
+enum class Detail_Type {
+    GRASS,
+    NULL_TYPE
+};
+
+class Detail : public sf::Sprite {
+public:
+    Detail(Detail_Type type, const sf::Texture& texture);
+
+    Detail_Type type;
+};
+
+enum class Floor_Type {
+    DIRT = 0,
+    TILLED,
+    WATERED,
+    WATER
+};
+
 class Floor : public Tile {
 public:
     Floor(sf::Vector2i ncoord, const sf::Texture& texture);
@@ -31,14 +45,9 @@ public:
 
     bool planted = false;
 
+    std::deque<Detail> details;
+
     void setType(Floor_Type ntype);
-};
-
-class Detail : public Floor {
-public:
-    Detail(sf::Vector2i ncoord, const sf::Texture& texture, bool ntiled);
-
-    bool autotiled { false };
 };
 
 class Door : public Wall {

@@ -77,9 +77,6 @@ private:
 
     Map_Tile<Door> doors;
 
-    sf::Vector2i worldMin;
-    sf::Vector2i worldMax;
-
     sf::Texture& textureFloors;
     sf::Texture& textureWalls;
 
@@ -101,6 +98,13 @@ private:
     const static sf::Vector2i renderDistance;
 
     sf::Clock tickClock;
+
+    sf::Vector2i worldMin { -128, -128 };
+    sf::Vector2i worldMax { 128, 128 };
+
+    void updateAutotiledDetails(sf::Vector2i start, sf::Vector2i end);
+    int autotileX(sf::Vector2i i, Detail_Type type);
+    bool adjacentDetailMatch(sf::Vector2i i, Detail_Type type);
 
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
 };

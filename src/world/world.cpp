@@ -13,7 +13,7 @@
 
 //////////////////////////////////////////////////////////////
 
-const sf::Vector2i World::renderDistance { 16, 10 };
+const sf::Vector2i World::renderDistance { 64, 64 };
 
 World::World(Item_Library& item_library)
     : item_library { item_library }
@@ -96,18 +96,81 @@ bool World::inRange(sf::Vector2i c1, sf::Vector2i c2)
 
 void World::makeFloor()
 {
-    for (int x = -16; x <= 16; x++) {
-        for (int y = -16; y <= 16; y++) {
+    for (int x = worldMin.x; x <= worldMax.x; x++) {
+        for (int y = worldMin.y; y <= worldMax.y; y++) {
             floor[x][y] = std::make_unique<Floor>(Floor(sf::Vector2i(x, y), textureFloors));
-            if (prng::boolean()) {
-                floor[x][y]->setType(Floor_Type::DIRT);
-            }
-            else {
-                floor[x][y]->setType(Floor_Type::GRASS);
+            floor[x][y]->setType(Floor_Type::DIRT);
+        }
+    }
+
+    // place water
+
+    // then place grass on dirt
+    for (int x = worldMin.x; x <= worldMax.x; x++) {
+        for (int y = worldMin.y; y <= worldMax.y; y++) {
+            if (floor[x][y] && floor[x][y]->type == Floor_Type::DIRT && prng::boolean()) {
+                floor[x][y]->details.push_back(Detail(Detail_Type::GRASS, Texture_Manager::get("GRASS")));
+                floor[x][y]->details.back().setPosition(floor[x][y]->getPosition());
             }
         }
     }
+
+    updateAutotiledDetails(worldMin, worldMax);
+
+    // add additional details here based on detail type (or tile type if there is no detail yet)
+
     std::cout << "\n\tfloor is made!";
+}
+
+void World::updateAutotiledDetails(sf::Vector2i start, sf::Vector2i end)
+{
+    for (int x = start.x; x <= end.x; x++) {
+        for (int y = start.y; y <= end.y; y++) {
+            Floor* f = floor[x][y].get();
+            if (f && f->details.size() > 0) {
+                Detail* d;
+                if (f->details.front().type == Detail_Type::GRASS) {
+                    d = &f->details.front();
+                }
+                else {
+                    std::cout << "\n\nCRITICAL ERROR: something is seriously wrong in World::updateAutotiledDetails!!!!!\n\n";
+                }
+                f->details[0];
+                sf::Vector2i pos(autotileX(sf::Vector2i(x, y), d->type), 0);
+                sf::Vector2i size(Tile::tileSize, Tile::tileSize);
+                d->setTextureRect(sf::IntRect(pos, size));
+                d->setOrigin(sf::Vector2f(size / 2));
+            }
+        }
+    }
+}
+
+int World::autotileX(sf::Vector2i i, Detail_Type type)
+{
+    bool n = adjacentDetailMatch(i + sf::Vector2i(0, -1), type);
+    bool w = adjacentDetailMatch(i + sf::Vector2i(-1, 0), type);
+    bool s = adjacentDetailMatch(i + sf::Vector2i(0, 1), type);
+    bool e = adjacentDetailMatch(i + sf::Vector2i(1, 0), type);
+
+    int sum = 0;
+    if (n) {
+        sum += 1;
+    }
+    if (w) {
+        sum += 2;
+    }
+    if (s) {
+        sum += 4;
+    }
+    if (e) {
+        sum += 8;
+    }
+    return (sum * roundFloat(Tile::tileSize));
+}
+
+bool World::adjacentDetailMatch(sf::Vector2i i, Detail_Type type)
+{
+    return (floor[i.x][i.y] && floor[i.x][i.y]->details.size() > 0 && floor[i.x][i.y]->details.back().type == type);
 }
 
 void World::makeWalls()
@@ -220,8 +283,17 @@ void World::useTool(Item* item)
 
 void World::hoe()
 {
-    if (!changeActiveTile(Floor_Type::DIRT, Floor_Type::TILLED)) {
-        changeActiveTile(Floor_Type::GRASS, Floor_Type::DIRT);
+    if (player_target.active) {
+        sf::Vector2i t = player_target.coordinates;
+        if (floor[t.x][t.y]->type == Floor_Type::DIRT) {
+            if (floor[t.x][t.y]->details.size() > 0 && floor[t.x][t.y]->details.front().type == Detail_Type::GRASS) {
+                floor[t.x][t.y]->details.pop_front();
+                updateAutotiledDetails(t - sf::Vector2i(1, 1), t + sf::Vector2i(1, 1));
+            }
+            else {
+                floor[t.x][t.y]->setType(Floor_Type::TILLED);
+            }
+        }
     }
 }
 
@@ -299,12 +371,12 @@ void World::draw(sf::RenderTarget& target, sf::RenderStates states) const
         for (int y = w.y - renderDistance.y; y <= w.y + renderDistance.y; ++y) {
             if (floor.count(x) && floor.at(x).count(y) && floor.at(x).at(y) != nullptr) {
                 target.draw(*floor.at(x).at(y), states);
+                for (const auto& detail : floor.at(x).at(y)->details) {
+                    target.draw(detail, states);
+                }
             }
             else if (walls.count(x) && walls.at(x).count(y) && walls.at(x).at(y) != nullptr) {
                 target.draw(*walls.at(x).at(y), states);
-            }
-            if (details.count(x) && details.at(x).count(y) && details.at(x).at(y) != nullptr) {
-                target.draw(*details.at(x).at(y), states);
             }
         }
     }
