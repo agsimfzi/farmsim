@@ -62,8 +62,4 @@ private:
     sf::View& view;
 
     Game_State state { Game_State::PEACE };
-
-    const static float interactThreshold;
-    // distance at which a player can interact with something
-    // probably should deprecate with SDV-type aim
 };

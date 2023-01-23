@@ -1,5 +1,7 @@
 #include <world/tile.hpp>
 
+#include <util/primordial.hpp>
+
 const float Tile::tileSize = 64.f;
 
 //////////////////////////////////////////////////////////////
@@ -40,7 +42,7 @@ void Floor::setType(Floor_Type ntype)
 {
     if (type != ntype) {
         type = ntype;
-        sf::Vector2i pos(0, (static_cast<int>(type)) * 64);
+        sf::Vector2i pos(0, (static_cast<int>(type)) * roundFloat(tileSize));
         sf::Vector2i size(tileSize, tileSize);
         setTextureRect(sf::IntRect(pos, size));
     }

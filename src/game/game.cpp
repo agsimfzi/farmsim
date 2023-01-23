@@ -8,8 +8,6 @@
 
 //////////////////////////////////////////////////////////////
 
-const float Game::interactThreshold = 64.f;
-
 Game::Game(sf::RenderWindow& nwindow, sf::View& nview)
     : window { nwindow }
     , view { nview }

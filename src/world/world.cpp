@@ -150,7 +150,8 @@ void World::makeWater()
                 if (pond[x][y] && floor[x][y]) {
                     floor[x][y]->setType(Floor_Type::WATER);
                     floor[x][y]->setTexture(Texture_Manager::get("WATER"));
-                    sf::Vector2i r_size(64, 64);
+                    int r = roundFloat(Tile::tileSize);
+                    sf::Vector2i r_size(r, r);
                     sf::Vector2i pos(0, 0);
                     pos.x = autotileX(pond[x][y - 1], pond[x - 1][y], pond[x][y + 1], pond[x + 1][y]);
                     floor[x][y]->setTextureRect(sf::IntRect(pos, r_size));
@@ -391,8 +392,9 @@ void World::plantCrop(Item* item)
             sf::Sprite sprite;
             std::string texture = "CROPS" + std::to_string((item->getUID() % 1000) / 100);
             sprite.setTexture(Texture_Manager::get(texture));
-            sf::Vector2i pos(0, (item->getUID() % 100) * 64);
-            sf::Vector2i size(64, 64);
+            int r = roundFloat(Tile::tileSize);
+            sf::Vector2i pos(0, (item->getUID() % 100) * r);
+            sf::Vector2i size(r, r);
             sprite.setTextureRect(sf::IntRect(pos, size));
             sprite.setOrigin(sf::Vector2f(size) / 2.f);
             sprite.setPosition(sf::Vector2f(t) * Tile::tileSize);
