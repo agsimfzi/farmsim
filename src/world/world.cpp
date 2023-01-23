@@ -182,16 +182,33 @@ void World::updateAutotiledDetails(sf::Vector2i start, sf::Vector2i end)
 
 int World::autotileX(sf::Vector2i i, std::variant<Floor_Type, Detail_Type> type)
 {
+    /*
     // define a lambda for visiting the variant
-    auto match = [&](auto&& x) -> bool { return adjacentTileMatch(i, x); };
+    auto match = [&](auto&& x) -> bool { std::cout << static_cast<int>(x) << '\n'; return adjacentTileMatch(i, x); };
     i += sf::Vector2i(0, -1);
     bool n = std::visit(match, type);
-    i += sf::Vector2i(-1, 1);
+    i += sf::Vector2i(-1, -1);
     bool w = std::visit(match, type);
     i += sf::Vector2i(1, 1);
     bool s = std::visit(match, type);
-    i += sf::Vector2i(-1, 1);
+    i += sf::Vector2i(1, -1);
     bool e = std::visit(match, type);
+    */
+
+    bool n, w, s, e;
+
+    if (std::holds_alternative<Floor_Type>(type)) {
+        n = adjacentFloorMatch(i + sf::Vector2i(0, -1), std::get<Floor_Type>(type));
+        w = adjacentFloorMatch(i + sf::Vector2i(-1, 0), std::get<Floor_Type>(type));
+        s = adjacentFloorMatch(i + sf::Vector2i(0, 1), std::get<Floor_Type>(type));
+        e = adjacentFloorMatch(i + sf::Vector2i(1, 0), std::get<Floor_Type>(type));
+    }
+    else if (std::holds_alternative<Detail_Type>(type)) {
+        n = adjacentDetailMatch(i + sf::Vector2i(0, -1), std::get<Detail_Type>(type));
+        w = adjacentDetailMatch(i + sf::Vector2i(-1, 0), std::get<Detail_Type>(type));
+        s = adjacentDetailMatch(i + sf::Vector2i(0, 1), std::get<Detail_Type>(type));
+        e = adjacentDetailMatch(i + sf::Vector2i(1, 0), std::get<Detail_Type>(type));
+    }
 
     int sum = 0;
     if (n) {
@@ -206,15 +223,16 @@ int World::autotileX(sf::Vector2i i, std::variant<Floor_Type, Detail_Type> type)
     if (e) {
         sum += 8;
     }
+
     return (sum * roundFloat(Tile::tileSize));
 }
 
-bool World::adjacentTileMatch(sf::Vector2i i, Detail_Type type)
+bool World::adjacentDetailMatch(sf::Vector2i i, Detail_Type type)
 {
     return (floor[i.x][i.y] && floor[i.x][i.y]->details.size() > 0 && floor[i.x][i.y]->details.front().type == type);
 }
 
-bool World::adjacentTileMatch(sf::Vector2i i, Floor_Type type)
+bool World::adjacentFloorMatch(sf::Vector2i i, Floor_Type type)
 {
     return (floor[i.x][i.y] && floor[i.x][i.y]->type == type);
 }
