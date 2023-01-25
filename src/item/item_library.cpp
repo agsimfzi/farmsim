@@ -47,8 +47,7 @@ Item_Library::Item_Library()
         stringShelf[item.name] = iptr;
         uidShelf[item.uid] = iptr;
 
-        std::cout << "item " << item.uid << " added, with texture " << texture << '\n';
-        std::cout << "\ttextureRect of " << pos << " : " << size << '\n';
+        std::cout << "item " << item.name << " (" << item.uid << ") added, subtype " << item.subtype << '\n';
     }
 }
 

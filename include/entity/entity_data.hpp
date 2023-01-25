@@ -14,4 +14,7 @@ struct Entity_Data {
     sf::Vector2i size;
     std::map<Entity_State, unsigned int> aCount;
     std::map<Entity_State, int> aThreshold;
+    unsigned int bounds_y_offset;
+    unsigned int bounds_x_size;
+    unsigned int bounds_y_size;
 };

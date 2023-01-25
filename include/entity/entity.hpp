@@ -75,6 +75,12 @@ protected:
 
     void directCheck();
 
+    sf::FloatRect bounds;
+
+    void placeBounds();
+
+    unsigned int bounds_y_offset;
+
     bool up = false,
          down = false,
          left = false,

@@ -21,6 +21,11 @@ Entity::Entity(Entity_Data& data, sf::Texture& texture)
     name = data.name;
     sf::Vector2i size = data.size;
     sprite = Animated_Sprite(texture, size, data.aCount, data.aThreshold);
+
+    bounds_y_offset = data.bounds_y_offset;
+
+    bounds.width = data.bounds_x_size;
+    bounds.height = data.bounds_y_size;
 }
 
 sf::Vector2f Entity::getPosition()
@@ -52,9 +57,11 @@ sf::Vector2f Entity::move(std::vector<sf::FloatRect> walls, float deltaTime)
     if (state == Entity_State::MOVING) {
         bool good = true;
         sprite.move(v.x, 0.f);
+        placeBounds();
         for (const auto& wall : walls) {
-            if (wall.intersects(sprite.getGlobalBounds())) {
+            if (wall.intersects(bounds)) {
                 sprite.move(-v.x, 0.f);
+            placeBounds();
                 good = false;
             }
         }
@@ -67,9 +74,11 @@ sf::Vector2f Entity::move(std::vector<sf::FloatRect> walls, float deltaTime)
         }
 
         sprite.move(0.f, v.y);
+        placeBounds();
         for (const auto& wall : walls) {
-            if (wall.intersects(sprite.getGlobalBounds())) {
+            if (wall.intersects(bounds)) {
                 sprite.move(0.f, -v.y);
+            placeBounds();
                 good = false;
             }
         }
@@ -252,6 +261,17 @@ const std::string& Entity::getName() const
 const std::string& Entity::getDescription() const
 {
     return description;
+}
+
+void Entity::placeBounds()
+{
+    sf::Vector2f pos = getPosition();
+    pos -= sprite.getOrigin();
+    pos.x += (sprite.getGlobalBounds().width - bounds.width) / 2;
+    pos.y += (sprite.getGlobalBounds().height - bounds.height - bounds_y_offset);
+
+    bounds.left = pos.x;
+    bounds.top = pos.y;
 }
 
 void Entity::draw(sf::RenderTarget& target, sf::RenderStates states) const

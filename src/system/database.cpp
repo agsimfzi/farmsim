@@ -161,7 +161,6 @@ Entity_Data Database::readEntity(sqlite3_stmt* statement)
     //name text
     //description text
     //speed double
-
     d.name = reinterpret_cast<const char*>(sqlite3_column_text(statement, column++));
     d.description = reinterpret_cast<const char*>(sqlite3_column_text(statement, column++));
     d.speed = sqlite3_column_double(statement, column++);
@@ -169,7 +168,6 @@ Entity_Data Database::readEntity(sqlite3_stmt* statement)
     //size data
     //size_x int
     //size_y int
-
     int x = sqlite3_column_int(statement, column++);
     int y = sqlite3_column_int(statement, column++);
     d.size = sf::Vector2i(x, y);
@@ -177,16 +175,21 @@ Entity_Data Database::readEntity(sqlite3_stmt* statement)
     //animation counts
     //idle_count int
     //moving_count int
-
     d.aCount[Entity_State::IDLE] = static_cast<unsigned int>(sqlite3_column_int(statement, column++));
     d.aCount[Entity_State::MOVING] = static_cast<unsigned int>(sqlite3_column_int(statement, column++));
 
     //animation thresholds
     //idle_threshold int
     //moving_threshold int
-
     d.aThreshold[Entity_State::IDLE] = sqlite3_column_int(statement, column++);
     d.aThreshold[Entity_State::MOVING] = sqlite3_column_int(statement, column++);
+
+    //bounds y offset
+    //bounds x size
+    //bounds y size
+    d.bounds_y_offset = static_cast<unsigned int>(sqlite3_column_int(statement, column++));
+    d.bounds_x_size = static_cast<unsigned int>(sqlite3_column_int(statement, column++));
+    d.bounds_y_size = static_cast<unsigned int>(sqlite3_column_int(statement, column++));
 
     return d;
 }
