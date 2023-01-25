@@ -37,6 +37,7 @@ public:
     void erase();
     void makeFloor();
     void makeWater();
+    void makeGrass();
     void makeWalls();
     void makeDetails();
     void tileAutomata();

@@ -105,20 +105,9 @@ void World::makeFloor()
         }
     }
 
-    // place water
     makeWater();
 
-    // then place grass on dirt
-    for (int x = worldMin.x; x <= worldMax.x; x++) {
-        for (int y = worldMin.y; y <= worldMax.y; y++) {
-            if (floor[x][y] && floor[x][y]->type == Floor_Type::DIRT && prng::boolean()) {
-                floor[x][y]->details.push_back(Detail(Detail_Type::GRASS, Texture_Manager::get("GRASS")));
-                floor[x][y]->details.back().setPosition(floor[x][y]->getPosition());
-            }
-        }
-    }
-
-    updateAutotiledDetails(worldMin, worldMax);
+    makeGrass();
 
     // add additional details here based on detail type (or tile type if there is no detail yet)
 
@@ -136,10 +125,11 @@ void World::makeWater()
         pos.y = prng::number(worldMin.y + size.y, worldMax.y - (size.y * 2));
 
         size_t iterations = 9;
+        float chance = .85f;
 
         sf::Vector2i padding(2, 2);
 
-        Automaton pond_maker(iterations, .85f, pos, pos + size, padding);
+        Automaton pond_maker(iterations, chance, pos, pos + size, padding);
 
         std::cout << "making pond at " << pos << ", size " << size << '\n';
 
@@ -159,6 +149,25 @@ void World::makeWater()
             }
         }
     }
+}
+
+void World::makeGrass()
+{
+    size_t iterations = 5;
+    float chance = .5f;
+    sf::Vector2i padding(0, 0);
+    Automaton grass_maker(iterations, chance, worldMin, worldMax, padding);
+    Automaton_Cells grass = grass_maker.iterate();
+    for (int x = worldMin.x; x <= worldMax.x; x++) {
+        for (int y = worldMin.y; y <= worldMax.y; y++) {
+            if (floor[x][y] && floor[x][y]->type == Floor_Type::DIRT && grass[x][y]) {
+                floor[x][y]->details.push_back(Detail(Detail_Type::GRASS, Texture_Manager::get("GRASS")));
+                floor[x][y]->details.back().setPosition(floor[x][y]->getPosition());
+            }
+        }
+    }
+
+    updateAutotiledDetails(worldMin, worldMax);
 }
 
 void World::updateAutotiledDetails(sf::Vector2i start, sf::Vector2i end)
