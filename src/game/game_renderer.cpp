@@ -1,6 +1,6 @@
 #include <game/game_renderer.hpp>
 
-const sf::Vector2i Game_Renderer::renderDistance { 24, 16 };
+const sf::Vector2i Game_Renderer::renderDistance { 16, 10 };
 
 void Game_Renderer::clear()
 {
