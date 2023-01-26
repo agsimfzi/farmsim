@@ -15,8 +15,6 @@
 
 //////////////////////////////////////////////////////////////
 
-const sf::Vector2i World::renderDistance { 32, 24 };
-
 World::World(Item_Library& item_library)
     : item_library { item_library }
     , textureFloors { Texture_Manager::get("FLOOR") }
@@ -28,12 +26,8 @@ World::World(Item_Library& item_library)
 
 void World::reset()
 {
-    floorMap.clear();
     walls.clear();
     details.clear();
-    for (auto& c : crops) {
-        c.second.clear();
-    }
     crops.clear();
 }
 
@@ -58,10 +52,9 @@ void World::interact(Player_Inventory& inventory)
             if (!crops[t.x].contains(t.y)) {
                 std::cout << "FAILED TO FIND CROP AT TILE " << t << '\n';
             }
-            else if (crops[t.x][t.y].fullyGrown()) {
-                inventory.addItem(item_library.item(crops[t.x][t.y].getUID()));
-                std::map<int, Crop>::iterator it = crops[t.x].find(t.y);
-                crops[t.x].erase(it);
+            else if (crops[t.x][t.y] && crops[t.x][t.y]->fullyGrown()) {
+                inventory.addItem(item_library.item(crops[t.x][t.y]->getUID()));
+                crops[t.x][t.y] = nullptr;
                 f->setType(Floor_Type::TILLED);
                 f->planted = false;
             }
@@ -261,26 +254,6 @@ void World::makeWalls()
     std::cout << "\n\twalls made!";
 }
 
-void World::makeDetails()
-{
-}
-
-bool World::hasOrthogonalFloor(sf::Vector2i v)
-{
-    return (floorMap[v.x - 1][v.y]
-        || floorMap[v.x + 1][v.y]
-        || floorMap[v.x][v.y - 1]
-        || floorMap[v.x][v.y + 1]);
-}
-
-bool World::hasDiagonalFloor(sf::Vector2i v)
-{
-    return (floorMap[v.x - 1][v.y - 1]
-        || floorMap[v.x + 1][v.y - 1]
-        || floorMap[v.x - 1][v.y + 1]
-        || floorMap[v.x + 1][v.y + 1]);
-}
-
 Map_Tile<Floor>& World::getFloor()
 {
     return floor;
@@ -289,6 +262,11 @@ Map_Tile<Floor>& World::getFloor()
 Map_Tile<Wall>& World::getWalls()
 {
     return walls;
+}
+
+Map_Tile<Crop>& World::getCrops()
+{
+    return crops;
 }
 
 Tile* World::getWall(int x, int y)
@@ -411,8 +389,8 @@ void World::plantCrop(Item* item)
             item->take(1);
             f->planted = true;
 
-            crops[t.x][t.y] = Crop(d);
-            crops[t.x][t.y].setSprite(sprite);
+            crops[t.x][t.y] = std::make_unique<Crop>(Crop(d));
+            crops[t.x][t.y]->setSprite(sprite);
         }
     }
 }
@@ -436,8 +414,10 @@ void World::tick()
 {
     for (auto& x : crops) {
         for (auto& y : x.second) {
-            sf::Vector2i c = y.second.getCoordinates();
-            y.second.tick(floor[c.x][c.y]->type == Floor_Type::WATERED);
+            if (y.second) {
+                sf::Vector2i c = y.second->getCoordinates();
+                y.second->tick(floor[c.x][c.y]->type == Floor_Type::WATERED);
+            }
         }
     }
 }
@@ -445,31 +425,4 @@ void World::tick()
 void World::setInteracting(bool interacting)
 {
     this->interacting = interacting;
-}
-
-void World::draw(sf::RenderTarget& target, sf::RenderStates states) const
-{
-    sf::Vector2i w(target.getView().getCenter() / Tile::tileSize);
-
-    for (int x = w.x - renderDistance.x; x <= w.x + renderDistance.x; ++x) {
-        for (int y = w.y - renderDistance.y; y <= w.y + renderDistance.y; ++y) {
-            if (floor.count(x) && floor.at(x).count(y) && floor.at(x).at(y) != nullptr) {
-                target.draw(*floor.at(x).at(y), states);
-                for (const auto& detail : floor.at(x).at(y)->details) {
-                    target.draw(detail, states);
-                }
-            }
-            else if (walls.count(x) && walls.at(x).count(y) && walls.at(x).at(y) != nullptr) {
-                target.draw(*walls.at(x).at(y), states);
-            }
-        }
-    }
-
-    for (const auto& x : crops) {
-        for (const auto& y : x.second) {
-            target.draw(y.second, states);
-        }
-    }
-
-    target.draw(player_target, states);
 }

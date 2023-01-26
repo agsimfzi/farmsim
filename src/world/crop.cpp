@@ -14,6 +14,11 @@ void Crop::setSprite(sf::Sprite sprite)
     this->sprite = sprite;
 }
 
+sf::Sprite& Crop::getSprite()
+{
+    return sprite;
+}
+
 void Crop::tick(bool watered)
 {
     // introduce random variance

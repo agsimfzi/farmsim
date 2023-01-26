@@ -91,7 +91,7 @@ void Shell::draw()
             break;
         case Main_State::GAME:
             window.setView(viewGame);
-            window.draw(game);
+            window.draw(game.getRenderer());
             window.setView(viewUI);
             window.draw(fpsText);
             window.draw(ui);
@@ -127,9 +127,6 @@ void Shell::loadNewLevel()
 
     loads.push_back(std::bind(&World::makeWalls, &game.getWorld()));
     messages.push_back("reinforcing structures...");
-
-    loads.push_back(std::bind(&World::makeDetails, &game.getWorld()));
-    messages.push_back("reticulating splines...");
 
     loadingScreen.prepare(loads, messages);
 }

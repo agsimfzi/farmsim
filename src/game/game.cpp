@@ -32,6 +32,21 @@ void Game::update(float deltaTime)
 
     world.checkMouseTarget(fMouse(window, view), player.getCoordinates(Tile::tileSize));
     world.update(inventory);
+
+    prepRenderer();
+}
+
+void Game::prepRenderer()
+{
+    Game_Renderer& r = renderer;
+
+    r.clear();
+    r.updatePlayerCoordinates(player.getCoordinates(Tile::tileSize));
+    r.loadFloor(world.getFloor());
+    r.loadCrops(world.getCrops());
+    r.loadWalls(world.getWalls());
+    r.loadPlayer(player);
+    // r.loadEntities();
 }
 
 Player& Game::getPlayer()
@@ -112,8 +127,7 @@ Entity* Game::mousedEntity(sf::Vector2f mpos)
     return nullptr;
 }
 
-void Game::draw(sf::RenderTarget& target, sf::RenderStates states) const
+const Game_Renderer& Game::getRenderer()
 {
-    target.draw(world, states);
-    target.draw(player, states);
+    return renderer;
 }

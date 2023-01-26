@@ -24,7 +24,7 @@ using Map_Tile = std::map<int, std::map<int, std::unique_ptr<T>>>;
 /////////////////////////////////////////////////////////////
 /// \brief
 ///
-class World : public sf::Drawable {
+class World {
 public:
     World(Item_Library& item_library);
 
@@ -32,6 +32,7 @@ public:
 
     Map_Tile<Floor>& getFloor();
     Map_Tile<Wall>& getWalls();
+    Map_Tile<Crop>& getCrops();
     Tile* getWall(int x, int y);
 
     void erase();
@@ -39,11 +40,6 @@ public:
     void makeWater();
     void makeGrass();
     void makeWalls();
-    void makeDetails();
-    void tileAutomata();
-    void tileSnake();
-    void makeHazards();
-    void makeCover();
 
     std::vector<sf::FloatRect> getLocalImpassableTiles(sf::Vector2i p);
 
@@ -87,19 +83,12 @@ private:
     sf::Texture& textureDetails;
     sf::Texture& textureTiledDetail;
 
-    bool hasOrthogonalFloor(sf::Vector2i v);
-    bool hasDiagonalFloor(sf::Vector2i v);
-
-    std::map<int, std::map<int, bool>> floorMap;
-
     bool interacting = false;
 
-    std::map<int, std::map<int, Crop>> crops;
+    Map_Tile<Crop> crops;
 
     Player_Target player_target;
     bool inRange(sf::Vector2i c1, sf::Vector2i c2);
-
-    const static sf::Vector2i renderDistance;
 
     sf::Clock tickClock;
 
@@ -111,6 +100,4 @@ private:
     int autotileX(bool n, bool w, bool s, bool e);
     bool adjacentDetailMatch(sf::Vector2i i, Detail_Type type);
     bool adjacentFloorMatch(sf::Vector2i i, Floor_Type type);
-
-    virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
 };

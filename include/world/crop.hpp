@@ -10,6 +10,7 @@ public:
     Crop(Crop_Data d);
 
     void setSprite(sf::Sprite sprite);
+    sf::Sprite& getSprite();
 
     void tick(bool watered);
 
