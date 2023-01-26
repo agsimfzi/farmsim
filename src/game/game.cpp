@@ -8,9 +8,8 @@
 
 //////////////////////////////////////////////////////////////
 
-Game::Game(sf::RenderWindow& nwindow, sf::View& nview)
-    : window { nwindow }
-    , view { nview }
+Game::Game(sf::View& nview)
+    : view { nview }
 {
     player = Player(Database::getPlayerData(), Texture_Manager::get("PLAYER"));
     player.setPosition(sf::Vector2f(0.f, 0.f));
@@ -29,8 +28,6 @@ void Game::update(float deltaTime)
     view.move(player.move(world.getLocalImpassableTiles(player.getCoordinates(Tile::tileSize)), deltaTime));
 
     inventory.update();
-
-    world.checkMouseTarget(fMouse(window, view), player.getCoordinates(Tile::tileSize));
     world.update(inventory);
 
     prepRenderer();
@@ -98,16 +95,6 @@ void Game::stopInput()
     player.stop();
 }
 
-void Game::scroll(float delta)
-{
-    if (delta < 0.f) {
-        view.zoom(1.5f);
-    }
-    else if (delta > 0.f) {
-        view.zoom(0.5f);
-    }
-}
-
 Game_State Game::getState()
 {
     return state;
@@ -130,4 +117,9 @@ Entity* Game::mousedEntity(sf::Vector2f mpos)
 const Game_Renderer& Game::getRenderer()
 {
     return renderer;
+}
+
+sf::View& Game::getView()
+{
+    return view;
 }

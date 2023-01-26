@@ -1,13 +1,15 @@
 #include <ui/ui.hpp>
 
 #include <resources/texture_manager.hpp>
-
 #include <resources/font_manager.hpp>
+
+#include <util/fmouse.hpp>
 
 //////////////////////////////////////////////////////////////
 
-UI::UI(Game& game)
-    : game { game }
+UI::UI(sf::RenderWindow& window, Game& game)
+    : window { window }
+    , game { game }
     , font { Font_Manager::get(Font::UI) }
     , entityInfo { Font_Manager::get(Font::UI) }
     , inventory_interface { Inventory_Interface(game.getInventory()) }
@@ -38,6 +40,17 @@ void UI::update()
                   + std::to_string(game.getPlayer().getCoordinates(Tile::tileSize).y);
 
     player_pos.setString(p);
+
+    sf::Vector2i* coords = game.getWorld().checkMouseTarget(fMouse(window, game.getView()), game.getPlayer().getCoordinates(Tile::tileSize));
+    if (coords) {
+        sf::Vector2i c = window.mapCoordsToPixel(sf::Vector2f(*coords) * Tile::tileSize, game.getView());
+        player_target.set(c);
+    }
+    else {
+        player_target.active = false;
+    }
+    //
+
 }
 
 void UI::setMouseover(Entity* entity)
@@ -159,6 +172,9 @@ void UI::draw(sf::RenderTarget& target, sf::RenderStates states) const
 
     if (overlay_active) {
         target.draw(overlay, states);
+    }
+    else {
+        target.draw(player_target, states);
     }
 
     target.draw(inventory_interface, states);

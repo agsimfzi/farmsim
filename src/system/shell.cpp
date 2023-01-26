@@ -14,7 +14,6 @@ Shell::Shell()
 
     viewGame = sf::View(sf::Vector2f(0.f, 0.f), sf::Vector2f(window.getSize()));
     viewGame.setCenter(sf::Vector2f(0.f, 0.f));
-    viewGame.zoom(1.5f);
 
     viewUI.setSize(sf::Vector2f(window.getSize()));
     viewUI.setCenter(sf::Vector2f(window.getSize()) / 2.f);

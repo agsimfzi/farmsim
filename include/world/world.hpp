@@ -13,7 +13,6 @@
 #include <item/player_inventory.hpp>
 
 #include "crop.hpp"
-#include "player_target.hpp"
 #include "tile.hpp"
 
 template <class T>
@@ -47,7 +46,7 @@ public:
 
     void update(Player_Inventory& inventory);
 
-    void checkMouseTarget(sf::Vector2f mpos, sf::Vector2i playerCoords);
+    sf::Vector2i* checkMouseTarget(sf::Vector2f mpos, sf::Vector2i playerCoords);
 
     void useItem(Item* item);
 
@@ -87,13 +86,14 @@ private:
 
     Map_Tile<Crop> crops;
 
-    Player_Target player_target;
     bool inRange(sf::Vector2i c1, sf::Vector2i c2);
 
     sf::Clock tickClock;
 
     sf::Vector2i worldMin { -128, -128 };
     sf::Vector2i worldMax { 128, 128 };
+
+    std::unique_ptr<sf::Vector2i> activeTile;
 
     void updateAutotiledDetails(sf::Vector2i start, sf::Vector2i end);
     int autotileX(sf::Vector2i i, std::variant<Floor_Type, Detail_Type> type);

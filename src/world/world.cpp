@@ -45,8 +45,8 @@ void World::update(Player_Inventory& inventory)
 
 void World::interact(Player_Inventory& inventory)
 {
-    if (player_target.active) {
-        sf::Vector2i t = player_target.coordinates;
+    if (activeTile) {
+        sf::Vector2i t = *activeTile;
         Floor* f = floor[t.x][t.y].get();
         if (f->planted) {
             if (!crops[t.x].contains(t.y)) {
@@ -62,7 +62,7 @@ void World::interact(Player_Inventory& inventory)
     }
 }
 
-void World::checkMouseTarget(sf::Vector2f mpos, sf::Vector2i playerCoords)
+sf::Vector2i* World::checkMouseTarget(sf::Vector2f mpos, sf::Vector2i playerCoords)
 {
     // future: pass player coordinates + tool distance
     mpos += sf::Vector2f(sign(mpos.x) * (Tile::tileSize / 2.f), sign(mpos.y) * (Tile::tileSize / 2.f));
@@ -73,12 +73,13 @@ void World::checkMouseTarget(sf::Vector2f mpos, sf::Vector2i playerCoords)
     // check for tile at coordinates
     if (floor.contains(coords.x) && floor[coords.x].contains(coords.y)
         && inRange(coords, playerCoords)) {
-        player_target.setActive(true);
-        player_target.place(coords);
+        activeTile = std::make_unique<sf::Vector2i>(coords);
     }
-    else {
-        player_target.setActive(false);
+    else if (activeTile) {
+        activeTile = nullptr;
     }
+
+    return activeTile.get();
 }
 
 bool World::inRange(sf::Vector2i c1, sf::Vector2i c2)
@@ -344,8 +345,8 @@ void World::useTool(Item* item)
 
 void World::hoe()
 {
-    if (player_target.active) {
-        sf::Vector2i t = player_target.coordinates;
+    if (activeTile) {
+        sf::Vector2i t = *activeTile;
         if (floor[t.x][t.y]->type == Floor_Type::DIRT) {
             if (floor[t.x][t.y]->details.size() > 0 && floor[t.x][t.y]->details.front().type == Detail_Type::GRASS) {
                 floor[t.x][t.y]->details.pop_front();
@@ -365,8 +366,8 @@ void World::water()
 
 void World::plantCrop(Item* item)
 {
-    if (player_target.active) {
-        sf::Vector2i t = player_target.coordinates;
+    if (activeTile) {
+        sf::Vector2i t = *activeTile;
         Floor* f = floor[t.x][t.y].get();
         if ((f->type == Floor_Type::TILLED
                 || f->type == Floor_Type::WATERED)
@@ -399,8 +400,8 @@ bool World::changeActiveTile(Floor_Type prereq, Floor_Type ntype)
 {
     bool change = false;
 
-    if (player_target.active) {
-        sf::Vector2i t = player_target.coordinates;
+    if (activeTile) {
+        sf::Vector2i t = *activeTile;
         change = (floor[t.x][t.y]->type == prereq);
         if (change) {
             floor[t.x][t.y]->setType(ntype);

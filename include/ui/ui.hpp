@@ -11,7 +11,7 @@
 ///
 class UI : public sf::Drawable {
 public:
-    UI(Game& game);
+    UI(sf::RenderWindow& window, Game& game);
 
     void scale(sf::RenderWindow& window);
 
@@ -44,6 +44,7 @@ public:
     bool releaseRight();
 
 private:
+    sf::RenderWindow& window;
     Game& game;
     sf::Font& font;
 
@@ -54,6 +55,8 @@ private:
     sf::RectangleShape overlay;
 
     Inventory_Interface inventory_interface;
+
+    Player_Target player_target;
 
     bool overlay_active = false;
 

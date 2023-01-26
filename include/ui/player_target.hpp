@@ -1,17 +1,14 @@
 #pragma once
 
-#include "tile.hpp"
+#include <SFML/Graphics.hpp>
 
 class Player_Target : public sf::Drawable {
 public:
     Player_Target();
 
-    bool active = true; //debug, set to false later
+    bool active = false; //debug, set to false later
 
-    void setActive(bool active);
-    void place(sf::Vector2i coords);
-
-    sf::Vector2i coordinates { 0, 0 };
+    void set(const sf::Vector2i& coords);
 
 private:
     sf::RectangleShape frame;

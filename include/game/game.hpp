@@ -23,7 +23,7 @@
 
 class Game : public State_Hook {
 public:
-    Game(sf::RenderWindow& nwindow, sf::View& nview);
+    Game(sf::View& nview);
     void update(float deltaTime);
     void enter();
     Player& getPlayer();
@@ -39,8 +39,6 @@ public:
 
     void stopInput();
 
-    void scroll(float delta);
-
     Game_State getState();
 
     Entity* mousedEntity(sf::Vector2f mpos);
@@ -48,6 +46,8 @@ public:
     Player_Inventory& getInventory();
 
     const Game_Renderer& getRenderer();
+
+    sf::View& getView();
 
 private:
     Item_Library item_library;
@@ -57,7 +57,6 @@ private:
     Player player;
     Player_Inventory inventory;
 
-    sf::RenderWindow& window;
     sf::View& view;
 
     Game_State state { Game_State::PEACE };

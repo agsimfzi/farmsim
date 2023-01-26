@@ -28,10 +28,10 @@ public:
 private:
     sf::RenderWindow window;
 
-    Game game { window, viewGame };
+    Game game { viewGame };
     sf::View viewGame;
 
-    UI ui { game };
+    UI ui { window, game };
     sf::View viewUI;
 
     Menu* menu = nullptr;
