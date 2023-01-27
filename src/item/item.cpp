@@ -85,6 +85,29 @@ void Item::setCount(size_t n_count)
     m_count = n_count;
 }
 
+bool Item::useLimit()
+{
+    return (use_factor > 0);
+}
+
+void Item::resetUses()
+{
+    use_percent = 100;
+}
+
+int Item::usePercent()
+{
+    return use_percent;
+}
+
+void Item::reduceUses()
+{
+    use_percent -= use_factor;
+    if (use_percent < 0) {
+        use_percent = 0;
+    }
+}
+
 void Item::draw(sf::RenderTarget& target, sf::RenderStates states) const
 {
     target.draw(sprite, states);

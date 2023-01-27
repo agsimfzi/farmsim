@@ -59,6 +59,13 @@ void World::interact(Player_Inventory& inventory)
                 f->planted = false;
             }
         }
+        else if (f->type == Floor_Type::WATER) {
+            Item* i = inventory.equippedItem();
+            if (i && i->getUID() == 1) {
+                i->resetUses();
+                inventory.changed = true;
+            }
+        }
     }
 }
 
@@ -332,14 +339,20 @@ void World::useItem(Item* item)
 void World::useTool(Item* item)
 {
     switch (item->getUID()) {
-        case 0:
+        case 0: // hoe
             hoe();
             break;
-        case 1:
-            water();
+        case 1: // watering can
+            if (item->usePercent() > 0) {
+                water();
+            }
             break;
         default:
             break;
+    }
+
+    if (item->useLimit()) {
+        item->reduceUses();
     }
 }
 

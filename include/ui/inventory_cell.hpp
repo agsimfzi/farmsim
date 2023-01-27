@@ -16,6 +16,7 @@ public:
     const static sf::Color colorActive;
     const static sf::Color colorInactive;
     const static sf::Color colorOutline;
+    const static sf::Color colorUseBar;
 
     void activate();
     void deactivate();
@@ -37,6 +38,13 @@ private:
     sf::Text numberText;
 
     bool active = false;
+
+    sf::RectangleShape use_bar;
+    const static sf::Vector2f use_bar_size;
+
+    bool usable = false;
+
+    void calculateUseBarSize(int percent);
 
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
 };

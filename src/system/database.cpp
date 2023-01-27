@@ -251,6 +251,7 @@ std::vector<Item_Data> Database::getItemPrototypes()
         // description
         // value
         // max_stack
+        // use_factor
 
         Item_Data d;
 
@@ -262,6 +263,7 @@ std::vector<Item_Data> Database::getItemPrototypes()
         d.description = reinterpret_cast<const char*>(sqlite3_column_text(statement, column++));
         d.value = sqlite3_column_int(statement, column++);
         d.stack_size = sqlite3_column_int(statement, column++);
+        d.use_factor = sqlite3_column_int(statement, column++);
 
         items.push_back(d);
     }

@@ -8,6 +8,9 @@ const float Inventory_Cell::frameOutlineSize = 2.f;
 const sf::Color Inventory_Cell::colorActive = sf::Color(252, 244, 212);
 const sf::Color Inventory_Cell::colorInactive = sf::Color(230, 209, 135);
 const sf::Color Inventory_Cell::colorOutline = sf::Color(25, 25, 25);
+const sf::Color Inventory_Cell::colorUseBar = sf::Color(40, 250, 60);
+
+const sf::Vector2f Inventory_Cell::use_bar_size = sf::Vector2f(64.f, 6.f);
 
 Inventory_Cell::Inventory_Cell(Item* item)
 {
@@ -19,6 +22,8 @@ Inventory_Cell::Inventory_Cell(Item* item)
     deactivate();
     numberText.setFont(Font_Manager::get(Font::UI));
     numberText.setFillColor(sf::Color::Black);
+
+    use_bar.setFillColor(colorUseBar);
 }
 
 void Inventory_Cell::setPosition(sf::Vector2f pos)
@@ -29,6 +34,10 @@ void Inventory_Cell::setPosition(sf::Vector2f pos)
     }
     pos.x -= frame.getSize().x * .4f;
     numberText.setPosition(pos);
+
+    pos = frame.getPosition() - frame.getOrigin();
+    pos.y += frameSize.y - use_bar_size.y;
+    use_bar.setPosition(pos);
 }
 
 void Inventory_Cell::activate()
@@ -66,11 +75,26 @@ void Inventory_Cell::setItem(Item* i)
         else {
             numberText.setString(std::to_string(count));
         }
+
+        if (i->useLimit()) {
+            usable = true;
+            calculateUseBarSize(i->usePercent());
+        }
+        else {
+            usable = false;
+        }
     }
     else if (item) {
         item = nullptr;
         numberText.setString("");
     }
+}
+
+void Inventory_Cell::calculateUseBarSize(int percent)
+{
+    sf::Vector2f size = use_bar_size;
+    size.x *= (percent / 100.f);
+    use_bar.setSize(size);
 }
 
 void Inventory_Cell::clearItem()
@@ -89,5 +113,8 @@ void Inventory_Cell::draw(sf::RenderTarget& target, sf::RenderStates states) con
     if (item) {
         target.draw(*item, states);
         target.draw(numberText, states);
+        if (usable) {
+            target.draw(use_bar, states);
+        }
     }
 }

@@ -2,8 +2,6 @@
 
 #include <item/item_library.hpp>
 
-#include <iostream>
-
 //////////////////////////////////////////////////////////////
 
 Player::Player() { }

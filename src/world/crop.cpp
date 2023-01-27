@@ -1,7 +1,5 @@
 #include <world/crop.hpp>
 
-#include <iostream>
-
 const float Crop::stage_threshold = 1.f;
 
 Crop::Crop(Crop_Data d)

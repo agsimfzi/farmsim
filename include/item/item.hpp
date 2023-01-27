@@ -29,6 +29,11 @@ public:
     size_t count();
     void setCount(size_t n_count);
 
+    bool useLimit();
+    void resetUses();
+    int usePercent();
+    void reduceUses();
+
 private:
     sf::Sprite sprite;
 

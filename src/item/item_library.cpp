@@ -47,7 +47,9 @@ Item_Library::Item_Library()
         stringShelf[item.name] = iptr;
         uidShelf[item.uid] = iptr;
 
-        std::cout << "item " << item.name << " (" << item.uid << ") added, subtype " << item.subtype << '\n';
+        std::cout << "item " << item.name << " (" << item.uid << ") added, subtype " << item.subtype
+                  << ", use factor " << item.use_factor
+                  << '\n';
     }
 }
 

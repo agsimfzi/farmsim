@@ -11,4 +11,6 @@ public:
     std::string description;
     int value;
     int stack_size;
+    int use_percent = 100;
+    int use_factor;
 };
