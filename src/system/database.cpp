@@ -2,8 +2,6 @@
 
 #include <SFML/Audio/Sound.hpp>
 
-#include <dependencies/magic_enum.hpp>
-
 #include <animation/animation.hpp>
 
 #include <input/convert_action_trigger.hpp>
@@ -259,7 +257,7 @@ std::vector<Item_Data> Database::getItemPrototypes()
         d.uid = sqlite3_column_int(statement, column++);
         d.name = reinterpret_cast<const char*>(sqlite3_column_text(statement, column++));
         std::string type = reinterpret_cast<const char*>(sqlite3_column_text(statement, column++));
-        d.type = magic_enum::enum_cast<Item_Type>(type).value();
+        d.type = stringToItemType(type);
         d.subtype = reinterpret_cast<const char*>(sqlite3_column_text(statement, column++));
         d.description = reinterpret_cast<const char*>(sqlite3_column_text(statement, column++));
         d.value = sqlite3_column_int(statement, column++);
@@ -271,6 +269,45 @@ std::vector<Item_Data> Database::getItemPrototypes()
     close();
 
     return items;
+}
+
+std::vector<Crop_Data> Database::getCropPrototypes()
+{
+    std::vector<Crop_Data> crops;
+
+    open();
+
+    sqlite3_stmt* statement;
+
+    std::string sql = "SELECT * FROM 'CROPS'";
+
+    rc = sqlite3_prepare_v2(db, sql.c_str(), sql.length(), &statement, NULL);
+
+    while ((rc = sqlite3_step(statement)) == SQLITE_ROW) {
+        int column = 0;
+
+        // uid
+        // name
+        // growth_coef
+        // water_factor
+        // stage_count
+        // y_size
+
+        Crop_Data c;
+
+        c.uid = sqlite3_column_int(statement, column++);
+        c.name = reinterpret_cast<const char*>(sqlite3_column_text(statement, column++));
+        c.growth_coef = sqlite3_column_double(statement, column++);
+        c.water_factor = sqlite3_column_double(statement, column++);
+        c.stage_count = sqlite3_column_int(statement, column++);
+        c.y_size = sqlite3_column_int(statement, column++);
+
+        crops.push_back(c);
+    }
+
+    close();
+
+    return crops;
 }
 
 void Database::errorCheck(std::string id)

@@ -19,6 +19,9 @@ public:
     bool fullyGrown();
 
     size_t getUID();
+    size_t harvestUID();
+
+    void place(sf::Vector2i coordinates, sf::Vector2f pos);
 
 private:
     sf::Sprite sprite;
@@ -26,11 +29,11 @@ private:
     float growth = 0.f;
     const static float stage_threshold;
 
-    unsigned int stage = 0;
+    sf::Vector2i coordinates;
+
+    size_t stage = 1;
 
     void nextStage();
-
-    bool fully_grown = false;
 
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
 };

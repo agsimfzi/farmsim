@@ -24,6 +24,7 @@
 
 #include <sqlite3.h>
 
+#include <world/crop_data.hpp>
 #include <world/tile.hpp>
 
 #include "settings_package.hpp"
@@ -47,6 +48,8 @@ public:
     static void getFonts(std::map<Font, sf::Font>& f);
 
     static std::vector<Item_Data> getItemPrototypes();
+
+    static std::vector<Crop_Data> getCropPrototypes();
 
     static std::map<std::string, Action_Trigger> getActions();
 

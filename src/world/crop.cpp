@@ -22,10 +22,12 @@ sf::Sprite& Crop::getSprite()
 void Crop::tick(bool watered)
 {
     // introduce random variance
-    if (!fully_grown) {
-        float stage_factor = growth_coef + (growth_coef * watered);
-        growth += stage_factor;
-
+    if (!fullyGrown()) {
+        float stage_advance = growth_coef;
+        if (watered) {
+            stage_advance *= water_factor;
+        }
+        growth += stage_advance;
         if (growth >= stage_threshold) {
             nextStage();
         }
@@ -39,7 +41,7 @@ sf::Vector2i Crop::getCoordinates()
 
 bool Crop::fullyGrown()
 {
-    return fully_grown;
+    return (stage >= stage_count);
 }
 
 size_t Crop::getUID()
@@ -47,16 +49,25 @@ size_t Crop::getUID()
     return uid;
 }
 
+size_t Crop::harvestUID()
+{
+    return uid + 1000;
+}
+
+void Crop::place(sf::Vector2i coordinates, sf::Vector2f pos)
+{
+    this->coordinates = coordinates;
+    sprite.setPosition(pos);
+}
+
 void Crop::nextStage()
 {
-    if (!fully_grown) {
+    if (!fullyGrown()) {
         sf::IntRect tr = sprite.getTextureRect();
-        tr.left += tr.width;
+        tr.top += y_size;
         sprite.setTextureRect(tr);
         growth = 0.f;
-        if (++stage == 3) {
-            fully_grown = true;
-        }
+        stage++;
     }
 }
 

@@ -56,7 +56,7 @@ Item* Item_Library::item(std::string name)
     return stringShelf[name].get();
 }
 
-Item* Item_Library::item(unsigned int uid)
+Item* Item_Library::item(size_t uid)
 {
     return uidShelf[uid].get();
 }

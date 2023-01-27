@@ -53,7 +53,7 @@ void World::interact(Player_Inventory& inventory)
                 std::cout << "FAILED TO FIND CROP AT TILE " << t << '\n';
             }
             else if (crops[t.x][t.y] && crops[t.x][t.y]->fullyGrown()) {
-                inventory.addItem(item_library.item(crops[t.x][t.y]->getUID()));
+                inventory.addItem(item_library.item(crops[t.x][t.y]->harvestUID()));
                 crops[t.x][t.y] = nullptr;
                 f->setType(Floor_Type::TILLED);
                 f->planted = false;
@@ -370,28 +370,17 @@ void World::plantCrop(Item* item)
         sf::Vector2i t = *activeTile;
         Floor* f = floor[t.x][t.y].get();
         if ((f->type == Floor_Type::TILLED
-                || f->type == Floor_Type::WATERED)
-            && !f->planted) {
-            Crop_Data d;
-            d.uid = item->getUID() + 1000;
-            d.coordinates = t;
-            d.growth_coef = 0.01f;
-
-            sf::Sprite sprite;
-            std::string texture = "CROPS" + std::to_string((item->getUID() % 1000) / 100);
-            sprite.setTexture(Texture_Manager::get(texture));
-            int r = roundFloat(Tile::tileSize);
-            sf::Vector2i pos(0, (item->getUID() % 100) * r);
-            sf::Vector2i size(r, r);
-            sprite.setTextureRect(sf::IntRect(pos, size));
-            sprite.setOrigin(sf::Vector2f(size) / 2.f);
-            sprite.setPosition(sf::Vector2f(t) * Tile::tileSize);
-
+        || f->type == Floor_Type::WATERED)
+        && !f->planted) {
             item->take(1);
             f->planted = true;
 
-            crops[t.x][t.y] = std::make_unique<Crop>(Crop(d));
-            crops[t.x][t.y]->setSprite(sprite);
+            Crop* c = crop_library.get(item->getUID());
+            if (c) {
+                crops[t.x][t.y] = std::make_unique<Crop>(*c);
+                crops[t.x][t.y]->place(t, f->getPosition());
+            }
+            //crops[t.x][t.y]->setSprite(sprite);
         }
     }
 }

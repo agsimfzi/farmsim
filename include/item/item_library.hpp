@@ -12,9 +12,9 @@ public:
     Item_Library();
 
     Item* item(std::string name);
-    Item* item(unsigned int uid);
+    Item* item(size_t uid);
 
 private:
     std::map<std::string, std::shared_ptr<Item>> stringShelf;
-    std::map<unsigned int, std::shared_ptr<Item>> uidShelf;
+    std::map<size_t, std::shared_ptr<Item>> uidShelf;
 };

@@ -13,6 +13,7 @@
 #include <item/player_inventory.hpp>
 
 #include "crop.hpp"
+#include "crop_library.hpp"
 #include "tile.hpp"
 
 template <class T>
@@ -68,6 +69,7 @@ private:
     bool changeActiveTile(Floor_Type prereq, Floor_Type ntype);
 
     Item_Library& item_library;
+    Crop_Library crop_library;
 
     Map_Tile<Wall> walls;
     Map_Tile<Floor> floor;
