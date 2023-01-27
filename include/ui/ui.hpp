@@ -60,5 +60,7 @@ private:
 
     bool overlay_active = false;
 
+    Minimap minimap;
+
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
 };

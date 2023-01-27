@@ -84,6 +84,10 @@ private:
     sf::Texture& textureDetails;
     sf::Texture& textureTiledDetail;
 
+    const static sf::IntRect starting_area;
+    std::vector<sf::IntRect> ponds;
+    std::vector<sf::IntRect> lakes;
+
     bool interacting = false;
 
     Map_Tile<Crop> crops;
@@ -92,8 +96,8 @@ private:
 
     sf::Clock tickClock;
 
-    sf::Vector2i worldMin { -128, -128 };
-    sf::Vector2i worldMax { 128, 128 };
+    sf::Vector2i worldMin { -1024, -1024 };
+    sf::Vector2i worldMax { 1024, 1024 };
 
     std::unique_ptr<sf::Vector2i> activeTile;
 

@@ -102,7 +102,6 @@ void Shell::draw()
         default:
             break;
     }
-    window.draw(version_text);
     window.display();
 }
 

@@ -38,7 +38,7 @@ Menu::Menu()
     std::string status = AutoVersion::STATUS;
     std::string major = std::to_string(AutoVersion::MAJOR);
     std::string minor = std::to_string(AutoVersion::MINOR);
-    while (minor.length() < 4) {
+    while (minor.length() < 3) {
         minor = '0' + minor;
     }
     std::string build = std::to_string(AutoVersion::BUILD);

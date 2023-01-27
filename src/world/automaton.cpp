@@ -46,6 +46,7 @@ Automaton_Cells Automaton::iterate()
                                       , { 8, 0.01 } };
 
     for (unsigned int i = 0; i < iterations; ++i) {
+        std::cout << "\tperforming automaton, iteration " << (i + 1) << '\n';
         for (int x = min.x - padding.x; x <= max.x + padding.x; ++x) {
             for (int y = min.y - padding.y; y <= max.y + padding.y; ++y) {
                 int count = countAdjacentActiveCells(x, y);
