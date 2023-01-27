@@ -65,6 +65,9 @@ public:
 
     sf::Vector2i posToCoords(sf::Vector2f pos);
 
+    sf::Vector2i worldMin();
+    sf::Vector2i worldMax();
+
 private:
     bool changeActiveTile(Floor_Type prereq, Floor_Type ntype);
 
@@ -96,8 +99,8 @@ private:
 
     sf::Clock tickClock;
 
-    sf::Vector2i worldMin { -1024, -1024 };
-    sf::Vector2i worldMax { 1024, 1024 };
+    sf::Vector2i world_min { -1024, -1024 };
+    sf::Vector2i world_max { 1024, 1024 };
 
     std::unique_ptr<sf::Vector2i> activeTile;
 

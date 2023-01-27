@@ -32,6 +32,7 @@ public:
     void init();
 
     void toggleInventory();
+    void toggleMap();
     void closeOverlay();
 
     bool overlayActive();

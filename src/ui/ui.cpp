@@ -26,6 +26,7 @@ UI::UI(sf::RenderWindow& window, Game& game)
 void UI::init()
 {
     inventory_interface.readInventory();
+    minimap.load(game.getWorld());
 }
 
 void UI::update()
@@ -49,7 +50,8 @@ void UI::update()
     else {
         player_target.active = false;
     }
-    //
+
+    minimap.update(game.getPlayer().getCoordinates(Tile::tileSize));
 
 }
 
@@ -109,8 +111,20 @@ void UI::toggleInventory()
         inventory_interface.expanded = false;
         overlay_active = false;
     }
-    else {
+    else if (!overlay_active) {
         inventory_interface.expanded = true;
+        overlay_active = true;
+    }
+}
+
+void UI::toggleMap()
+{
+    if (minimap.isExpanded()) {
+        minimap.close();
+        overlay_active = false;
+    }
+    else if (!overlay_active) {
+        minimap.expand();
         overlay_active = true;
     }
 }
@@ -120,6 +134,9 @@ void UI::closeOverlay()
     overlay_active = false;
     if (inventory_interface.expanded) {
         inventory_interface.close();
+    }
+    else if(minimap.isExpanded()) {
+        minimap.close();
     }
 }
 
@@ -133,7 +150,12 @@ bool UI::clickLeft()
     bool parsed = overlay_active;
 
     if (parsed) {
-        inventory_interface.startDrag();
+        if (inventory_interface.expanded) {
+            inventory_interface.startDrag();
+        }
+        else if(minimap.isExpanded()) {
+            minimap.startDrag();
+        }
     }
 
     return parsed;
@@ -144,7 +166,12 @@ bool UI::releaseLeft()
     bool parsed = overlay_active;
 
     if (parsed) {
-        inventory_interface.endDrag();
+        if (inventory_interface.expanded) {
+            inventory_interface.endDrag();
+        }
+        else if(minimap.isExpanded()) {
+            minimap.endDrag();
+        }
     }
 
     return parsed;
@@ -180,4 +207,6 @@ void UI::draw(sf::RenderTarget& target, sf::RenderStates states) const
     target.draw(inventory_interface, states);
 
     target.draw(player_pos, states);
+
+    target.draw(minimap, states); // MUST BE LAST AS IT DEFINES ITS OWN VIEW!
 }

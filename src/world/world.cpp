@@ -12,6 +12,7 @@
 #include <util/vector2_stream.hpp>
 
 #include <world/automaton.hpp>
+#include <world/lake_generator.hpp>
 
 const sf::IntRect World::starting_area = sf::IntRect(-16, -16, 32, 32);
 
@@ -71,6 +72,16 @@ void World::interact(Player_Inventory& inventory)
     }
 }
 
+sf::Vector2i World::worldMin()
+{
+    return world_min;
+}
+
+sf::Vector2i World::worldMax()
+{
+    return world_max;
+}
+
 sf::Vector2i* World::checkMouseTarget(sf::Vector2f mpos, sf::Vector2i playerCoords)
 {
     // future: pass player coordinates + tool distance
@@ -101,35 +112,40 @@ bool World::inRange(sf::Vector2i c1, sf::Vector2i c2)
 
 void World::makeFloor()
 {
-    for (int x = worldMin.x; x <= worldMax.x; x++) {
-        for (int y = worldMin.y; y <= worldMax.y; y++) {
+    std::cout << "\n\nmaking floor!\n";
+    for (int x = world_min.x; x <= world_max.x; x++) {
+        for (int y = world_min.y; y <= world_max.y; y++) {
             floor[x][y] = std::make_unique<Floor>(Floor(sf::Vector2i(x, y), textureFloors));
             floor[x][y]->setType(Floor_Type::DIRT);
         }
     }
-
-    makeWater();
-
-    makeGrass();
+    std::cout << "floor made!\n";
 }
 
 void World::makeWater()
 {
     std::cout << "\n\nmaking water!\n";
-    size_t lakeCount = prng::number(2, 3);
+    size_t lakeCount = prng::number(4, 6);
+    lakeCount = 12;
     size_t i = 0;
-    unsigned int sizeMin = 24;
-    unsigned int sizeMax = 72;
+    unsigned int sizeMin = 64;
+    unsigned int sizeMax = 128;
     std::vector<sf::IntRect> waterBounds = { starting_area };
     sf::Vector2i size;
     sf::Vector2i pos;
     while (i++ < lakeCount) {
         bool finding = false;
+        size_t counter = 0;
+        size_t count_threshold = 100;
         do {
+            counter++;
+            if (counter >= count_threshold) {
+                goto LAKE_END;
+            }
             size = sf::Vector2i(prng::number(sizeMin, sizeMax), prng::number(sizeMin, sizeMax));
-            pos.x = prng::number(worldMin.x + size.x, worldMax.x - (size.x * 2));
-            pos.y = prng::number(worldMin.y + size.y, worldMax.y - (size.y * 2));
-            std::cout << "\tattempting to place lake at " << pos << ", size " << size << '\n';
+            pos.x = prng::number(world_min.x + size.x, world_max.x - (size.x * 2));
+            pos.y = prng::number(world_min.y + size.y, world_max.y - (size.y * 2));
+            finding = false;
             for (const auto& b : waterBounds) {
                 if (b.intersects(sf::IntRect(pos, size))) {
                     finding = true;
@@ -141,16 +157,16 @@ void World::makeWater()
         waterBounds.push_back(sf::IntRect(pos, size));
         lakes.push_back(sf::IntRect(pos, size));
 
-        size_t iterations = 9;
-        float chance = .85f;
+        size_t iterations = 5;
+        float chance = 0.2f;
 
-        sf::Vector2i padding(2, 2);
+        sf::Vector2i padding(4, 4);
 
-        Automaton lake_maker(iterations, chance, pos, pos + size, padding);
-
-        std::cout << "making lake at " << pos << ", size " << size << '\n';
+        Lake_Generator lake_maker(iterations, chance, pos, pos + size, padding);
 
         Automaton_Cells lake = lake_maker.iterate();
+
+        std::cout << "making lake at " << pos << ", size " << size << '\n';
 
         for (int x = pos.x - padding.x; x <= pos.x + size.x + (padding.x * 2); x++) {
             for (int y = pos.y - padding.y; y <= pos.y + size.y + (padding.y * 2); y++) {
@@ -167,17 +183,20 @@ void World::makeWater()
         }
     }
 
-    size_t pondCount = prng::number(4, 6);
+    LAKE_END: return;
+
+    size_t pondCount = prng::number(12, 18);
     i = 0;
-    sizeMin = 4;
-    sizeMax = 10;
+    sizeMin = 6;
+    sizeMax = 12;
     while (i++ < pondCount) {
         bool finding = false;
         do {
             size = sf::Vector2i(prng::number(sizeMin, sizeMax), prng::number(sizeMin, sizeMax));
-            pos.x = prng::number(worldMin.x + size.x, worldMax.x - (size.x * 2));
-            pos.y = prng::number(worldMin.y + size.y, worldMax.y - (size.y * 2));
+            pos.x = prng::number(world_min.x + size.x, world_max.x - (size.x * 2));
+            pos.y = prng::number(world_min.y + size.y, world_max.y - (size.y * 2));
             std::cout << "\tattempting to place pond at " << pos << ", size " << size << '\n';
+            finding = false;
             for (const auto& b : waterBounds) {
                 if (b.intersects(sf::IntRect(pos, size))) {
                     finding = true;
@@ -219,14 +238,15 @@ void World::makeWater()
 
 void World::makeGrass()
 {
+    return;
     std::cout << "\n\nmaking grass!\n";
-    size_t iterations = 1;
+    size_t iterations = 0;
     float chance = .8f;
     sf::Vector2i padding(0, 0);
-    Automaton grass_maker(iterations, chance, worldMin, worldMax, padding);
+    Automaton grass_maker(iterations, chance, world_min, world_max, padding);
     Automaton_Cells grass = grass_maker.iterate();
-    for (int x = worldMin.x; x <= worldMax.x; x++) {
-        for (int y = worldMin.y; y <= worldMax.y; y++) {
+    for (int x = world_min.x; x <= world_max.x; x++) {
+        for (int y = world_min.y; y <= world_max.y; y++) {
             if (floor[x][y] && floor[x][y]->type == Floor_Type::DIRT && grass[x][y]) {
                 floor[x][y]->details.push_back(Detail(Detail_Type::GRASS, Texture_Manager::get("GRASS")));
                 floor[x][y]->details.back().setPosition(floor[x][y]->getPosition());
@@ -234,7 +254,7 @@ void World::makeGrass()
         }
     }
 
-    updateAutotiledDetails(worldMin, worldMax);
+    updateAutotiledDetails(world_min, world_max);
     std::cout << "\n\ngrass made!\n";
 }
 

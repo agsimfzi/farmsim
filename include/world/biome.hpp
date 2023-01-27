@@ -1,11 +1,17 @@
 #pragma once
 
-enum class Biome {
-    GRASSLANDS,
-    FOREST_DECIDUOUS,
-    FOREST_MIXED,
-    FOREST_CONIFEROUS,
-    BEACH
-    DESERT,
-    GLACIER
-};
+class Biome {
+public:
+    enum Type {
+        GRASSLANDS,
+        FOREST_DECIDUOUS,
+        FOREST_MIXED,
+        FOREST_CONIFEROUS,
+        BEACH
+        DESERT,
+        GLACIER
+    };
+
+private:
+
+}

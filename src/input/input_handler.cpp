@@ -64,6 +64,10 @@ Input_Handler::Input_Handler(sf::RenderWindow& nwindow, Game& game, UI& ui, Menu
             press = [](){};
             release = std::bind(&UI::toggleInventory, &ui);
         }
+        else if (action.first == "Open Map") {
+            press = [](){};
+            release = std::bind(&UI::toggleMap, &ui);
+        }
 
         placeActionTrigger(action, press, release);
     }

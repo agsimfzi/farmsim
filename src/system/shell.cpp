@@ -33,8 +33,6 @@ Shell::Shell()
     menu_input.setActions(input.getRemappableActions());
 
     alignState();
-
-    ui.init();
 }
 
 void Shell::run()
@@ -121,10 +119,24 @@ void Shell::loadNewLevel()
     messages.push_back("whatever");
 
     loads.push_back(std::bind(&World::makeFloor, &game.getWorld()));
-    messages.push_back("carving rooms...");
+    messages.push_back("depositing soil...");
+
+    loads.push_back(std::bind(&World::makeWater, &game.getWorld()));
+    messages.push_back("carving lakes and ponds...");
+
+    loads.push_back(std::bind(&World::makeGrass, &game.getWorld()));
+    messages.push_back("growing grass...");
 
     loads.push_back(std::bind(&World::makeWalls, &game.getWorld()));
     messages.push_back("reinforcing structures...");
+
+    loads.push_back(std::bind(&UI::init, &ui));
+    messages.push_back("i don't think anyone will be able to read this.");
+
+    auto grab = [&]() { window.requestFocus(); };
+
+    loads.push_back(grab);
+    messages.push_back("!");
 
     loadingScreen.prepare(loads, messages);
 }

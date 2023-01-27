@@ -15,11 +15,15 @@ public:
     Automaton(size_t iterations, float chance, sf::Vector2i min, sf::Vector2i max, sf::Vector2i padding);
     Automaton_Cells iterate();
 
+    void loadCells(Automaton_Cells cells);
+
+    void make();
+
 private:
     Automaton_Cells cells;
 
     size_t iterations;
-
+    float chance;
     sf::Vector2i min;
     sf::Vector2i max;
     sf::Vector2i padding;
