@@ -74,3 +74,43 @@ Direction normalizeDirection(const Direction ref, const Direction d);
 bool isOrthogonal(Direction d);
 
 bool isDiagonal(Direction d);
+
+inline Direction directionFromVector(sf::Vector2i v)
+{
+    Direction d = Direction::NULL_DIRECTION;
+    bool xless = (v.x < 0);
+    bool xmore = (v.x > 0);
+    bool yless = (v.y < 0);
+    bool ymore = (v.y > 0);
+
+    if (xless) {
+        if (yless) {
+            d = Direction::NW;
+        }
+        else if (ymore) {
+            d = Direction::SW;
+        }
+        else {
+            d = Direction::W;
+        }
+    }
+    else if (xmore) {
+        if (yless) {
+            d = Direction::NE;
+        }
+        else if (ymore) {
+            d = Direction::SE;
+        }
+        else {
+            d = Direction::E;
+        }
+    }
+    else if (yless) {
+        d = Direction::N;
+    }
+    else if (ymore) {
+        d = Direction::S;
+    }
+
+    return d;
+}

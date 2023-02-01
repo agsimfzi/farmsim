@@ -28,22 +28,7 @@ void Game::update(float deltaTime)
     view.move(player.move(world.getLocalImpassableTiles(player.getCoordinates(Tile::tileSize)), deltaTime));
 
     inventory.update();
-    world.update(inventory);
-
-    prepRenderer();
-}
-
-void Game::prepRenderer()
-{
-    Game_Renderer& r = renderer;
-
-    r.clear();
-    r.updatePlayerCoordinates(player.getCoordinates(Tile::tileSize));
-    r.loadFloor(world.getFloor());
-    r.loadCrops(world.getCrops());
-    r.loadWalls(world.getWalls());
-    r.loadPlayer(player);
-    // r.loadEntities();
+    world.update(inventory, player.getCoordinates(Tile::tileSize));
 }
 
 Player& Game::getPlayer()
@@ -58,6 +43,11 @@ void Game::enter()
 World& Game::getWorld()
 {
     return world;
+}
+
+void Game::startGame()
+{
+    world.finalize(player.getCoordinates(Tile::tileSize));
 }
 
 void Game::clickLeft()
@@ -114,12 +104,13 @@ Entity* Game::mousedEntity(sf::Vector2f mpos)
     return nullptr;
 }
 
-const Game_Renderer& Game::getRenderer()
-{
-    return renderer;
-}
-
 sf::View& Game::getView()
 {
     return view;
+}
+
+void Game::draw(sf::RenderTarget& target, sf::RenderStates states) const
+{
+    target.draw(world, states);
+    target.draw(player, states);
 }

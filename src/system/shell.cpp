@@ -88,7 +88,7 @@ void Shell::draw()
             break;
         case Main_State::GAME:
             window.setView(viewGame);
-            window.draw(game.getRenderer());
+            window.draw(game);
             window.setView(viewUI);
             window.draw(fpsText);
             window.draw(ui);
@@ -116,22 +116,22 @@ void Shell::loadNewLevel()
     messages.push_back("...");
 
     loads.push_back(std::bind(&World::reset, &game.getWorld()));
-    messages.push_back("whatever");
+    messages.push_back("resetting world...");
 
-    loads.push_back(std::bind(&World::makeFloor, &game.getWorld()));
-    messages.push_back("depositing soil...");
-
-    loads.push_back(std::bind(&World::makeWater, &game.getWorld()));
-    messages.push_back("carving lakes and ponds...");
+    loads.push_back(std::bind(&World::makeBiomes, &game.getWorld()));
+    messages.push_back("making biomes...");
 
     loads.push_back(std::bind(&World::makeGrass, &game.getWorld()));
-    messages.push_back("growing grass...");
+    messages.push_back("making grass...");
 
-    loads.push_back(std::bind(&World::makeWalls, &game.getWorld()));
-    messages.push_back("reinforcing structures...");
+    loads.push_back(std::bind(&World::initialAutotile, &game.getWorld()));
+    messages.push_back("autotiling...");
 
     loads.push_back(std::bind(&UI::init, &ui));
     messages.push_back("i don't think anyone will be able to read this.");
+
+    loads.push_back(std::bind(&Game::startGame, &game));
+    messages.push_back("finalizing world!");
 
     auto grab = [&]() { window.requestFocus(); };
 

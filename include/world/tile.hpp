@@ -4,9 +4,14 @@
 
 #include <SFML/Graphics.hpp>
 
+#include "tile_info.hpp"
+
+template <class T>
+using Map_Tile = std::map<int, std::map<int, T>>;
+
 class Tile : public sf::Sprite {
 public:
-    //Tile(){}
+    Tile() = default;
     Tile(sf::Vector2i ncoord, const sf::Texture& texture);
 
     const static float tileSize;
@@ -18,34 +23,25 @@ public:
     Wall(sf::Vector2i ncoord, const sf::Texture& texture);
 };
 
-enum class Detail_Type {
-    GRASS,
-    NULL_TYPE
-};
-
-class Detail : public sf::Sprite {
+class Detail : public Tile {
 public:
-    Detail(Detail_Type type, const sf::Texture& texture);
+    Detail() = default;
+    Detail(sf::Vector2i ncoord, Detail_Type type, const sf::Texture& texture);
 
     Detail_Type type;
 };
 
-enum class Floor_Type {
-    DIRT = 0,
-    TILLED,
-    WATERED,
-    WATER
-};
-
 class Floor : public Tile {
 public:
+    Floor() = default;
     Floor(sf::Vector2i ncoord, const sf::Texture& texture);
+    Floor(Floor_Info info, const sf::Texture& texture);
 
-    Floor_Type type;
+    Floor_Type type{ Floor_Type::NULL_TYPE };
 
     bool planted = false;
 
-    std::deque<Detail> details;
+    Detail_Type detail{ Detail_Type::NULL_TYPE };
 
     void setType(Floor_Type ntype);
 };

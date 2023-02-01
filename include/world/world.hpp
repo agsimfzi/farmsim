@@ -14,38 +14,31 @@
 
 #include "crop.hpp"
 #include "crop_library.hpp"
+
+#include "biome.hpp"
+#include "chunk.hpp"
+#include "chunk_loader.hpp"
 #include "tile.hpp"
-
-template <class T>
-using Map_Tile = std::map<int, std::map<int, std::unique_ptr<T>>>;
-
-//#define Map_Tile(x) std::map<int, std::map<int, std::unique_ptr<x>>>
+#include "tile_info.hpp"
 
 /////////////////////////////////////////////////////////////
 /// \brief
 ///
-class World {
+class World : public sf::Drawable {
 public:
     World(Item_Library& item_library);
 
-    void newLevel();
-
-    Map_Tile<Floor>& getFloor();
-    Map_Tile<Wall>& getWalls();
-    Map_Tile<Crop>& getCrops();
-    Tile* getWall(int x, int y);
-
-    void erase();
-    void makeFloor();
-    void makeWater();
+    void reset();
+    void makeBiomes();
     void makeGrass();
-    void makeWalls();
+    void initialAutotile();
+    void finalize(sf::Vector2i player_coordinates);
+
+    Map_Tile<Crop>& getCrops();
 
     std::vector<sf::FloatRect> getLocalImpassableTiles(sf::Vector2i p);
 
-    void reset();
-
-    void update(Player_Inventory& inventory);
+    void update(Player_Inventory& inventory, sf::Vector2i player_coordinates);
 
     sf::Vector2i* checkMouseTarget(sf::Vector2f mpos, sf::Vector2i playerCoords);
 
@@ -68,28 +61,21 @@ public:
     sf::Vector2i worldMin();
     sf::Vector2i worldMax();
 
+    Map_Tile<Floor_Info>& getTileLibrary();
+
+    Floor* activeFloor(sf::Vector2i i);
+
 private:
     bool changeActiveTile(Floor_Type prereq, Floor_Type ntype);
 
     Item_Library& item_library;
     Crop_Library crop_library;
 
-    Map_Tile<Wall> walls;
-    Map_Tile<Floor> floor;
+    Map_Tile<Floor_Info> tile_library;
+    Chunk_Loader chunks { tile_library };
 
-    Map_Tile<Detail> details;
-
-    Map_Tile<Door> doors;
-
-    sf::Texture& textureFloors;
-    sf::Texture& textureWalls;
-
-    sf::Texture& textureDetails;
-    sf::Texture& textureTiledDetail;
-
-    const static sf::IntRect starting_area;
-    std::vector<sf::IntRect> ponds;
-    std::vector<sf::IntRect> lakes;
+    sf::Vector2i world_min;
+    sf::Vector2i world_max;
 
     bool interacting = false;
 
@@ -99,14 +85,17 @@ private:
 
     sf::Clock tickClock;
 
-    sf::Vector2i world_min { -1024, -1024 };
-    sf::Vector2i world_max { 1024, 1024 };
-
     std::unique_ptr<sf::Vector2i> activeTile;
 
-    void updateAutotiledDetails(sf::Vector2i start, sf::Vector2i end);
-    int autotileX(sf::Vector2i i, std::variant<Floor_Type, Detail_Type> type);
+    void updateGrass(sf::Vector2i start, sf::Vector2i end);
+    int autotileX(sf::Vector2i i, std::variant<Biome, Detail_Type> type);
     int autotileX(bool n, bool w, bool s, bool e);
     bool adjacentDetailMatch(sf::Vector2i i, Detail_Type type);
-    bool adjacentFloorMatch(sf::Vector2i i, Floor_Type type);
+    bool adjacentBiomeMatch(sf::Vector2i i, Biome type);
+    bool validLibraryTile(int x, int y);
+
+    void tileToLibrary(sf::Vector2i i);
+    void tileToLibrary(Floor* f);
+
+    virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
 };

@@ -2,6 +2,8 @@
 
 #include <system/database.hpp>
 
+#include <iostream>
+
 //////////////////////////////////////////////////////////////
 
 std::map<std::string, sf::Texture> Texture_Manager::textures = std::map<std::string, sf::Texture>();
@@ -26,6 +28,9 @@ sf::Texture& Texture_Manager::get(std::string key)
 
     if (textures.count(key)) {
         return textures[key];
+    }
+    else {
+        std::cout << "FAILED TO FIND TEXTURE OF KEY " << key << "!\n";
     }
 
     static sf::Texture blank;

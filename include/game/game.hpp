@@ -18,16 +18,17 @@
 
 #include <world/world.hpp>
 
-#include "game_renderer.hpp"
 #include "game_state.hpp"
 
-class Game : public State_Hook {
+class Game : public State_Hook, public sf::Drawable {
 public:
     Game(sf::View& nview);
     void update(float deltaTime);
     void enter();
     Player& getPlayer();
     World& getWorld();
+
+    void startGame();
 
     void clickLeft();
     void releaseLeft();
@@ -45,8 +46,6 @@ public:
 
     Player_Inventory& getInventory();
 
-    const Game_Renderer& getRenderer();
-
     sf::View& getView();
 
 private:
@@ -61,6 +60,5 @@ private:
 
     Game_State state { Game_State::PEACE };
 
-    void prepRenderer();
-    Game_Renderer renderer;
+    virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
 };

@@ -25,7 +25,7 @@ void Automaton::make()
     for (int x = min.x - padding.x; x <= max.x + padding.x; x++) {
         for (int y = min.y - padding.y; y <= max.y + padding.y; y++) {
             bool c = !(x < min.x || x > max.x || y < min.y || y > max.y);
-            cells[x][y] = (c && prng::boolean(chance));
+            cells[x][y] = prng::boolean(chance);
         }
     }
 }
@@ -33,7 +33,6 @@ void Automaton::make()
 Automaton_Cells Automaton::iterate()
 {
     Automaton_Cells newCells = cells;
-    //print();
 
     auto a = [](int x) {
         return sqrt(0.1f * x) + 0.01f;
@@ -52,6 +51,7 @@ Automaton_Cells Automaton::iterate()
     }
 
     for (unsigned int i = 0; i < iterations; ++i) {
+        std::cout << "performing automaton, iteration " << i;
         for (int x = min.x - padding.x; x <= max.x + padding.x; ++x) {
             for (int y = min.y - padding.y; y <= max.y + padding.y; ++y) {
                 int count = countAdjacentActiveCells(x, y);
@@ -59,12 +59,11 @@ Automaton_Cells Automaton::iterate()
                     newCells[x][y] = true;
                 }
                 else if (cells[x][y] && prng::boolean(adjTake[count])) {
-                    newCells[x][y] = false;
+                    //newCells[x][y] = false;
                 }
             }
         }
         cells = newCells;
-        //print();
     }
 
 
@@ -85,22 +84,4 @@ size_t Automaton::countAdjacentActiveCells(int x, int y)
     }
 
     return count;
-}
-
-void Automaton::print()
-{
-    for (int x = min.x - padding.x; x <= max.x + padding.x; ++x) {
-        std::cout << x << '\t';
-        int y;
-        for (y = min.y - padding.y; y <= max.y + padding.y; ++y) {
-            if (cells[x][y]) {
-                std::cout << '0';
-            }
-            else {
-                std::cout << ' ';
-            }
-        }
-        std::cout << '\n';
-    }
-    std::cout << '\n';
 }

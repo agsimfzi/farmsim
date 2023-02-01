@@ -26,8 +26,8 @@ Wall::Wall(sf::Vector2i ncoord, const sf::Texture& texture)
 
 //////////////////////////////////////////////////////////////
 
-Detail::Detail(Detail_Type type, const sf::Texture& texture)
-    : sf::Sprite(texture)
+Detail::Detail(sf::Vector2i ncoord, Detail_Type type, const sf::Texture& texture)
+    : Tile{ ncoord, texture }
     , type{ type }
 {}
 
@@ -35,7 +35,19 @@ Detail::Detail(Detail_Type type, const sf::Texture& texture)
 
 Floor::Floor(sf::Vector2i ncoord, const sf::Texture& texture)
     : Tile { ncoord, texture }
+{}
+
+Floor::Floor(Floor_Info info, const sf::Texture& texture)
+    : planted{ info.planted }
 {
+    coordinates = info.coordinates;
+    setOrigin(sf::Vector2f(tileSize / 2.f, tileSize / 2.f));
+    setPosition(sf::Vector2f(coordinates) * tileSize);
+    setTexture(texture);
+    sf::Vector2i size(tileSize, tileSize);
+    setTextureRect(sf::IntRect(info.texture_pos, size));
+    setType(info.floor);
+    detail = info.detail;
 }
 
 void Floor::setType(Floor_Type ntype)
@@ -46,8 +58,6 @@ void Floor::setType(Floor_Type ntype)
         sf::Vector2i size(tileSize, tileSize);
         setTextureRect(sf::IntRect(pos, size));
     }
-
-    details.clear();
 }
 
 //////////////////////////////////////////////////////////////

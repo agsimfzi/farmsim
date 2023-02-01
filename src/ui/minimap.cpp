@@ -16,43 +16,22 @@ Minimap::Minimap()
 
 void Minimap::load(World& world)
 {
-    Map_Tile<Floor>& floor = world.getFloor();
-    sf::Vector2i world_min = world.worldMin();
-    sf::Vector2i world_max = world.worldMax();
+    std::map<Biome, sf::Color> colors;
+        colors[Biome::GRASSLAND] = sf::Color(120, 215, 130);
+        colors[Biome::FOREST] = sf::Color(30, 140, 40);
+        colors[Biome::OCEAN] = sf::Color(50, 50, 125);
+
+    Map_Tile<Floor_Info>& tiles = world.getTileLibrary();
+    sf::Vector2i min = world.worldMin();
+    sf::Vector2i max = world.worldMax();
     sf::Vector2i size;
-        size.x = world_max.x * 2 + 1;
-        size.y = world_max.y * 2 + 1;
+        size.x = max.x * 2 + 1;
+        size.y = max.y * 2 + 1;
     map.resize(size.x * size.y);
-    for (int x = world_min.x; x <= world_max.x; x++) {
-        for (int y = world_min.y; y <= world_max.y; y++) {
-            Floor* f = floor[x][y].get();
-            if (f) {
-                sf::Vector2f pos(f->coordinates);
-                sf::Color color;
-                switch (f->type) {
-                case Floor_Type::WATERED:
-                case Floor_Type::TILLED:
-                case Floor_Type::DIRT:
-                    if (f->details.size() > 0
-                    && f->details.front().type == Detail_Type::GRASS) {
-                        color = sf::Color(20, 250, 40, 255);
-                    }
-                    else {
-                        color = sf::Color(166, 135, 93, 255);
-                    }
-                    break;
-                case Floor_Type::WATER:
-                    color = sf::Color(40, 20, 250, 255);
-                    break;
-                default:
-                    color = sf::Color(255, 255, 255, 255);
-                    break;
-                }
-                map.append(sf::Vertex(pos, color));
-            }
-            else {
-                std::cout << "\tno floor found at " << x << ", " << y << "!\n";
-            }
+    for (int x = min.x; x <= max.x; x++) {
+        for (int y = min.y; y <= max.y; y++) {
+            sf::Vector2f pos(tiles[x][y].coordinates);
+            map.append(sf::Vertex(pos, colors[tiles[x][y].biome]));
         }
     }
 }
