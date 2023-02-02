@@ -10,19 +10,17 @@ Chunk::Chunk(sf::Vector2i start, sf::Vector2i size, Map_Tile<Floor_Info>& info)
             sf::Vector2i c(x, y);
             c += start;
             std::string tkey = "FLOOR";
-            if (info[c.x][c.y].floor == Floor_Type::WATER) {
-                tkey = "WATER";
-            }
-            floor[c.x][c.y] = std::make_shared<Floor>(c, Texture_Manager::get(tkey));
-            floor[c.x][c.y]->planted = info[c.x][c.y].planted;
-            floor[c.x][c.y]->detail = info[c.x][c.y].detail;
-            floor[c.x][c.y]->setType(info[c.x][c.y].floor);
-            floor[c.x][c.y]->setTextureRect(sf::IntRect(info[c.x][c.y].texture_pos, sf::Vector2i(Tile::tileSize, Tile::tileSize)));
+            Floor_Info& i = info[c.x][c.y];
+            auto& f = floor[c.x][c.y];
+            f = std::make_shared<Floor>(c, Texture_Manager::get(tkey));
+            f->planted = i.planted;
+            f->detail = i.detail;
+            f->setType(i.floor);
+            f->setTextureRect(sf::IntRect(i.texture_pos, sf::Vector2i(Tile::tileSize, Tile::tileSize)));
 
-            if (info[c.x][c.y].detail == Detail_Type::GRASS) {
-                tkey = "GRASS";
-                details[c.x][c.y] = std::make_shared<Detail>(c, info[c.x][c.y].detail, Texture_Manager::get(tkey));
-                details[c.x][c.y]->setTextureRect(sf::IntRect(info[c.x][c.y].detail_pos, sf::Vector2i(Tile::tileSize, Tile::tileSize)));
+            if (i.detail != Detail_Type::NULL_TYPE) {
+                tkey = detailTypeToString(i.detail);
+                details[c.x][c.y] = std::make_shared<Detail>(c, i.detail, Texture_Manager::get(tkey), sf::IntRect(i.detail_pos, sf::Vector2i(Tile::tileSize, Tile::tileSize)));
             }
         }
     }

@@ -87,8 +87,8 @@ private:
 
     std::unique_ptr<sf::Vector2i> activeTile;
 
-    void updateGrass(sf::Vector2i start, sf::Vector2i end);
-    int autotileX(sf::Vector2i i, std::variant<Biome, Detail_Type> type);
+    void autotile(sf::Vector2i start, sf::Vector2i end, Detail_Type type);
+    int autotileX(sf::Vector2i i, Detail_Type type);
     int autotileX(bool n, bool w, bool s, bool e);
     bool adjacentDetailMatch(sf::Vector2i i, Detail_Type type);
     bool adjacentBiomeMatch(sf::Vector2i i, Biome type);

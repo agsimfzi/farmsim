@@ -26,7 +26,9 @@ public:
 class Detail : public Tile {
 public:
     Detail() = default;
-    Detail(sf::Vector2i ncoord, Detail_Type type, const sf::Texture& texture);
+    //Detail(sf::Vector2i ncoord, Detail_Type type, const sf::Texture& texture);
+    Detail(sf::Vector2i ncoord, Detail_Type type, const sf::Texture& texture, sf::IntRect texture_rect);
+
 
     Detail_Type type;
 };

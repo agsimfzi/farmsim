@@ -81,7 +81,6 @@ Input_Handler::Input_Handler(sf::RenderWindow& nwindow, Game& game, UI& ui, Menu
     p_g.keyReleased[sf::Keyboard::Num0] = [&]() { ui.numRelease(9); };
 
     p_g.scroll = std::bind(&UI::scroll, &ui, std::placeholders::_1);
-    p_g.scroll = [&](float) { game.getView().zoom(1.1f); };
 
     p_g.focus_lost = std::bind(&Game::stopInput, &game);
 

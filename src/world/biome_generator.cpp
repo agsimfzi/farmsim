@@ -29,7 +29,7 @@ Map_Tile<Biome>& Biome_Generator::generate()
     Perlin_Noise perlin_biome1(seed());
 
     std::vector<Perlin_Noise> perlin_land;
-    size_t land_count = 4;
+    size_t land_count = 3;
     for (size_t p = 0; p < land_count; p++) {
         perlin_land.push_back(Perlin_Noise(seed()));
     }
@@ -49,7 +49,7 @@ Map_Tile<Biome>& Biome_Generator::generate()
 
             o *= radial_noise.inv(x, y);
 
-            if (o <= 0.01d) {
+            if (o <= 0.02d) {
                 b = Biome::OCEAN;
             }
             else {

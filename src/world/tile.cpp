@@ -14,7 +14,7 @@ Tile::Tile(sf::Vector2i ncoord, const sf::Texture& texture)
     setTexture(texture);
     sf::Vector2i pos(0, 0);
     sf::Vector2i size(tileSize, tileSize);
-    setTextureRect(sf::IntRect(pos, size));
+    //setTextureRect(sf::IntRect(pos, size));
 }
 
 //////////////////////////////////////////////////////////////
@@ -26,10 +26,15 @@ Wall::Wall(sf::Vector2i ncoord, const sf::Texture& texture)
 
 //////////////////////////////////////////////////////////////
 
-Detail::Detail(sf::Vector2i ncoord, Detail_Type type, const sf::Texture& texture)
-    : Tile{ ncoord, texture }
-    , type{ type }
-{}
+Detail::Detail(sf::Vector2i ncoord, Detail_Type type, const sf::Texture& texture, sf::IntRect texture_rect)
+    : type{ type }
+{
+    coordinates = ncoord;
+    setOrigin(sf::Vector2f(tileSize / 2.f, tileSize / 2.f));
+    setPosition(sf::Vector2f(coordinates) * tileSize);
+    setTexture(texture);
+    setTextureRect(texture_rect);
+}
 
 //////////////////////////////////////////////////////////////
 

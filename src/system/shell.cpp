@@ -124,8 +124,8 @@ void Shell::loadNewLevel()
     loads.push_back(std::bind(&World::makeGrass, &game.getWorld()));
     messages.push_back("making grass...");
 
-    loads.push_back(std::bind(&World::initialAutotile, &game.getWorld()));
-    messages.push_back("autotiling...");
+    //loads.push_back(std::bind(&World::initialAutotile, &game.getWorld()));
+    //messages.push_back("autotiling...");
 
     loads.push_back(std::bind(&UI::init, &ui));
     messages.push_back("i don't think anyone will be able to read this.");
