@@ -95,11 +95,29 @@ Detail* Chunk_Loader::detail(sf::Vector2i i)
     return t;
 }
 
+Tree* Chunk_Loader::tree(sf::Vector2i i)
+{
+    Tree* t = nullptr;
+    sf::Vector2i c = findChunk(i);
+    if (validChunkIndex(c)) {
+        t = chunks[c.x][c.y]->getTree(i);
+    }
+    return t;
+}
+
 void Chunk_Loader::eraseDetail(sf::Vector2i i)
 {
     sf::Vector2i c = findChunk(i);
     if (validChunkIndex(c)) {
         chunks[c.x][c.y]->eraseDetail(i);
+    }
+}
+
+void Chunk_Loader::eraseTree(sf::Vector2i i)
+{
+    sf::Vector2i c = findChunk(i);
+    if (validChunkIndex(c)) {
+        chunks[c.x][c.y]->eraseTree(i);
     }
 }
 

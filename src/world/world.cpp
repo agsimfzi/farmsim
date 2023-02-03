@@ -19,7 +19,7 @@
 World::World(Item_Library& item_library)
     : item_library { item_library }
 {
-    sf::Vector2i size(98, 98);
+    sf::Vector2i size(64, 64);
     size.x *= chunks.chunk_size.x;
     size.y *= chunks.chunk_size.y;
     size.y -= 1;
@@ -135,6 +135,11 @@ void World::makeBiomes()
             }
             else {
                 info.floor = Floor_Type::DIRT;
+
+                if (info.biome == Biome::FOREST && prng::boolean(0.2f) && !adjacentTree(coords)) {
+                    info.tree = true;
+                    info.detail = Detail_Type::NULL_TYPE;
+                }
             }
             info.texture_pos = sf::Vector2i(0, (static_cast<int>(info.floor)) * roundFloat(Tile::tileSize));
             info.detail_pos = sf::Vector2i(0, 0);
@@ -155,7 +160,7 @@ void World::makeGrass()
     Automaton_Cells grass = grass_maker.iterate();
     for (int x = world_min.x; x <= world_max.x; x++) {
         for (int y = world_min.y; y <= world_max.y; y++) {
-            if (validLibraryTile(x, y) && tile_library[x][y].floor == Floor_Type::DIRT && grass[x][y]) {
+            if (validLibraryTile(x, y) && tile_library[x][y].floor == Floor_Type::DIRT && !tile_library[x][y].tree && grass[x][y]) {
                 tile_library[x][y].detail = Detail_Type::GRASS;
                 tile_library[x][y].detail_pos.x = autotileX(sf::Vector2i(x, y), Detail_Type::GRASS);
             }
@@ -257,7 +262,7 @@ std::vector<sf::FloatRect> World::getLocalImpassableTiles(sf::Vector2i p)
             }
             else {
                 Floor* f = chunks.floor(sf::Vector2i(x, y));
-                if (f && f->detail == Detail_Type::WATER) {
+                if (f && (f->detail == Detail_Type::WATER || tile_library[x][y].tree)) {
                     tiles.push_back(f->getGlobalBounds());
                 }
             }
@@ -291,14 +296,17 @@ void World::useTool(Item* item)
             case 1: // watering can
                 if (item->usePercent() > 0) {
                     water();
+                    item->reduceUses();
                 }
                 break;
             default:
                 break;
-        }
-
-        if (item->useLimit()) {
-            item->reduceUses();
+            case 2: // axe
+                axe(item->useFactor());
+                break;
+            case 3: // pick
+                pick(item->useFactor());
+                break;
         }
     }
 }
@@ -306,7 +314,7 @@ void World::useTool(Item* item)
 void World::hoe()
 {
     sf::Vector2i t = *activeTile;
-    if (tile_library[t.x][t.y].floor == Floor_Type::DIRT) {
+    if (tile_library[t.x][t.y].floor == Floor_Type::DIRT && !tile_library[t.x][t.y].tree) {
         Floor* f = chunks.floor(*activeTile);
         if (f->detail == Detail_Type::GRASS) {
             f->detail = Detail_Type::NULL_TYPE;
@@ -324,6 +332,31 @@ void World::hoe()
 void World::water()
 {
     changeActiveTile(Floor_Type::TILLED, Floor_Type::WATERED);
+}
+
+void World::axe(int factor)
+{
+    sf::Vector2i t = *activeTile;
+    if (tile_library[t.x][t.y].tree) {
+        Tree* tree = chunks.tree(*activeTile);
+        if (tree) {
+            tree->hit(factor);
+            if (tree->dead()) {
+                // create logs on ground
+                // create stump
+                tile_library[t.x][t.y].tree = false;
+                chunks.eraseTree(t);
+            }
+        }
+    }
+}
+
+void World::pick(int factor)
+{
+    if (!changeActiveTile(Floor_Type::TILLED, Floor_Type::DIRT)) {
+        sf::Vector2i t = *activeTile;
+        // check for rocks or whatever
+    }
 }
 
 void World::plantCrop(Item* item)
@@ -413,6 +446,18 @@ void World::tileToLibrary(Floor* f)
             }
         }
     }
+}
+
+bool World::adjacentTree(sf::Vector2i i)
+{
+    for (int x = -1; x <= 1; x++) {
+        for (int y = -1; y <= 1; y++) {
+            if (tile_library[i.x + x][i.y + y].tree) {
+                return true;
+            }
+        }
+    }
+    return false;
 }
 
 void World::draw(sf::RenderTarget& target, sf::RenderStates states) const

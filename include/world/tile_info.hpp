@@ -2,6 +2,7 @@
 
 #include "biome.hpp"
 #include "tile_type.hpp"
+#include "tree.hpp"
 
 struct Floor_Info {
     sf::Vector2i coordinates;
@@ -11,4 +12,5 @@ struct Floor_Info {
     Detail_Type detail{ Detail_Type::NULL_TYPE };
     sf::Vector2i texture_pos;
     sf::Vector2i detail_pos;
+    bool tree = false;
 };

@@ -4,8 +4,11 @@
 
 #include <memory>
 
+#include <item/item.hpp>
+
 #include "biome.hpp"
 #include "tile.hpp"
+#include "tree.hpp"
 
 class Chunk : public sf::Drawable{
 public:
@@ -17,8 +20,10 @@ public:
 
     Floor* getFloor(sf::Vector2i i);
     Detail* getDetail(sf::Vector2i i);
+    Tree* getTree(sf::Vector2i i);
 
     void eraseDetail(sf::Vector2i i);
+    void eraseTree(sf::Vector2i i);
 
 private:
     sf::FloatRect f_bounds;
@@ -28,5 +33,7 @@ private:
     sf::RectangleShape frame;
     Map_Tile<std::shared_ptr<Floor>> floor;
     Map_Tile<std::shared_ptr<Detail>> details;
+    Map_Tile<std::shared_ptr<Tree>> trees;
+    std::vector<std::shared_ptr<Item>> items;
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
 };

@@ -16,9 +16,11 @@ Game::Game(sf::View& nview)
 
     inventory.addItem(item_library.item(0));
     inventory.addItem(item_library.item(1));
+    inventory.addItem(item_library.item(2));
+    inventory.addItem(item_library.item(3));
 
-    inventory.addItem(item_library.item(1000), 10);
-    inventory.addItem(item_library.item(1001), 10);
+    inventory.addItem(item_library.item(1000), 50);
+    inventory.addItem(item_library.item(1001), 50);
 }
 
 void Game::update(float deltaTime)

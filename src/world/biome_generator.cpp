@@ -39,27 +39,32 @@ Map_Tile<Biome>& Biome_Generator::generate()
     for (int x = world_min.x; x <= world_max.x; x++) {
         for (int y = world_min.y; y <= world_max.y; y++) {
             Biome b;
-            double i = 10.d * ((double)x / (double)size.x);
-            double j = 10.d * ((double)y / (double)size.y);
-
-            double o = 1.d;
-            for (size_t p = 0; p < land_count; p++) {
-                o *= perlin_land[p].noise(i, j);
-            }
-
-            o *= radial_noise.inv(x, y);
-
-            if (o <= 0.02d) {
-                b = Biome::OCEAN;
+            if (radial_noise.inv(x, y) > 0.9d) {
+                b = Biome::GRASSLAND;
             }
             else {
-                double t = perlin_biome.noise(i, j);
-                t *= perlin_biome1.noise(i, j);
-                if (t < 0.25d) {
-                    b = Biome::GRASSLAND;
+                double i = 10.d * ((double)x / (double)size.x);
+                double j = 10.d * ((double)y / (double)size.y);
+
+                double o = 1.d;
+                for (size_t p = 0; p < land_count; p++) {
+                    o *= perlin_land[p].noise(i, j);
+                }
+
+                o *= radial_noise.inv(x, y);
+
+                if (o <= 0.02d) {
+                    b = Biome::OCEAN;
                 }
                 else {
-                    b = Biome::FOREST;
+                    double t = perlin_biome.noise(i, j);
+                    t *= perlin_biome1.noise(i, j);
+                    if (t < 0.25d) {
+                        b = Biome::GRASSLAND;
+                    }
+                    else {
+                        b = Biome::FOREST;
+                    }
                 }
             }
 

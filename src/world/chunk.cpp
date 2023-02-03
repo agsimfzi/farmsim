@@ -22,6 +22,10 @@ Chunk::Chunk(sf::Vector2i start, sf::Vector2i size, Map_Tile<Floor_Info>& info)
                 tkey = detailTypeToString(i.detail);
                 details[c.x][c.y] = std::make_shared<Detail>(c, i.detail, Texture_Manager::get(tkey), sf::IntRect(i.detail_pos, sf::Vector2i(Tile::tileSize, Tile::tileSize)));
             }
+            if (i.tree) {
+                tkey = "TREES";
+                trees[c.x][c.y] = std::make_shared<Tree>(c, Texture_Manager::get(tkey));
+            }
         }
     }
     sf::Vector2f f_offset(Tile::tileSize / 2.f, Tile::tileSize / 2.f);
@@ -70,10 +74,26 @@ Detail* Chunk::getDetail(sf::Vector2i i)
     return t;
 }
 
+Tree* Chunk::getTree(sf::Vector2i i)
+{
+    Tree* t = nullptr;
+    if (trees.contains(i.x) && trees[i.x].contains(i.y)) {
+        t = trees[i.x][i.y].get();
+    }
+    return t;
+}
+
 void Chunk::eraseDetail(sf::Vector2i i)
 {
     if (details.contains(i.x) && details[i.x].contains(i.y)) {
         details[i.x].erase(i.y);
+    }
+}
+
+void Chunk::eraseTree(sf::Vector2i i)
+{
+    if (trees.contains(i.x) && trees[i.x].contains(i.y)) {
+        trees[i.x].erase(i.y);
     }
 }
 
@@ -85,6 +105,11 @@ void Chunk::draw(sf::RenderTarget& target, sf::RenderStates states) const
             if (details.contains(x) && details.at(x).contains(y)) {
                 target.draw(*details.at(x).at(y), states);
             }
+        }
+    }
+    for (const auto& r : trees) {
+        for (const auto& tree : r.second) {
+            target.draw(*tree.second, states);
         }
     }
     target.draw(frame, states);

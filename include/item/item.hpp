@@ -33,6 +33,7 @@ public:
     void resetUses();
     int usePercent();
     void reduceUses();
+    int useFactor();
 
 private:
     sf::Sprite sprite;

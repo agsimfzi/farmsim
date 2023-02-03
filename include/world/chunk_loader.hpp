@@ -19,7 +19,7 @@ public:
     sf::Vector2i findChunk(sf::Vector2i coords);
     Chunk* chunk(sf::Vector2i i);
 
-    const sf::Vector2i chunk_size{ 24, 24 };
+    const sf::Vector2i chunk_size{ 16, 16 };
     sf::Vector2i world_min;
     sf::Vector2i world_max;
 
@@ -27,8 +27,10 @@ public:
 
     Floor* floor(sf::Vector2i i);
     Detail* detail(sf::Vector2i i);
+    Tree* tree(sf::Vector2i i);
 
     void eraseDetail(sf::Vector2i i);
+    void eraseTree(sf::Vector2i i);
 
 private:
     void moveChunks(Direction d);

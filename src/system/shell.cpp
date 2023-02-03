@@ -128,7 +128,7 @@ void Shell::loadNewLevel()
     //messages.push_back("autotiling...");
 
     loads.push_back(std::bind(&UI::init, &ui));
-    messages.push_back("i don't think anyone will be able to read this.");
+    messages.push_back("initializing UI.");
 
     loads.push_back(std::bind(&Game::startGame, &game));
     messages.push_back("finalizing world!");

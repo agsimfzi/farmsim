@@ -76,7 +76,7 @@ void Inventory_Cell::setItem(Item* i)
             numberText.setString(std::to_string(count));
         }
 
-        if (i->useLimit()) {
+        if (i->getUID() == 1) { // watering can
             usable = true;
             calculateUseBarSize(i->usePercent());
         }

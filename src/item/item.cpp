@@ -2,8 +2,7 @@
 
 Item::Item(Item_Data d)
     : Item_Data(d)
-{
-}
+{}
 
 void Item::setSprite(sf::Sprite sprite)
 {
@@ -98,6 +97,11 @@ void Item::resetUses()
 int Item::usePercent()
 {
     return use_percent;
+}
+
+int Item::useFactor()
+{
+    return use_factor;
 }
 
 void Item::reduceUses()

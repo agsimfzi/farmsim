@@ -61,12 +61,12 @@ Input_Handler::Input_Handler(sf::RenderWindow& nwindow, Game& game, UI& ui, Menu
             release = std::bind(&Player::rightEnd, player);
         }
         else if (action.first == "Open Inventory") {
-            press = [](){};
-            release = std::bind(&UI::toggleInventory, &ui);
+            press = std::bind(&UI::toggleInventory, &ui);
+            release = [](){};
         }
         else if (action.first == "Open Map") {
-            press = [](){};
-            release = std::bind(&UI::toggleMap, &ui);
+            press = std::bind(&UI::toggleMap, &ui);
+            release = [](){};
         }
 
         placeActionTrigger(action, press, release);

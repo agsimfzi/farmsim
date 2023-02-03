@@ -47,6 +47,8 @@ public:
     void useTool(Item* item);
     void hoe();
     void water();
+    void axe(int factor);
+    void pick(int factor);
 
     void plantCrop(Item* item);
 
@@ -96,6 +98,8 @@ private:
 
     void tileToLibrary(sf::Vector2i i);
     void tileToLibrary(Floor* f);
+
+    bool adjacentTree(sf::Vector2i i);
 
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
 };
