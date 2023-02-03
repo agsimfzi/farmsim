@@ -161,6 +161,10 @@ void World::makeGrass()
     for (int x = world_min.x; x <= world_max.x; x++) {
         for (int y = world_min.y; y <= world_max.y; y++) {
             if (validLibraryTile(x, y) && tile_library[x][y].floor == Floor_Type::DIRT && !tile_library[x][y].tree && grass[x][y]) {
+                if (tile_library[x][y].biome == Biome::FOREST && prng::boolean(0.5f)) {
+                        grass[x][y] = false;
+                    continue;
+                }
                 tile_library[x][y].detail = Detail_Type::GRASS;
                 tile_library[x][y].detail_pos.x = autotileX(sf::Vector2i(x, y), Detail_Type::GRASS);
             }
