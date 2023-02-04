@@ -35,20 +35,22 @@ void World::reset()
     chunks.clear();
 }
 
-void World::update(Player_Inventory& inventory, sf::Vector2i player_coordinates)
+void World::update(Player_Inventory& player_inventory, Player& player)
 {
     if (tickClock.getElapsedTime().asSeconds() >= 0.1f) {
         tickClock.restart();
         tick();
-        chunks.check(player_coordinates);
+        chunks.check(player.getCoordinates(Tile::tileSize));
     }
 
     if (interacting) {
-        interact(inventory);
+        interact(player_inventory);
     }
+
+    checkPickup(player_inventory, player);
 }
 
-void World::interact(Player_Inventory& inventory)
+void World::interact(Player_Inventory& player_inventory)
 {
     if (activeTile) {
         sf::Vector2i t = *activeTile;
@@ -59,17 +61,17 @@ void World::interact(Player_Inventory& inventory)
                     std::cout << "FAILED TO FIND CROP AT TILE " << t << '\n';
                 }
                 else if (crops[t.x][t.y].fullyGrown()) {
-                    inventory.addItem(item_library.item(crops[t.x][t.y].harvestUID()));
+                    player_inventory.addItem(item_library.item(crops[t.x][t.y].harvestUID()));
                     crops[t.x].erase(t.y);
                     f->setType(Floor_Type::TILLED);
                     f->planted = false;
                 }
             }
             else if (f->detail == Detail_Type::WATER) {
-                Item* i = inventory.equippedItem();
+                Item* i = player_inventory.equippedItem();
                 if (i && i->getUID() == 1) {
                     i->resetUses();
-                    inventory.changed = true;
+                    player_inventory.changed = true;
                 }
             }
         }
@@ -170,8 +172,8 @@ void World::makeGrass()
             }
         }
     }
-    std::cout << "\n\ngrass made!\n";
     autotile(world_min, world_max, Detail_Type::GRASS);
+    std::cout << "\n\ngrass made!\n";
 }
 
 void World::finalize(sf::Vector2i player_coordinates)
@@ -350,6 +352,9 @@ void World::axe(int factor)
                 // create stump
                 tile_library[t.x][t.y].tree = false;
                 chunks.eraseTree(t);
+                Item* item = item_library.item("wood");
+                size_t count = prng::number(5, 13);
+                chunks.addItem(item, count, t);
             }
         }
     }
@@ -424,6 +429,23 @@ Floor* World::activeFloor(sf::Vector2i i)
     }
 
     return f;
+}
+
+void World::checkPickup(Player_Inventory& inventory, Player& player)
+{
+    Chunk* chunk = chunks.currentChunk();
+    if (chunk) {
+        std::vector<std::shared_ptr<Item>>& items = chunk->getItems();
+        for (auto i = items.begin(); i != items.end();) {
+            if ((*i)->getSprite().getGlobalBounds().contains(player.getPosition())) {
+                inventory.addItem((*i).get(), (*i)->count());
+                items.erase(i);
+            }
+            else {
+                i++;
+            }
+        }
+    }
 }
 
 void World::tileToLibrary(sf::Vector2i i)

@@ -97,6 +97,20 @@ void Chunk::eraseTree(sf::Vector2i i)
     }
 }
 
+std::vector<std::shared_ptr<Item>>& Chunk::getItems()
+{
+    return items;
+}
+
+void Chunk::addItem(Item* item, size_t count, sf::Vector2f pos)
+{
+    if (item && count > 0) {
+        items.push_back(std::make_shared<Item>(*item));
+        items.back()->setCount(count);
+        items.back()->setPosition(pos);
+    }
+}
+
 void Chunk::draw(sf::RenderTarget& target, sf::RenderStates states) const
 {
     for (int x = i_bounds.left; x < i_bounds.left + i_bounds.width; x++) {
@@ -112,5 +126,10 @@ void Chunk::draw(sf::RenderTarget& target, sf::RenderStates states) const
             target.draw(*tree.second, states);
         }
     }
+
+    for (const auto& i : items) {
+        target.draw(*i, states);
+    }
+
     target.draw(frame, states);
 }

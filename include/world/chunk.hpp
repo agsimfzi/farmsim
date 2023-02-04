@@ -25,6 +25,10 @@ public:
     void eraseDetail(sf::Vector2i i);
     void eraseTree(sf::Vector2i i);
 
+    std::vector<std::shared_ptr<Item>>& getItems();
+
+    void addItem(Item* item, size_t count, sf::Vector2f pos);
+
 private:
     sf::FloatRect f_bounds;
     sf::IntRect i_bounds;

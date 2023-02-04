@@ -54,7 +54,7 @@ private:
     World world { item_library };
 
     Player player;
-    Player_Inventory inventory;
+    Player_Inventory player_inventory;
 
     sf::View& view;
 

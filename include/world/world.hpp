@@ -38,7 +38,7 @@ public:
 
     std::vector<sf::FloatRect> getLocalImpassableTiles(sf::Vector2i p);
 
-    void update(Player_Inventory& inventory, sf::Vector2i player_coordinates);
+    void update(Player_Inventory& inventory, Player& player);
 
     sf::Vector2i* checkMouseTarget(sf::Vector2f mpos, sf::Vector2i playerCoords);
 
@@ -66,6 +66,8 @@ public:
     Map_Tile<Floor_Info>& getTileLibrary();
 
     Floor* activeFloor(sf::Vector2i i);
+
+    void checkPickup(Player_Inventory& inventory, Player& player);
 
 private:
     bool changeActiveTile(Floor_Type prereq, Floor_Type ntype);

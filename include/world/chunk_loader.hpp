@@ -18,6 +18,7 @@ public:
     const Map_Tile<std::unique_ptr<Chunk>>& getChunks() const;
     sf::Vector2i findChunk(sf::Vector2i coords);
     Chunk* chunk(sf::Vector2i i);
+    Chunk* currentChunk();
 
     const sf::Vector2i chunk_size{ 16, 16 };
     sf::Vector2i world_min;
@@ -31,6 +32,8 @@ public:
 
     void eraseDetail(sf::Vector2i i);
     void eraseTree(sf::Vector2i i);
+
+    void addItem(Item* item, size_t count, sf::Vector2i coords);
 
 private:
     void moveChunks(Direction d);

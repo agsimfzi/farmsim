@@ -256,7 +256,9 @@ std::vector<Item_Data> Database::getItemPrototypes()
         Item_Data d;
 
         d.uid = sqlite3_column_int(statement, column++);
-        d.name = reinterpret_cast<const char*>(sqlite3_column_text(statement, column++));
+        std::string name = reinterpret_cast<const char*>(sqlite3_column_text(statement, column++));
+        std::transform(name.begin(), name.end(), name.begin(), ::tolower);
+        d.name = name;
         std::string type = reinterpret_cast<const char*>(sqlite3_column_text(statement, column++));
         d.type = stringToItemType(type);
         d.subtype = reinterpret_cast<const char*>(sqlite3_column_text(statement, column++));

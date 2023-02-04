@@ -32,6 +32,8 @@ Item_Library::Item_Library()
 
         texture += std::to_string(sheet_id / 100);
 
+        sheet_id %= 100;
+
         sprite.setTexture(Texture_Manager::get(texture));
 
         sf::Vector2i pos;
@@ -49,12 +51,14 @@ Item_Library::Item_Library()
 
         std::cout << "item " << item.name << " (" << item.uid << ") added, subtype " << item.subtype
                   << ", use factor " << item.use_factor
-                  << '\n';
+                  << " from sheet " << texture << " ("
+                  << pos << " x " << size << ")\n";
     }
 }
 
 Item* Item_Library::item(std::string name)
 {
+    std::transform(name.begin(), name.end(), name.begin(), ::tolower);
     return stringShelf[name].get();
 }
 

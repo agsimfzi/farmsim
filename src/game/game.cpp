@@ -14,13 +14,15 @@ Game::Game(sf::View& nview)
     player = Player(Database::getPlayerData(), Texture_Manager::get("PLAYER"));
     player.setPosition(sf::Vector2f(0.f, 0.f));
 
-    inventory.addItem(item_library.item(0));
-    inventory.addItem(item_library.item(1));
-    inventory.addItem(item_library.item(2));
-    inventory.addItem(item_library.item(3));
+    player_inventory.addItem(item_library.item(0));
+    player_inventory.addItem(item_library.item(1));
+    player_inventory.addItem(item_library.item(2));
+    player_inventory.addItem(item_library.item(3));
 
-    inventory.addItem(item_library.item(1000), 50);
-    inventory.addItem(item_library.item(1001), 50);
+    player_inventory.addItem(item_library.item(100), 25);
+
+    player_inventory.addItem(item_library.item(1000), 50);
+    player_inventory.addItem(item_library.item(1001), 50);
 }
 
 void Game::update(float deltaTime)
@@ -29,8 +31,8 @@ void Game::update(float deltaTime)
     player.update();
     view.move(player.move(world.getLocalImpassableTiles(player.getCoordinates(Tile::tileSize)), deltaTime));
 
-    inventory.update();
-    world.update(inventory, player.getCoordinates(Tile::tileSize));
+    player_inventory.update();
+    world.update(player_inventory, player);
 }
 
 Player& Game::getPlayer()
@@ -54,10 +56,10 @@ void Game::startGame()
 
 void Game::clickLeft()
 {
-    Item* equipped = inventory.equippedItem();
+    Item* equipped = player_inventory.equippedItem();
     if (equipped) {
         world.useItem(equipped);
-        inventory.changed = true;
+        player_inventory.changed = true;
     }
 }
 
@@ -94,7 +96,7 @@ Game_State Game::getState()
 
 Player_Inventory& Game::getInventory()
 {
-    return inventory;
+    return player_inventory;
 }
 
 Entity* Game::mousedEntity(sf::Vector2f mpos)

@@ -69,6 +69,11 @@ Chunk* Chunk_Loader::chunk(sf::Vector2i i)
     return c;
 }
 
+Chunk* Chunk_Loader::currentChunk()
+{
+    return chunks[current.x][current.y].get();
+}
+
 void Chunk_Loader::clear()
 {
     chunks.clear();
@@ -118,6 +123,15 @@ void Chunk_Loader::eraseTree(sf::Vector2i i)
     sf::Vector2i c = findChunk(i);
     if (validChunkIndex(c)) {
         chunks[c.x][c.y]->eraseTree(i);
+    }
+}
+
+void Chunk_Loader::addItem(Item* item, size_t count, sf::Vector2i coords)
+{
+    sf::Vector2i ci = findChunk(coords);
+    if (chunks.contains(ci.x) && chunks[ci.x].contains(ci.y)) {
+        sf::Vector2f pos = chunks[ci.x][ci.y]->getFloor(coords)->getPosition();
+        chunks[ci.x][ci.y]->addItem(item, count, pos);
     }
 }
 
