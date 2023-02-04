@@ -29,9 +29,11 @@ public:
     Floor* floor(sf::Vector2i i);
     Detail* detail(sf::Vector2i i);
     Tree* tree(sf::Vector2i i);
+    Rock* rock(sf::Vector2i i);
 
     void eraseDetail(sf::Vector2i i);
     void eraseTree(sf::Vector2i i);
+    void eraseRock(sf::Vector2i i);
 
     void addItem(Item* item, size_t count, sf::Vector2i coords);
 

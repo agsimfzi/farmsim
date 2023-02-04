@@ -13,4 +13,5 @@ struct Floor_Info {
     sf::Vector2i texture_pos;
     sf::Vector2i detail_pos;
     bool tree = false;
+    bool rock = false;
 };

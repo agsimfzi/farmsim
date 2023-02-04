@@ -7,6 +7,7 @@
 #include <item/item.hpp>
 
 #include "biome.hpp"
+#include "rock.hpp"
 #include "tile.hpp"
 #include "tree.hpp"
 
@@ -21,9 +22,11 @@ public:
     Floor* getFloor(sf::Vector2i i);
     Detail* getDetail(sf::Vector2i i);
     Tree* getTree(sf::Vector2i i);
+    Rock* getRock(sf::Vector2i i);
 
     void eraseDetail(sf::Vector2i i);
     void eraseTree(sf::Vector2i i);
+    void eraseRock(sf::Vector2i i);
 
     std::vector<std::shared_ptr<Item>>& getItems();
 
@@ -38,6 +41,7 @@ private:
     Map_Tile<std::shared_ptr<Floor>> floor;
     Map_Tile<std::shared_ptr<Detail>> details;
     Map_Tile<std::shared_ptr<Tree>> trees;
+    Map_Tile<std::shared_ptr<Rock>> rocks;
     std::vector<std::shared_ptr<Item>> items;
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
 };

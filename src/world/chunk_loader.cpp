@@ -110,6 +110,16 @@ Tree* Chunk_Loader::tree(sf::Vector2i i)
     return t;
 }
 
+Rock* Chunk_Loader::rock(sf::Vector2i i)
+{
+    Rock* r = nullptr;
+    sf::Vector2i c = findChunk(i);
+    if (validChunkIndex(c)) {
+        r = chunks[c.x][c.y]->getRock(i);
+    }
+    return r;
+}
+
 void Chunk_Loader::eraseDetail(sf::Vector2i i)
 {
     sf::Vector2i c = findChunk(i);
@@ -123,6 +133,14 @@ void Chunk_Loader::eraseTree(sf::Vector2i i)
     sf::Vector2i c = findChunk(i);
     if (validChunkIndex(c)) {
         chunks[c.x][c.y]->eraseTree(i);
+    }
+}
+
+void Chunk_Loader::eraseRock(sf::Vector2i i)
+{
+    sf::Vector2i c = findChunk(i);
+    if (validChunkIndex(c)) {
+        chunks[c.x][c.y]->eraseRock(i);
     }
 }
 

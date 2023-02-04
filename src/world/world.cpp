@@ -138,9 +138,13 @@ void World::makeBiomes()
             else {
                 info.floor = Floor_Type::DIRT;
 
-                if (info.biome == Biome::FOREST && prng::boolean(0.2f) && !adjacentTree(coords)) {
+                if (prng::boolean(0.0007f)) {
+                    info.rock = true;
+                }
+                else if (((info.biome == Biome::FOREST && prng::boolean(0.2f))
+                || (info.biome == Biome::GRASSLAND && prng::boolean(0.003f)))
+                && !adjacentTree(coords)) {
                     info.tree = true;
-                    info.detail = Detail_Type::NULL_TYPE;
                 }
             }
             info.texture_pos = sf::Vector2i(0, (static_cast<int>(info.floor)) * roundFloat(Tile::tileSize));
@@ -268,7 +272,7 @@ std::vector<sf::FloatRect> World::getLocalImpassableTiles(sf::Vector2i p)
             }
             else {
                 Floor* f = chunks.floor(sf::Vector2i(x, y));
-                if (f && (f->detail == Detail_Type::WATER || tile_library[x][y].tree)) {
+                if (f && (f->detail == Detail_Type::WATER || tile_library[x][y].tree || tile_library[x][y].rock)) {
                     tiles.push_back(f->getGlobalBounds());
                 }
             }
@@ -344,7 +348,7 @@ void World::axe(int factor)
 {
     sf::Vector2i t = *activeTile;
     if (tile_library[t.x][t.y].tree) {
-        Tree* tree = chunks.tree(*activeTile);
+        Tree* tree = chunks.tree(t);
         if (tree) {
             tree->hit(factor);
             if (tree->dead()) {
@@ -353,7 +357,7 @@ void World::axe(int factor)
                 tile_library[t.x][t.y].tree = false;
                 chunks.eraseTree(t);
                 Item* item = item_library.item("wood");
-                size_t count = prng::number(5, 13);
+                size_t count = prng::number(7, 13);
                 chunks.addItem(item, count, t);
             }
         }
@@ -364,6 +368,19 @@ void World::pick(int factor)
 {
     if (!changeActiveTile(Floor_Type::TILLED, Floor_Type::DIRT)) {
         sf::Vector2i t = *activeTile;
+        if (tile_library[t.x][t.y].rock) {
+            Rock* rock = chunks.rock(t);
+            if (rock) {
+                rock->hit(factor);
+                if (rock->dead()) {
+                    tile_library[t.x][t.y].rock = false;
+                    chunks.eraseRock(t);
+                    Item* item = item_library.item("stone");
+                    size_t count = prng::number(2, 4);
+                    chunks.addItem(item, count, t);
+                }
+            }
+        }
         // check for rocks or whatever
     }
 }

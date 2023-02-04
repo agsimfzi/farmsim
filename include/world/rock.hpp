@@ -2,19 +2,14 @@
 
 #include <SFML/Graphics.hpp>
 
-class Tree : public sf::Sprite {
+class Rock : public sf::Sprite {
 public:
-    Tree() = default;
-    Tree(sf::Vector2i coordinates, const sf::Texture& texture);
+    Rock() = default;
+    Rock(sf::Vector2i coordinates, const sf::Texture& texture);
 
     bool dead();
     void hit(int dmg);
     void resetHealth();
-
-    enum Type {
-        BIRCH,
-        PINE
-    };
 
 private:
     sf::Vector2i coordinates;

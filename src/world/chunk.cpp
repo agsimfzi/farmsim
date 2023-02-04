@@ -26,6 +26,10 @@ Chunk::Chunk(sf::Vector2i start, sf::Vector2i size, Map_Tile<Floor_Info>& info)
                 tkey = "TREES";
                 trees[c.x][c.y] = std::make_shared<Tree>(c, Texture_Manager::get(tkey));
             }
+            else if (i.rock) {
+                tkey = "ROCKS";
+                rocks[c.x][c.y] = std::make_shared<Rock>(c, Texture_Manager::get(tkey));
+            }
         }
     }
     sf::Vector2f f_offset(Tile::tileSize / 2.f, Tile::tileSize / 2.f);
@@ -83,6 +87,15 @@ Tree* Chunk::getTree(sf::Vector2i i)
     return t;
 }
 
+Rock* Chunk::getRock(sf::Vector2i i)
+{
+    Rock* r = nullptr;
+    if (rocks.contains(i.x) && rocks[i.x].contains(i.y)) {
+        r = rocks[i.x][i.y].get();
+    }
+    return r;
+}
+
 void Chunk::eraseDetail(sf::Vector2i i)
 {
     if (details.contains(i.x) && details[i.x].contains(i.y)) {
@@ -94,6 +107,13 @@ void Chunk::eraseTree(sf::Vector2i i)
 {
     if (trees.contains(i.x) && trees[i.x].contains(i.y)) {
         trees[i.x].erase(i.y);
+    }
+}
+
+void Chunk::eraseRock(sf::Vector2i i)
+{
+    if (rocks.contains(i.x) && rocks[i.x].contains(i.y)) {
+        rocks[i.x].erase(i.y);
     }
 }
 
@@ -121,9 +141,15 @@ void Chunk::draw(sf::RenderTarget& target, sf::RenderStates states) const
             }
         }
     }
-    for (const auto& r : trees) {
-        for (const auto& tree : r.second) {
-            target.draw(*tree.second, states);
+
+    for (int x = i_bounds.left; x < i_bounds.left + i_bounds.width; x++) {
+        for (int y = i_bounds.top; y < i_bounds.top + i_bounds.height; y++) {
+            if (trees.contains(x) && trees.at(x).contains(y) && trees.at(x).at(y)) {
+                target.draw(*trees.at(x).at(y), states);
+            }
+            else if (rocks.contains(x) && rocks.at(x).contains(y) && rocks.at(x).at(y)) {
+                target.draw(*rocks.at(x).at(y), states);
+            }
         }
     }
 
