@@ -437,7 +437,8 @@ void World::checkPickup(Player_Inventory& inventory, Player& player)
     if (chunk) {
         std::vector<std::shared_ptr<Item>>& items = chunk->getItems();
         for (auto i = items.begin(); i != items.end();) {
-            if ((*i)->getSprite().getGlobalBounds().contains(player.getPosition())) {
+            if ((pickup_all || (*i)->can_pickup)
+                && (*i)->getSprite().getGlobalBounds().contains(player.getPosition())) {
                 inventory.addItem((*i).get(), (*i)->count());
                 items.erase(i);
             }
@@ -446,6 +447,21 @@ void World::checkPickup(Player_Inventory& inventory, Player& player)
             }
         }
     }
+}
+
+Chunk_Loader& World::getChunks()
+{
+    return chunks;
+}
+
+void World::pickupAll()
+{
+    pickup_all = true;
+}
+
+void World::stopPickupAll()
+{
+    pickup_all = false;
 }
 
 void World::tileToLibrary(sf::Vector2i i)

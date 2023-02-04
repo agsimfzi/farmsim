@@ -25,6 +25,7 @@ void Player_Inventory::resize(const size_t rows, const size_t cols)
 void Player_Inventory::addItem(Item* item, size_t count)
 {
     if (item) {
+        item->can_pickup = true;
         for (auto& i : items) {
             for (auto& j : i) {
                 if (j && item->getUID() == j->getUID()) {

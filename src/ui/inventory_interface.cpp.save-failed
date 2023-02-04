@@ -113,7 +113,7 @@ void Inventory_Interface::scrollRight()
 void Inventory_Interface::close()
 {
     if (dragging) {
-        cancelDrag();
+        endDrag();
     }
     expanded = false;
 }
@@ -149,11 +149,11 @@ void Inventory_Interface::checkDrag()
     }
 }
 
-void Inventory_Interface::endDrag(std::function<void(Item*)> drop)
+void Inventory_Interface::endDrag()
 {
     const sf::Vector2i mpos = sf::Mouse::getPosition();
     sf::Vector2i index = mousedIndex(mpos);
-    if (index.x >= 0 || index.y >= 0) {
+    if (index.x >= 0 && index.y >= 0) {
         if (cells[index.x][index.y].getItem()) {
             cells[dragStartIndex.x][dragStartIndex.y].setItem(cells[index.x][index.y].getItem());
             cells[index.x][index.y].clearItem();
@@ -161,8 +161,7 @@ void Inventory_Interface::endDrag(std::function<void(Item*)> drop)
         cells[index.x][index.y].setItem(dragItem.get());
     }
     else {
-        dragItem->can_pickup = false;
-        drop(dragItem.get());
+        cancelDrag();
     }
     sf::Vector2i i = dragStartIndex;
     if (cells[i.x][i.y].getItem()) {
@@ -179,8 +178,6 @@ void Inventory_Interface::endDrag(std::function<void(Item*)> drop)
 void Inventory_Interface::cancelDrag()
 {
     cells[dragStartIndex.x][dragStartIndex.y].setItem(dragItem.get());
-    dragging = false;
-    dragItem = nullptr;
 }
 
 sf::Vector2i Inventory_Interface::mousedIndex(const sf::Vector2i& mpos)

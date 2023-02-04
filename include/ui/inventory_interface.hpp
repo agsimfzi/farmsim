@@ -35,7 +35,8 @@ public:
 
     void startDrag();
     void checkDrag();
-    void endDrag();
+    void endDrag(std::function<void(Item*)> drop);
+    void cancelDrag();
 
     std::shared_ptr<Item> dragItem;
     sf::Text dragCountText;

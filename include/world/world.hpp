@@ -69,6 +69,11 @@ public:
 
     void checkPickup(Player_Inventory& inventory, Player& player);
 
+    Chunk_Loader& getChunks();
+
+    void pickupAll();
+    void stopPickupAll();
+
 private:
     bool changeActiveTile(Floor_Type prereq, Floor_Type ntype);
 
@@ -90,6 +95,8 @@ private:
     sf::Clock tickClock;
 
     std::unique_ptr<sf::Vector2i> activeTile;
+
+    bool pickup_all = false;
 
     void autotile(sf::Vector2i start, sf::Vector2i end, Detail_Type type);
     int autotileX(sf::Vector2i i, Detail_Type type);

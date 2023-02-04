@@ -35,6 +35,8 @@ public:
     void reduceUses();
     int useFactor();
 
+    bool can_pickup = true;
+
 private:
     sf::Sprite sprite;
 

@@ -151,7 +151,13 @@ bool UI::clickLeft()
 
     if (parsed) {
         if (inventory_interface.expanded) {
-            inventory_interface.startDrag();
+            if (inventory_interface.dragging) {
+                auto drop = [&](Item* i) { game.getWorld().getChunks().addItem(i, i->count(), game.getPlayer().getCoordinates(Tile::tileSize)); };
+                inventory_interface.endDrag(drop);
+            }
+            else {
+                inventory_interface.startDrag();
+            }
         }
         else if(minimap.isExpanded()) {
             minimap.startDrag();
@@ -166,10 +172,7 @@ bool UI::releaseLeft()
     bool parsed = overlay_active;
 
     if (parsed) {
-        if (inventory_interface.expanded) {
-            inventory_interface.endDrag();
-        }
-        else if(minimap.isExpanded()) {
+        if(minimap.isExpanded()) {
             minimap.endDrag();
         }
     }
@@ -179,16 +182,26 @@ bool UI::releaseLeft()
 
 bool UI::clickRight()
 {
-    return overlay_active;
+    bool parsed = overlay_active;
+    if (parsed) {
+        if (inventory_interface.expanded) {
+            if (inventory_interface.dragging) {
+                inventory_interface.cancelDrag();
+            }
+            else {
+                closeOverlay();
+            }
+        }
+        else if (minimap.isExpanded()) {
+            closeOverlay();
+        }
+    }
+    return parsed;
 }
 
 bool UI::releaseRight()
 {
     bool parsed = overlay_active;
-
-    if (parsed) {
-        closeOverlay();
-    }
 
     return parsed;
 }

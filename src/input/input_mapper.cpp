@@ -166,8 +166,13 @@ void Input_Mapper::setActions(const sf::Font& font, const std::map<std::string, 
     rows.clear();
     sf::Vector2f rpos = pos;
 
-    static std::vector<std::string> order = { "Move North", "Move West", "Move South", "Move East"
-                                            , "Open Inventory", "Open Map" };
+    static std::vector<std::string> order = { "Move North"
+                                            , "Move West"
+                                            , "Move South"
+                                            , "Move East"
+                                            , "Open Inventory"
+                                            , "Open Map"
+                                            , "Pickup All" };
 
     size_t n = order.size();
 
