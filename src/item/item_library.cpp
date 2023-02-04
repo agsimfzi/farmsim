@@ -26,6 +26,9 @@ Item_Library::Item_Library()
             case 2:
                 texture = "PLANTS";
                 break;
+            case 3:
+                texture = "BUILDINGS";
+                break;
         }
 
         size_t sheet_id = item.uid % 1000;

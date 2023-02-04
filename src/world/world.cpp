@@ -138,7 +138,7 @@ void World::makeBiomes()
             else {
                 info.floor = Floor_Type::DIRT;
 
-                if (prng::boolean(0.0007f)) {
+                if (prng::boolean(0.001f)) {
                     info.rock = true;
                 }
                 else if (((info.biome == Biome::FOREST && prng::boolean(0.2f))
@@ -378,6 +378,23 @@ void World::pick(int factor)
                     Item* item = item_library.item("stone");
                     size_t count = prng::number(2, 4);
                     chunks.addItem(item, count, t);
+                    item = nullptr;
+                    unsigned int ore_roll = prng::number(0u, 100u);
+                    if (ore_roll < 12) {
+                        item = item_library.item("copper ore");
+                        count = prng::number(3, 4);
+                    }
+                    else if (ore_roll < 18) {
+                        item = item_library.item("iron ore");
+                        count = prng::number(2, 3);
+                    }
+                    else if (ore_roll < 21) {
+                        item = item_library.item("gold ore");
+                        count = prng::number(1, 2);
+                    }
+                    if (item) {
+                        chunks.addItem(item, count, t);
+                    }
                 }
             }
         }
