@@ -19,11 +19,13 @@
 #include <input/action.hpp>
 
 #include <item/item_data.hpp>
+#include <item/reactions.hpp>
 
 #include <resources/font.hpp>
 
 #include <sqlite3.h>
 
+#include <world/building.hpp>
 #include <world/crop_data.hpp>
 #include <world/tile.hpp>
 
@@ -50,6 +52,8 @@ public:
     static std::vector<Item_Data> getItemPrototypes();
 
     static std::vector<Crop_Data> getCropPrototypes();
+
+    static std::map<Building::Type, std::vector<Reaction>> getReactions();
 
     static std::map<std::string, Action_Trigger> getActions();
 

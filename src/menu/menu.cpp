@@ -38,15 +38,15 @@ Menu::Menu()
     std::string status = AutoVersion::STATUS;
     std::string major = std::to_string(AutoVersion::MAJOR);
     std::string minor = std::to_string(AutoVersion::MINOR);
-    while (minor.length() < 3) {
+    while (minor.length() < 2) {
         minor = '0' + minor;
     }
     std::string build = std::to_string(AutoVersion::BUILD);
-    while (build.length() < 6) {
+    while (build.length() < 5) {
         build = '0' + build;
     }
 
-    std::string version = status + ' ' + major + '.' + minor + " build " + build;
+    std::string version = status + ' ' + major + '.' + minor + '.' + build;
 
     version_text =  sf::Text(version, font, 36);
     version_text.setPosition(sf::Vector2f(1500.f, 24.f));

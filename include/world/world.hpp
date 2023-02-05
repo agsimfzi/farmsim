@@ -8,6 +8,7 @@
 
 #include <entity/player.hpp>
 
+#include <item/building_library.hpp>
 #include <item/item.hpp>
 #include <item/item_library.hpp>
 #include <item/player_inventory.hpp>
@@ -49,6 +50,7 @@ public:
     void water();
     void axe(int factor);
     void pick(int factor);
+    void hammer();
 
     void plantCrop(Item* item);
 
@@ -74,10 +76,13 @@ public:
     void pickupAll();
     void stopPickupAll();
 
+    Building* activeBuilding();
+
 private:
     bool changeActiveTile(Floor_Type prereq, Floor_Type ntype);
 
     Item_Library& item_library;
+    Building_Library building_library;
     Crop_Library crop_library;
 
     Map_Tile<Floor_Info> tile_library;
@@ -109,6 +114,9 @@ private:
     void tileToLibrary(Floor* f);
 
     bool adjacentTree(sf::Vector2i i);
+
+    bool emptyTile(sf::Vector2i i);
+    bool emptyTile(Floor_Info& info);
 
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
 };

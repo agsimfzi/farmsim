@@ -1,7 +1,9 @@
 #pragma once
 
+#include <memory>
+
 #include "biome.hpp"
-#INCLUDE "building.hpp"
+#include "building.hpp"
 #include "tile_type.hpp"
 #include "tree.hpp"
 
@@ -15,5 +17,5 @@ struct Floor_Info {
     sf::Vector2i detail_pos;
     bool tree = false;
     bool rock = false;
-    Building::Type building = Building::NULL_TYPE;
+    std::unique_ptr<Building> building = nullptr;
 };

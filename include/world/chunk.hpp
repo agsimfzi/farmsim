@@ -23,13 +23,16 @@ public:
     Detail* getDetail(sf::Vector2i i);
     Tree* getTree(sf::Vector2i i);
     Rock* getRock(sf::Vector2i i);
+    sf::Sprite* getBuilding(sf::Vector2i i);
 
     void eraseDetail(sf::Vector2i i);
     void eraseTree(sf::Vector2i i);
     void eraseRock(sf::Vector2i i);
+    void eraseBuilding(sf::Vector2i i);
 
     std::vector<std::shared_ptr<Item>>& getItems();
 
+    void addBuilding(size_t uid, sf::Vector2i c);
     void addItem(Item* item, size_t count, sf::Vector2f pos);
 
 private:
@@ -42,6 +45,7 @@ private:
     Map_Tile<std::shared_ptr<Detail>> details;
     Map_Tile<std::shared_ptr<Tree>> trees;
     Map_Tile<std::shared_ptr<Rock>> rocks;
+    Map_Tile<std::shared_ptr<sf::Sprite>> buildings;
     std::vector<std::shared_ptr<Item>> items;
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
 };

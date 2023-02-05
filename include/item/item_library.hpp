@@ -14,6 +14,9 @@ public:
     Item* item(std::string name);
     Item* item(size_t uid);
 
+    Item* operator ()(size_t uid) { return uidShelf[uid].get(); }
+    Item* operator ()(std::string name) { return item(name); }
+
 private:
     std::map<std::string, std::shared_ptr<Item>> stringShelf;
     std::map<size_t, std::shared_ptr<Item>> uidShelf;

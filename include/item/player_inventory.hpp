@@ -24,6 +24,7 @@ public:
     Item* equippedItem();
 
     void setEquipped(size_t index);
+    void takeEquipped(int count = -1);
 
     bool changed = true; // for polling
 

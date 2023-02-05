@@ -55,8 +55,10 @@ void World::interact(Player_Inventory& player_inventory)
     if (activeTile) {
         sf::Vector2i t = *activeTile;
         Floor* f = chunks.floor(*activeTile);
+        Floor_Info& info = tile_library[t.x][t.y];
         if (f) {
-            if (f->planted) {
+            Item* i = player_inventory.equippedItem();
+            if (f->planted && !i) { // harvesting
                 if (!crops[t.x].contains(t.y)) {
                     std::cout << "FAILED TO FIND CROP AT TILE " << t << '\n';
                 }
@@ -67,13 +69,17 @@ void World::interact(Player_Inventory& player_inventory)
                     f->planted = false;
                 }
             }
-            else if (f->detail == Detail_Type::WATER) {
-                Item* i = player_inventory.equippedItem();
-                if (i && i->getUID() == 1) {
+            else if (i) { // VALID ITEM
+                if (f->detail == Detail_Type::WATER && i->getUID() == 1) { // watering can
                     i->resetUses();
                     player_inventory.changed = true;
                 }
-            }
+                else if (i->getType() == Item_Type::BUILDING && emptyTile(info)) {
+                    info.building = std::make_unique<Building>(*building_library(i->getUID()));
+                    chunks.addBuilding(i->getUID(), t);
+                    player_inventory.takeEquipped();
+                }
+            } // VALID ITEM
         }
     }
 }
@@ -271,8 +277,9 @@ std::vector<sf::FloatRect> World::getLocalImpassableTiles(sf::Vector2i p)
                 tiles.push_back(t->getGlobalBounds());
             }
             else {
-                Floor* f = chunks.floor(sf::Vector2i(x, y));
-                if (f && (f->detail == Detail_Type::WATER || tile_library[x][y].tree || tile_library[x][y].rock)) {
+                sf::Vector2i c(x, y);
+                Floor* f = chunks.floor(c);
+                if (f && (f->detail == Detail_Type::WATER || !emptyTile(c))) {
                     tiles.push_back(f->getGlobalBounds());
                 }
             }
@@ -300,6 +307,8 @@ void World::useTool(Item* item)
 {
     if (activeTile) {
         switch (item->getUID()) {
+            default:
+                break;
             case 0: // hoe
                 hoe();
                 break;
@@ -309,13 +318,14 @@ void World::useTool(Item* item)
                     item->reduceUses();
                 }
                 break;
-            default:
-                break;
             case 2: // axe
                 axe(item->useFactor());
                 break;
             case 3: // pick
                 pick(item->useFactor());
+                break;
+            case 4: // hammer
+                hammer();
                 break;
         }
     }
@@ -324,7 +334,7 @@ void World::useTool(Item* item)
 void World::hoe()
 {
     sf::Vector2i t = *activeTile;
-    if (tile_library[t.x][t.y].floor == Floor_Type::DIRT && !tile_library[t.x][t.y].tree) {
+    if (tile_library[t.x][t.y].floor == Floor_Type::DIRT && emptyTile(t)) {
         Floor* f = chunks.floor(*activeTile);
         if (f->detail == Detail_Type::GRASS) {
             f->detail = Detail_Type::NULL_TYPE;
@@ -399,6 +409,19 @@ void World::pick(int factor)
             }
         }
         // check for rocks or whatever
+    }
+}
+
+void World::hammer()
+{
+    if (activeTile) {
+        sf::Vector2i t = *activeTile;
+        Building* b = tile_library[t.x][t.y].building.get();
+        if (b) {
+            chunks.addItem(item_library(b->uid), 1, t);
+            tile_library[t.x][t.y].building = nullptr;
+            chunks.eraseBuilding(t);
+        }
     }
 }
 
@@ -534,6 +557,16 @@ bool World::adjacentTree(sf::Vector2i i)
         }
     }
     return false;
+}
+
+bool World::emptyTile(sf::Vector2i i)
+{
+    return emptyTile(tile_library[i.x][i.y]);
+}
+
+bool World::emptyTile(Floor_Info& info)
+{
+    return (!info.tree && !info.rock && !info.building);
 }
 
 void World::draw(sf::RenderTarget& target, sf::RenderStates states) const

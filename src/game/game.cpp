@@ -14,15 +14,18 @@ Game::Game(sf::View& nview)
     player = Player(Database::getPlayerData(), Texture_Manager::get("PLAYER"));
     player.setPosition(sf::Vector2f(0.f, 0.f));
 
-    player_inventory.addItem(item_library.item(0));
-    player_inventory.addItem(item_library.item(1));
-    player_inventory.addItem(item_library.item(2));
-    player_inventory.addItem(item_library.item(3));
+    player_inventory.addItem(item_library(0));
+    player_inventory.addItem(item_library(1));
+    player_inventory.addItem(item_library(2));
+    player_inventory.addItem(item_library(3));
+    player_inventory.addItem(item_library("hammer"));
 
-    player_inventory.addItem(item_library.item(100), 25);
+    player_inventory.addItem(item_library(100), 25);
 
-    player_inventory.addItem(item_library.item(1000), 50);
-    player_inventory.addItem(item_library.item(1001), 50);
+    player_inventory.addItem(item_library(1000), 50);
+    player_inventory.addItem(item_library(1001), 50);
+
+    player_inventory.addItem(item_library("furnace"));
 }
 
 void Game::update(float deltaTime)

@@ -30,6 +30,9 @@ Chunk::Chunk(sf::Vector2i start, sf::Vector2i size, Map_Tile<Floor_Info>& info)
                 tkey = "ROCKS";
                 rocks[c.x][c.y] = std::make_shared<Rock>(c, Texture_Manager::get(tkey));
             }
+            else if (i.building) {
+                addBuilding(i.building->uid, c);
+            }
         }
     }
     sf::Vector2f f_offset(Tile::tileSize / 2.f, Tile::tileSize / 2.f);
@@ -96,6 +99,15 @@ Rock* Chunk::getRock(sf::Vector2i i)
     return r;
 }
 
+sf::Sprite* Chunk::getBuilding(sf::Vector2i i)
+{
+    sf::Sprite* b = nullptr;
+    if (buildings.contains(i.x) && buildings[i.x].contains(i.y)) {
+        b = buildings[i.x][i.y].get();
+    }
+    return b;
+}
+
 void Chunk::eraseDetail(sf::Vector2i i)
 {
     if (details.contains(i.x) && details[i.x].contains(i.y)) {
@@ -117,9 +129,42 @@ void Chunk::eraseRock(sf::Vector2i i)
     }
 }
 
+void Chunk::eraseBuilding(sf::Vector2i i)
+{
+    if (buildings.contains(i.x) && buildings[i.x].contains(i.y)) {
+        buildings[i.x].erase(i.y);
+    }
+}
+
 std::vector<std::shared_ptr<Item>>& Chunk::getItems()
 {
     return items;
+}
+
+void Chunk::addBuilding(size_t uid, sf::Vector2i c)
+{
+    sf::Sprite sprite;
+
+    std::string texture = "BUILDINGS";
+
+    size_t sheet_id = uid % 1000;
+
+    texture += std::to_string(sheet_id / 100);
+
+    sheet_id %= 100;
+
+    sprite.setTexture(Texture_Manager::get(texture));
+
+    sf::Vector2i pos;
+    pos.x = (sheet_id % 10) * 64;
+    pos.y = (sheet_id / 10) * 64;
+    sf::Vector2i size(64, 64);
+    sprite.setTextureRect(sf::IntRect(pos, size));
+    sprite.setOrigin(sf::Vector2f(size) / 2.f);
+    sf::Vector2f p(c);
+    p *= Tile::tileSize;
+    sprite.setPosition(p);
+    buildings[c.x][c.y] = std::make_shared<sf::Sprite>(sprite);
 }
 
 void Chunk::addItem(Item* item, size_t count, sf::Vector2f pos)
@@ -149,6 +194,9 @@ void Chunk::draw(sf::RenderTarget& target, sf::RenderStates states) const
             }
             else if (rocks.contains(x) && rocks.at(x).contains(y) && rocks.at(x).at(y)) {
                 target.draw(*rocks.at(x).at(y), states);
+            }
+            else if (buildings.contains(x) && buildings.at(x).contains(y) && buildings.at(x).at(y)) {
+                target.draw(*buildings.at(x).at(y), states);
             }
         }
     }

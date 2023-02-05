@@ -98,7 +98,7 @@ size_t Inventory_Interface::getEquippedIndex()
 void Inventory_Interface::scrollLeft()
 {
     if (equippedIndex == 0) {
-        setEquippedIndex(cells.size() - 1);
+        setEquippedIndex(cells[0].size() - 1);
     }
     else {
         setEquippedIndex(equippedIndex - 1);

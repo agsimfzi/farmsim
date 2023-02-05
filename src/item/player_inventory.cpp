@@ -92,6 +92,16 @@ Item* Player_Inventory::equippedItem()
     return items[equippedRow][equippedIndex].get();
 }
 
+void Player_Inventory::takeEquipped(int count)
+{
+    if (items[equippedRow][equippedIndex]) {
+        if (count < 0) {
+            count = equippedItem()->count();
+            takeItem(equippedRow, equippedIndex, count);
+        }
+    }
+}
+
 void Player_Inventory::setEquipped(size_t index)
 {
     if (index >= rowWidth) {

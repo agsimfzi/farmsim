@@ -34,7 +34,9 @@ public:
     void eraseDetail(sf::Vector2i i);
     void eraseTree(sf::Vector2i i);
     void eraseRock(sf::Vector2i i);
+    void eraseBuilding(sf::Vector2i i);
 
+    void addBuilding(size_t uid, sf::Vector2i coords);
     void addItem(Item* item, size_t count, sf::Vector2i coords);
 
 private:

@@ -144,6 +144,22 @@ void Chunk_Loader::eraseRock(sf::Vector2i i)
     }
 }
 
+void Chunk_Loader::eraseBuilding(sf::Vector2i i)
+{
+    sf::Vector2i c = findChunk(i);
+    if (validChunkIndex(c)) {
+        chunks[c.x][c.y]->eraseBuilding(i);
+    }
+}
+
+void Chunk_Loader::addBuilding(size_t uid, sf::Vector2i coords)
+{
+    sf::Vector2i ci = findChunk(coords);
+    if (chunks.contains(ci.x) && chunks[ci.x].contains(ci.y)) {
+        chunks[ci.x][ci.y]->addBuilding(uid, coords);
+    }
+}
+
 void Chunk_Loader::addItem(Item* item, size_t count, sf::Vector2i coords)
 {
     sf::Vector2i ci = findChunk(coords);
