@@ -127,7 +127,7 @@ Direction randomPerpendicularDirection(Direction odirect)
 
 Direction normalizeDirection(const Direction ref, const Direction d)
 {
-    Direction r;
+    Direction r = Direction::NULL_DIRECTION;
     switch (ref) {
         case Direction::W:
             if (d == Direction::W) {
@@ -175,7 +175,6 @@ Direction normalizeDirection(const Direction ref, const Direction d)
             }
             break;
         default:
-            r = Direction::NULL_DIRECTION;
             break;
     } //case NORTH is excluded because Direction is already normalized to it
 

@@ -6,9 +6,11 @@
 
 class Building_Interface : public sf::Drawable {
 public:
-    Building_Interface() = default;
+    Building_Interface();
 
 private:
+    sf::Text title;
+    sf::RectangleShape frame;
     Inventory_Cell reagant;
     Inventory_Cell product;
 

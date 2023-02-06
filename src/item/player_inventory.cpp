@@ -97,8 +97,8 @@ void Player_Inventory::takeEquipped(int count)
     if (items[equippedRow][equippedIndex]) {
         if (count < 0) {
             count = equippedItem()->count();
-            takeItem(equippedRow, equippedIndex, count);
         }
+        takeItem(equippedRow, equippedIndex, count);
     }
 }
 

@@ -44,6 +44,8 @@ public:
     bool clickRight();
     bool releaseRight();
 
+    void checkBuilding();
+
 private:
     sf::RenderWindow& window;
     Game& game;

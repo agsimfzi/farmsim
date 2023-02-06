@@ -2,6 +2,9 @@
 
 #include <SFML/Graphics.hpp>
 
+#include <memory>
+
+#include <item/item.hpp>
 #include <item/reactions.hpp>
 
 class Building {
@@ -10,14 +13,17 @@ public:
 
     std::string name;
     size_t uid;
-
     int value;
 
     bool active = false;
     std::vector<Reaction> reactions;
 
+    std::shared_ptr<Item> active_reagant = nullptr;
+    std::shared_ptr<Item> active_product = nullptr;
+
     enum Type {
         FURNACE,
+        CONTAINER,
         NULL_TYPE
     };
 
@@ -32,4 +38,10 @@ public:
             return Type::NULL_TYPE;
         }
     }
+
+    bool interface = true;
+
+    bool validReagant(std::string name);
+
+    void checkReaction();
 };

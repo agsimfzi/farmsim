@@ -31,7 +31,7 @@ void UI::init()
 
 void UI::update()
 {
-    if (inventory_interface.expanded) {
+    if (inventory_interface.open) {
         inventory_interface.checkDrag();
     }
     inventory_interface.pollChanges();
@@ -62,7 +62,7 @@ void UI::setMouseover(Entity* entity)
 
 void UI::scroll(float delta)
 {
-    if (!overlay_active && !inventory_interface.expanded) {
+    if (!overlay_active && !inventory_interface.open) {
         // parse "reverse inventory_interface scroll" setting
         if (delta > 0.f) {
             inventory_interface.scrollLeft();
@@ -77,7 +77,7 @@ void UI::scroll(float delta)
 
 void UI::numRelease(int num)
 {
-    if (!overlay_active && !inventory_interface.expanded) {
+    if (!overlay_active && !inventory_interface.open) {
         inventory_interface.setEquippedIndex(num);
 
         game.getInventory().setEquipped(inventory_interface.getEquippedIndex());
@@ -107,12 +107,13 @@ void UI::resize(sf::Vector2u windowSize)
 
 void UI::toggleInventory()
 {
-    if (inventory_interface.expanded) {
-        inventory_interface.expanded = false;
+    if (inventory_interface.open) {
+        inventory_interface.close();
         overlay_active = false;
+        game.getWorld().closeActiveBuilding();
     }
     else if (!overlay_active) {
-        inventory_interface.expanded = true;
+        inventory_interface.open = true;
         overlay_active = true;
     }
 }
@@ -132,7 +133,7 @@ void UI::toggleMap()
 void UI::closeOverlay()
 {
     overlay_active = false;
-    if (inventory_interface.expanded) {
+    if (inventory_interface.open) {
         inventory_interface.close();
     }
     else if(minimap.isExpanded()) {
@@ -150,7 +151,7 @@ bool UI::clickLeft()
     bool parsed = overlay_active;
 
     if (parsed) {
-        if (inventory_interface.expanded) {
+        if (inventory_interface.open) {
             if (inventory_interface.dragging) {
                 auto drop = [&](Item* i) { game.getWorld().getChunks().addItem(i, i->count(), game.getPlayer().getCoordinates(Tile::tileSize)); };
                 inventory_interface.endDrag(drop);
@@ -184,7 +185,7 @@ bool UI::clickRight()
 {
     bool parsed = overlay_active;
     if (parsed) {
-        if (inventory_interface.expanded) {
+        if (inventory_interface.open) {
             if (inventory_interface.dragging) {
                 inventory_interface.cancelDrag();
             }
@@ -204,6 +205,16 @@ bool UI::releaseRight()
     bool parsed = overlay_active;
 
     return parsed;
+}
+
+void UI::checkBuilding()
+{
+    game.getWorld().setActiveBuilding();
+    Building* b = game.getWorld().activeBuilding();
+    if (b) {
+        toggleInventory();
+        inventory_interface.loadBuilding(b);
+    }
 }
 
 void UI::draw(sf::RenderTarget& target, sf::RenderStates states) const

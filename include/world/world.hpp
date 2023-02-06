@@ -76,10 +76,14 @@ public:
     void pickupAll();
     void stopPickupAll();
 
+    void setActiveBuilding();
+    void closeActiveBuilding();
     Building* activeBuilding();
 
 private:
     bool changeActiveTile(Floor_Type prereq, Floor_Type ntype);
+
+    Building* active_building{ nullptr };
 
     Item_Library& item_library;
     Building_Library building_library;

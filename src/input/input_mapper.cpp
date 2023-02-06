@@ -172,7 +172,8 @@ void Input_Mapper::setActions(const sf::Font& font, const std::map<std::string, 
                                             , "Move East"
                                             , "Open Inventory"
                                             , "Open Map"
-                                            , "Pickup All" };
+                                            , "Pickup All"
+                                            , "Open Building" };
 
     size_t n = order.size();
 

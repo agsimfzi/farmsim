@@ -72,6 +72,10 @@ Input_Handler::Input_Handler(sf::RenderWindow& nwindow, Game& game, UI& ui, Menu
             press = std::bind(&World::pickupAll, &game.getWorld());
             release = std::bind(&World::stopPickupAll, &game.getWorld());
         }
+        else if (action.first == "Open Building") {
+            press = std::bind(&UI::checkBuilding, &ui);
+            release = [](){};
+        }
 
         placeActionTrigger(action, press, release);
     }

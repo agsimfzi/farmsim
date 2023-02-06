@@ -93,3 +93,12 @@ int roundFloat(float f)
 {
     return static_cast<int>(f + 0.5f);
 }
+
+std::string makeUppercase(std::string str){
+    std::transform(str.begin(), str.end(), str.begin(), ::toupper);
+    return str;
+}
+
+bool equalStrings(std::string s1, std::string s2){
+    return makeUppercase(s1) == makeUppercase(s2);
+}

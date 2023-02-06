@@ -19,7 +19,7 @@
 World::World(Item_Library& item_library)
     : item_library { item_library }
 {
-    sf::Vector2i size(64, 64);
+    sf::Vector2i size(16, 16);
     size.x *= chunks.chunk_size.x;
     size.y *= chunks.chunk_size.y;
     size.y -= 1;
@@ -58,7 +58,7 @@ void World::interact(Player_Inventory& player_inventory)
         Floor_Info& info = tile_library[t.x][t.y];
         if (f) {
             Item* i = player_inventory.equippedItem();
-            if (f->planted && !i) { // harvesting
+            if (f->planted && !i) { // HARVEST
                 if (!crops[t.x].contains(t.y)) {
                     std::cout << "FAILED TO FIND CROP AT TILE " << t << '\n';
                 }
@@ -68,7 +68,7 @@ void World::interact(Player_Inventory& player_inventory)
                     f->setType(Floor_Type::TILLED);
                     f->planted = false;
                 }
-            }
+            } // END HARVEST
             else if (i) { // VALID ITEM
                 if (f->detail == Detail_Type::WATER && i->getUID() == 1) { // watering can
                     i->resetUses();
@@ -79,7 +79,23 @@ void World::interact(Player_Inventory& player_inventory)
                     chunks.addBuilding(i->getUID(), t);
                     player_inventory.takeEquipped();
                 }
-            } // VALID ITEM
+                else if (info.building && info.building->validReagant(i->getName())) { // ADD REAGANT
+                    if (!info.building->active_reagant) {
+                        std::cout << "reagants are empty\n";
+                        info.building->active_reagant = std::make_unique<Item>(*i);
+                        info.building->active_reagant->setCount(1);
+                        player_inventory.takeEquipped(1);
+                        player_inventory.changed = true;
+                    }
+                    else if (info.building->active_reagant->getName() == i->getName()) {
+                        std::cout << "reagant present, count from " << info.building->active_reagant->count() << " to ";
+                        info.building->active_reagant->add(1);
+                        player_inventory.takeEquipped(1);
+                        player_inventory.changed = true;
+                        std::cout << info.building->active_reagant->count() << '\n';
+                    }
+                } // ADD REAGANT
+            } // END VALID ITEM
         }
     }
 }
@@ -519,6 +535,30 @@ void World::pickupAll()
 void World::stopPickupAll()
 {
     pickup_all = false;
+}
+
+void World::setActiveBuilding()
+{
+    if (activeTile) {
+        sf::Vector2i t = *activeTile;
+        Building* b = tile_library[t.x][t.y].building.get();
+        if (b) {
+            active_building = b;
+        }
+        else {
+            active_building = nullptr;
+        }
+    }
+}
+
+void World::closeActiveBuilding()
+{
+    active_building = nullptr;
+}
+
+Building* World::activeBuilding()
+{
+    return active_building;
 }
 
 void World::tileToLibrary(sf::Vector2i i)

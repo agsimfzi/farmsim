@@ -4,6 +4,9 @@
 
 #include <item/player_inventory.hpp>
 
+#include <world/building.hpp>
+
+#include "building_interface.hpp"
 #include "inventory_cell.hpp"
 
 class Inventory_Interface : public sf::Drawable {
@@ -27,9 +30,9 @@ public:
 
     void pollChanges();
 
-    bool expanded = false;
-
+    bool open = false;
     bool dragging = false;
+    bool expanded = false;
 
     void close();
 
@@ -41,12 +44,16 @@ public:
     std::shared_ptr<Item> dragItem;
     sf::Text dragCountText;
 
+    void loadBuilding(Building* b);
+
 private:
+    void placeMergeSwap(sf::Vector2i i);
     void resize();
     void placeCells();
     size_t equippedIndex = 0;
     sf::Vector2i mousedIndex(const sf::Vector2i& mpos);
     const static float cell_padding;
     sf::Vector2i dragStartIndex;
+    Building* building = nullptr;
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
 };

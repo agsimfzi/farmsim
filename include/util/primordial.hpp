@@ -123,13 +123,16 @@ float calculateAngle(sf::Vector2f pos1, sf::Vector2f pos2);
 void calculateMoveVector(float angle, float velocity, sf::Vector2f& moveVector);
 sf::Vector2f calculateMoveVector(sf::Vector2f start, sf::Vector2f end, float speed);
 
+int roundFloat(float f);
+
+std::string makeUppercase(std::string str);
+bool equalStrings(std::string s1, std::string s2);
+
 template <typename T>
 T scalarProduct(const sf::Vector2<T>& v, const sf::Vector2<T>& w)
 {
     return ((v.x * w.x) + (v.y * w.y));
 }
-
-int roundFloat(float f);
 
 template <typename T>
 int sign(T val)
