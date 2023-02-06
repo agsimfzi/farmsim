@@ -2,8 +2,6 @@
 
 #include <resources/font_manager.hpp>
 
-#include <util/vector2_stream.hpp>
-
 const sf::Vector2f Inventory_Cell::frameSize = sf::Vector2f(64.f, 64.f);
 const float Inventory_Cell::frameOutlineSize = 2.f;
 
@@ -65,7 +63,6 @@ void Inventory_Cell::setItem(Item* i)
             item = std::make_unique<Item>(*i);
             item->setSprite(i->getSprite());
             item->setPosition(frame.getPosition());
-            std::cout << "item set to " << item->getName() << " and placed at " << item->getPosition();
         }
 
 

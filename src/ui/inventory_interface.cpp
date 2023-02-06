@@ -6,8 +6,6 @@
 
 #include <world/tile.hpp>
 
-#include <util/vector2_stream.hpp>
-
 const float Inventory_Interface::cell_padding = Inventory_Cell::frameOutlineSize;
 
 Inventory_Interface::Inventory_Interface(Player_Inventory& inventory)
@@ -165,7 +163,6 @@ void Inventory_Interface::startDrag()
         sf::Vector2u i(index);
         Item* item = cells[i.x][i.y].getItem();
         if (item) {
-            std::cout << "dragging " << item->count() << ' ' << item->getName() << '\n';
             dragItem = std::make_shared<Item>(*item);
             cells[i.x][i.y].clearItem();
             dragging = true;
@@ -176,20 +173,15 @@ void Inventory_Interface::startDrag()
             }
             dragCountText.setString(text);
             if (i.x < inventory.rowCount) {
-                std::cout << "\terasing from inventory\n";
                 inventory.clearItem(i.x, i.y);
             }
             else if (building) {
-                std::cout << "\t\treading building\n";
                 if (building->type != Building::CONTAINER) {
-                    std::cout << "\t\tproper type\n";
                     if (i.x == inventory.rowCount) {
-                        std::cout << "\terasing reagant\n";
                         building->clearReagant();
                         clearProgressBar();
                     }
                     else if (i.x == inventory.rowCount + 1) {
-                        std::cout << "\terasing product\n";
                         building->clearProduct();
                     }
                 }
@@ -354,8 +346,6 @@ void Inventory_Interface::cancelDrag()
 
 sf::Vector2i Inventory_Interface::mousedIndex(const sf::Vector2i& mpos)
 {
-    sf::Vector2i index(-1, -1);
-
     size_t nr = cells.size();
     size_t nc;
 
@@ -363,14 +353,12 @@ sf::Vector2i Inventory_Interface::mousedIndex(const sf::Vector2i& mpos)
         nc = cells[r].size();
         for (size_t c = 0; c < nc; c++) {
             if (cells[r][c].contains(mpos)) {
-                index = sf::Vector2i(r, c);
-                std::cout << "found moused index at " << index << '\n';
-                goto END;
+                return sf::Vector2i(r, c);
             }
         }
     }
 
-    END: return index;
+    return sf::Vector2i(-1, -1);
 }
 
 void Inventory_Interface::loadBuilding(Building* b)
@@ -396,9 +384,6 @@ void Inventory_Interface::loadBuilding(Building* b)
             c.push_back(Inventory_Cell(b->activeProduct()));
             c.back().setPosition(pos);
             cells.emplace_back(std::move(c));
-
-            std::cout << "loaded building, cell row count is now " << cells.size() << '\n';
-
             setProgressBarSize();
         }
         else {
