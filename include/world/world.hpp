@@ -105,6 +105,8 @@ private:
 
     std::unique_ptr<sf::Vector2i> activeTile;
 
+    std::vector<std::shared_ptr<Building>> buildings;
+
     bool pickup_all = false;
 
     void autotile(sf::Vector2i start, sf::Vector2i end, Detail_Type type);
@@ -121,6 +123,8 @@ private:
 
     bool emptyTile(sf::Vector2i i);
     bool emptyTile(Floor_Info& info);
+
+    void checkBuildings();
 
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
 };

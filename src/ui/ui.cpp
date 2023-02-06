@@ -32,7 +32,7 @@ void UI::init()
 void UI::update()
 {
     if (inventory_interface.open) {
-        inventory_interface.checkDrag();
+        inventory_interface.update();
     }
     inventory_interface.pollChanges();
 

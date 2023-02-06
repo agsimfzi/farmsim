@@ -19,7 +19,7 @@
 #include <input/action.hpp>
 
 #include <item/item_data.hpp>
-#include <item/reactions.hpp>
+#include <item/reaction.hpp>
 
 #include <resources/font.hpp>
 

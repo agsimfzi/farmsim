@@ -2,6 +2,8 @@
 
 #include <resources/font_manager.hpp>
 
+#include <util/vector2_stream.hpp>
+
 const sf::Vector2f Inventory_Cell::frameSize = sf::Vector2f(64.f, 64.f);
 const float Inventory_Cell::frameOutlineSize = 2.f;
 
@@ -55,25 +57,24 @@ void Inventory_Cell::deactivate()
 void Inventory_Cell::setItem(Item* i)
 {
     if (i) {
-        bool item_exists = item.get();
-        bool uid_match = (item_exists && i->getUID() != item->getUID());
+        if (item && item->getUID() != i->getUID()) {
+            clearItem();
+        }
 
-        if (!item_exists || !uid_match) {
-            item = std::make_shared<Item>(*i);
+        if (!item) {
+            item = std::make_unique<Item>(*i);
+            item->setSprite(i->getSprite());
             item->setPosition(frame.getPosition());
-        }
-        else if(uid_match) {
-            item->setCount(i->count());
+            std::cout << "item set to " << item->getName() << " and placed at " << item->getPosition();
         }
 
 
-        size_t count = i->count();
-
+        item->setCount(i->count());
         if (i->count() == 1) {
             numberText.setString("");
         }
         else {
-            numberText.setString(std::to_string(count));
+            numberText.setString(std::to_string(i->count()));
         }
 
         if (i->getUID() == 1) { // watering can
@@ -85,8 +86,7 @@ void Inventory_Cell::setItem(Item* i)
         }
     }
     else if (item) {
-        item = nullptr;
-        numberText.setString("");
+        clearItem();
     }
 }
 
@@ -100,6 +100,7 @@ void Inventory_Cell::calculateUseBarSize(int percent)
 void Inventory_Cell::clearItem()
 {
     item = nullptr;
+    numberText.setString("");
 }
 
 Item* Inventory_Cell::getItem()

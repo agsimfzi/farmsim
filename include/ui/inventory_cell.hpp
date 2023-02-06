@@ -33,7 +33,7 @@ public:
 
 private:
     sf::RectangleShape frame;
-    std::shared_ptr<Item> item = nullptr;
+    std::unique_ptr<Item> item = nullptr;
 
     sf::Text numberText;
 

@@ -19,6 +19,7 @@ Game::Game(sf::View& nview)
     player_inventory.addItem(item_library("iron ore"), 50);
     player_inventory.addItem(item_library("gold ore"), 50);
 
+    /*
     player_inventory.addItem(item_library(0));
     player_inventory.addItem(item_library(1));
     player_inventory.addItem(item_library(3));
@@ -29,6 +30,7 @@ Game::Game(sf::View& nview)
     player_inventory.addItem(item_library(1001), 50);
 
     player_inventory.addItem(item_library(2));
+    */
 }
 
 void Game::update(float deltaTime)

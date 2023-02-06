@@ -15,7 +15,9 @@ public:
 
     Player_Inventory& inventory;
 
-    std::vector<std::vector<Inventory_Cell>> cells  {{ }};
+    void update();
+
+    std::vector<std::vector<Inventory_Cell>> cells;
 
     void readInventory();
 
@@ -56,5 +58,9 @@ private:
     const static float cell_padding;
     sf::Vector2i dragStartIndex;
     Building* building = nullptr;
+    sf::RectangleShape progress_bar;
+    void setProgressBarSize();
+    void clearProgressBar();
+    void checkReaction();
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
 };

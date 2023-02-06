@@ -17,5 +17,5 @@ struct Floor_Info {
     sf::Vector2i detail_pos;
     bool tree = false;
     bool rock = false;
-    std::unique_ptr<Building> building = nullptr;
+    std::shared_ptr<Building> building = nullptr;
 };

@@ -5,7 +5,8 @@
 #include <memory>
 
 #include <item/item.hpp>
-#include <item/reactions.hpp>
+#include <item/item_library.hpp>
+#include <item/reaction.hpp>
 
 class Building {
 public:
@@ -15,11 +16,8 @@ public:
     size_t uid;
     int value;
 
-    bool active = false;
+    //bool active = false;
     std::vector<Reaction> reactions;
-
-    std::shared_ptr<Item> active_reagant = nullptr;
-    std::shared_ptr<Item> active_product = nullptr;
 
     enum Type {
         FURNACE,
@@ -43,5 +41,27 @@ public:
 
     bool validReagant(std::string name);
 
+    int current_reaction = -1;
+    size_t reaction_tick = 0;
+
     void checkReaction();
+
+    void tick(Item_Library& item_library);
+
+    float progress();
+
+    void endReaction();
+
+    void clearReagant();
+    void clearProduct();
+
+    void setReagant(Item* item);
+    void setProduct(Item* item);
+
+    Item* activeReagant();
+    Item* activeProduct();
+
+private:
+    std::shared_ptr<Item> active_reagant = nullptr;
+    std::shared_ptr<Item> active_product = nullptr;
 };

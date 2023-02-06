@@ -11,6 +11,11 @@ void Item::setSprite(sf::Sprite sprite)
     sprite.setOrigin(size / 2.f);
 }
 
+sf::Vector2f Item::getPosition()
+{
+    return sprite.getPosition();
+}
+
 void Item::setPosition(sf::Vector2f pos)
 {
     sprite.setPosition(pos);

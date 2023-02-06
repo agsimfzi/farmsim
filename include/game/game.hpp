@@ -20,7 +20,7 @@
 
 #include "game_state.hpp"
 
-class Game : public State_Hook, public sf::Drawable {
+class Game : private State_Hook, public sf::Drawable {
 public:
     Game(sf::View& nview);
     void update(float deltaTime);

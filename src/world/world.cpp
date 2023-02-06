@@ -41,6 +41,9 @@ void World::update(Player_Inventory& player_inventory, Player& player)
         tickClock.restart();
         tick();
         chunks.check(player.getCoordinates(Tile::tileSize));
+        for (auto& b : buildings) {
+            b->tick(item_library);
+        }
     }
 
     if (interacting) {
@@ -58,41 +61,51 @@ void World::interact(Player_Inventory& player_inventory)
         Floor_Info& info = tile_library[t.x][t.y];
         if (f) {
             Item* i = player_inventory.equippedItem();
-            if (f->planted && !i) { // HARVEST
-                if (!crops[t.x].contains(t.y)) {
-                    std::cout << "FAILED TO FIND CROP AT TILE " << t << '\n';
+            if (!i) {
+                if (f->planted) { // HARVEST
+                    if (!crops[t.x].contains(t.y)) {
+                        std::cout << "FAILED TO FIND CROP AT TILE " << t << '\n';
+                    }
+                    else if (crops[t.x][t.y].fullyGrown()) {
+                        player_inventory.addItem(item_library.item(crops[t.x][t.y].harvestUID()));
+                        crops[t.x].erase(t.y);
+                        f->setType(Floor_Type::TILLED);
+                        f->planted = false;
+                    }
+                } // END HARVEST
+                else if (info.building && info.building->type != Building::CONTAINER) {
+                    Item* p = info.building->activeProduct();
+                    if (p) {
+                        player_inventory.addItem(p, p->count());
+                        info.building->clearProduct();
+                    }
                 }
-                else if (crops[t.x][t.y].fullyGrown()) {
-                    player_inventory.addItem(item_library.item(crops[t.x][t.y].harvestUID()));
-                    crops[t.x].erase(t.y);
-                    f->setType(Floor_Type::TILLED);
-                    f->planted = false;
-                }
-            } // END HARVEST
+            } // NO ITEM
             else if (i) { // VALID ITEM
                 if (f->detail == Detail_Type::WATER && i->getUID() == 1) { // watering can
                     i->resetUses();
                     player_inventory.changed = true;
                 }
-                else if (i->getType() == Item_Type::BUILDING && emptyTile(info)) {
-                    info.building = std::make_unique<Building>(*building_library(i->getUID()));
+                else if (i->getType() == Item_Type::BUILDING && emptyTile(info)) { // PLACE BUILDING
+                    info.building = std::make_shared<Building>(*building_library(i->getUID()));
                     chunks.addBuilding(i->getUID(), t);
                     player_inventory.takeEquipped();
+                    buildings.push_back(info.building);
                 }
                 else if (info.building && info.building->validReagant(i->getName())) { // ADD REAGANT
-                    if (!info.building->active_reagant) {
+                    if (!info.building->activeReagant()) {
                         std::cout << "reagants are empty\n";
-                        info.building->active_reagant = std::make_unique<Item>(*i);
-                        info.building->active_reagant->setCount(1);
-                        player_inventory.takeEquipped(1);
+                        info.building->setReagant(i);
+                        player_inventory.takeEquipped(-1);
                         player_inventory.changed = true;
+                        info.building->checkReaction();
                     }
-                    else if (info.building->active_reagant->getName() == i->getName()) {
-                        std::cout << "reagant present, count from " << info.building->active_reagant->count() << " to ";
-                        info.building->active_reagant->add(1);
+                    else if (info.building->activeReagant()->getName() == i->getName()) {
+                        std::cout << "reagant present, count from " << info.building->activeReagant()->count() << " to ";
+                        info.building->activeReagant()->add(1);
                         player_inventory.takeEquipped(1);
                         player_inventory.changed = true;
-                        std::cout << info.building->active_reagant->count() << '\n';
+                        std::cout << info.building->activeReagant()->count() << '\n';
                     }
                 } // ADD REAGANT
             } // END VALID ITEM

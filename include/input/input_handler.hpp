@@ -20,7 +20,7 @@
 /////////////////////////////////////////////////////////////
 /// \brief
 ///
-class Input_Handler : public State_Hook {
+class Input_Handler : private State_Hook {
 public:
     Input_Handler(sf::RenderWindow& nwindow, Game& ngame, UI& nui, Menu_Package m);
 

@@ -20,7 +20,7 @@
 /////////////////////////////////////////////////////////////
 /// \brief
 ///
-class Shell : public State_Hook {
+class Shell : private State_Hook {
 public:
     Shell();
     void run();

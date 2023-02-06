@@ -37,6 +37,8 @@ public:
 
     bool can_pickup = true;
 
+    sf::Vector2f getPosition();
+
 private:
     sf::Sprite sprite;
 
