@@ -70,6 +70,7 @@ void Player_Inventory::clearItem(size_t x, size_t y)
 
 void Player_Inventory::placeItem(size_t x, size_t y, Item* item)
 {
+    items[x][y] = nullptr;
     items[x][y] = std::make_shared<Item>(*item);
 }
 

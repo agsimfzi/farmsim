@@ -193,46 +193,107 @@ void Inventory_Interface::placeMergeSwap(sf::Vector2i i)
 {
     sf::Vector2i dsi = dragStartIndex;
     Item* si = cells[i.x][i.y].getItem();
-    bool swap = (si);
-    if (i.x >= (int)inventory.rowCount) {
+    if (i.x >= (int)inventory.rowCount) { // BUILDING PLACEMENT
         if (building) {
-        if (building->type != Building::CONTAINER) {
-            if (i.x < (int)cells.size() - 1 && building->validReagant(dragItem->getName())) {
-                Item* reagant = building->active_reagant.get();
-                if (!reagant) {
-                    reagant = dragItem.get();
-                    building->checkReaction();
-                }
-                else if (reagant->getUID() == dragItem->getUID()) {
-                    reagant->add(dragItem->count());
+            if (building->type != Building::CONTAINER) {
+                if (i.x < (int)cells.size() - 1 && building->validReagant(dragItem->getName())) {
+                    Item* reagant = building->active_reagant.get();
+                    if (!reagant) {
+                        reagant = dragItem.get();
+                        building->checkReaction();
+                        cells[i.x][i.y].setItem(reagant);
+                        dragItem = nullptr;
+                    }
+                    else if (reagant->getUID() == dragItem->getUID()) {
+                        reagant->add(dragItem->count());
+                        cells[i.x][i.y].setItem(reagant);
+                        dragItem = nullptr;
+                    }
+                    else {
+                        swap(i);
+                    }
                 }
                 else {
                     dragging = true;
                     return;
                 }
             }
+        }
+    } // END BUILDING PLACEMENT
+    else { // INVENTORY PLACEMENT
+        if (dsi.x < (int)inventory.rowCount) {
+            if (si) {
+                if (si->getUID() == dragItem->getUID()) {
+                    si->add(dragItem->count());
+                    cells[i.x][i.y].setItem(si);
+                    inventory.placeItem(i.x, i.y, si);
+                    dragItem = nullptr;
+                }
+                else {
+                    swap(i);
+                }
+            }
             else {
-                dragging = true;
-                return;
+                cells[i.x][i.y].setItem(dragItem.get());
+                cells[i.x][i.y].setItem(dragItem.get());
+                inventory.placeItem(i.x, i.y, dragItem.get());
+                dragItem = nullptr;
             }
         }
-        }
-    }
-    else {
-        if (building && dsi.x >= (int)inventory.rowCount) {
-            if (!si && !building->validReagant(si->getName())) {
-                dragging = true;
-                return;
+        else if (building) {
+            if (building->type != Building::CONTAINER) {
+                if (i.x == (int)cells.size() - 1) {
+                    dragging = true;
+                }
+                else {
+                    if (si) {
+                        if (si->getUID() == dragItem->getUID()) {
+                            si->add(dragItem->count());
+                            cells[i.x][i.y].setItem(si);
+                            inventory.placeItem(i.x, i.y, si);
+                            dragItem = nullptr;
+                        }
+                        if (building->validReagant(si->getName())) {
+                            swap(i);
+                        }
+                        else {
+                            dragging = true;
+                        }
+                    }
+                    else {
+                        cells[i.x][i.y].setItem(dragItem.get());
+                        inventory.placeItem(i.x, i.y, dragItem.get());
+                        dragItem = nullptr;
+                    }
+                }
             }
-            inventory.placeItem(i.x, i.y, dragItem.get());
         }
-    }
-    if (swap) {
-        cells[dsi.x][dsi.y].setItem(si);
-        cells[i.x][i.y].clearItem();
-    }
+    } // END INVENTORY PLACEMENT
+}
+
+void Inventory_Interface::swap(sf::Vector2i i)
+{
+    sf::Vector2i dsi = dragStartIndex;
+    cells[dsi.x][dsi.y].setItem(cells[i.x][i.y].getItem());
+    cells[i.x][i.y].clearItem();
     cells[i.x][i.y].setItem(dragItem.get());
     dragItem = nullptr;
+
+    if (dsi.x < (int)inventory.rowCount) {
+        inventory.placeItem(dsi.x, dsi.y, cells[dsi.x][dsi.y].getItem());
+    }
+    else if (building->type != Building::CONTAINER) {
+        building->active_reagant = nullptr;
+        building->active_reagant = std::make_shared<Item>(*cells[dsi.x][dsi.y].getItem());
+    }
+
+    if (i.x < (int)inventory.rowCount) {
+        inventory.placeItem(i.x, i.y, cells[i.x][i.y].getItem());
+    }
+    else if (building->type != Building::CONTAINER) {
+        building->active_reagant = nullptr;
+        building->active_reagant = std::make_shared<Item>(*cells[i.x][i.y].getItem());
+    }
 }
 
 void Inventory_Interface::cancelDrag()

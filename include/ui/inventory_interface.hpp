@@ -48,6 +48,7 @@ public:
 
 private:
     void placeMergeSwap(sf::Vector2i i);
+    void swap(sf::Vector2i i);
     void resize();
     void placeCells();
     size_t equippedIndex = 0;
