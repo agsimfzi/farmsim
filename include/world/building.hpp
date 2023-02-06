@@ -20,8 +20,9 @@ public:
     std::vector<Reaction> reactions;
 
     enum Type {
-        FURNACE,
         CONTAINER,
+        FURNACE,
+        SAW,
         NULL_TYPE
     };
 

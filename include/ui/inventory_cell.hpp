@@ -31,6 +31,8 @@ public:
         return frame.getGlobalBounds().contains(sf::Vector2f(pos));
     }
 
+    sf::Vector2f getPosition();
+
 private:
     sf::RectangleShape frame;
     std::unique_ptr<Item> item = nullptr;

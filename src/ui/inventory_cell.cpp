@@ -108,6 +108,11 @@ Item* Inventory_Cell::getItem()
     return item.get();
 }
 
+sf::Vector2f Inventory_Cell::getPosition()
+{
+    return frame.getPosition();
+}
+
 void Inventory_Cell::draw(sf::RenderTarget& target, sf::RenderStates states) const
 {
     target.draw(frame, states);

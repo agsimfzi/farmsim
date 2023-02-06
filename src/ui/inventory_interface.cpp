@@ -252,12 +252,9 @@ void Inventory_Interface::placeMergeSwap(sf::Vector2i i)
                         building->checkReaction();
                     }
                 }
-                else if (i.x == (int)inventory.rowCount + 1) {
+                else {
                     dragging = true;
                     return;
-                }
-                else {
-                    std::cout << "wuh oh sisters! improper index parsing in placeMergeSwap (" << i << ")\n";
                 }
             }
         }
@@ -384,7 +381,8 @@ void Inventory_Interface::loadBuilding(Building* b)
     building = b;
     if (b && b->interface) {
         if (b->type != Building::CONTAINER) {
-            sf::Vector2f pos(1200.f, 400.f);
+            sf::Vector2f pos = cells[1].back().getPosition();
+            pos.x += (Tile::tileSize * 2.f);
             std::vector<Inventory_Cell> c;
             c.push_back(Inventory_Cell(b->activeReagant()));
             c.back().setPosition(pos);
