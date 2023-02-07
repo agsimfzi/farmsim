@@ -19,7 +19,7 @@
 World::World(Item_Library& item_library)
     : item_library { item_library }
 {
-    sf::Vector2i size(16, 16);
+    sf::Vector2i size(32, 32);
     size.x *= chunks.chunk_size.x;
     size.y *= chunks.chunk_size.y;
     size.y -= 1;
@@ -27,6 +27,8 @@ World::World(Item_Library& item_library)
     world_max = (size / 2);
     chunks.world_min = world_min;
     chunks.world_max = world_max;
+
+    std::cout << "WORLD BOUNDS CALCULATED:\n\t" << world_min << " to " << world_max << "!\n";
 }
 
 void World::reset()
@@ -166,9 +168,12 @@ void World::makeBiomes()
             info.planted = false;
             info.biome = biomes[x][y];
             info.detail_pos = sf::Vector2i(0, 0);
-            if (info.biome == Biome::OCEAN) {
+            if (info.biome == Biome::OCEAN || info.biome == Biome::LAKE || info.biome == Biome::RIVER) {
                 info.floor = Floor_Type::SAND;
                 info.detail = Detail_Type::WATER;
+            }
+            else if (info.biome == Biome::BEACH) {
+                info.floor = Floor_Type::SAND;
             }
             else {
                 info.floor = Floor_Type::DIRT;

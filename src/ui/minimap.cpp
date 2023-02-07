@@ -19,7 +19,10 @@ void Minimap::load(World& world)
     std::map<Biome, sf::Color> colors;
         colors[Biome::GRASSLAND] = sf::Color(120, 215, 130);
         colors[Biome::FOREST] = sf::Color(30, 140, 40);
+        colors[Biome::BEACH] = sf::Color(249, 222, 112);
         colors[Biome::OCEAN] = sf::Color(50, 50, 125);
+        colors[Biome::LAKE] = sf::Color(50, 50, 125);
+        colors[Biome::RIVER] = sf::Color(50, 50, 125);
 
     Map_Tile<Floor_Info>& tiles = world.getTileLibrary();
     sf::Vector2i min = world.worldMin();

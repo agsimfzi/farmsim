@@ -19,4 +19,7 @@ public:
 
 private:
     Map_Tile<Biome> map;
+    Map_Tile<bool> ocean;
+
+    bool adjacentOcean(int x, int y);
 };
