@@ -5,6 +5,7 @@
 
 #include <util/prng.hpp>
 
+#include <world/flood_fill.hpp>
 #include <world/perlin_noise.hpp>
 #include <world/radial_noise.hpp>
 
@@ -34,6 +35,8 @@ Map_Tile<Biome>& Biome_Generator::generate()
         perlin_land.push_back(Perlin_Noise(seed()));
     }
 
+    Map_Tile<bool> ocean;
+
     Radial_Noise radial_noise(world_min, world_max);
 
     for (int x = world_min.x; x <= world_max.x; x++) {
@@ -54,21 +57,33 @@ Map_Tile<Biome>& Biome_Generator::generate()
                 o *= radial_noise.inv(x, y);
 
                 if (o <= 0.02d) {
-                    b = Biome::OCEAN;
+                    ocean[x][y] = true;
                 }
                 else {
-                    double t = perlin_biome.noise(i, j);
-                    t *= perlin_biome1.noise(i, j);
-                    if (t < 0.25d) {
-                        b = Biome::GRASSLAND;
-                    }
-                    else {
-                        b = Biome::FOREST;
-                    }
+                    ocean[x][y] = false;
+                }
+
+                double t = perlin_biome.noise(i, j);
+                t *= perlin_biome1.noise(i, j);
+                if (t < 0.25d) {
+                    b = Biome::GRASSLAND;
+                }
+                else {
+                    b = Biome::FOREST;
                 }
             }
 
             map[x][y] = b;
+        }
+    }
+
+    floodCheck(ocean);
+
+    for (int x = world_min.x; x <= world_max.x; x++) {
+        for (int y = world_min.y; y <= world_max.y; y++) {
+            if (ocean[x][y]) {
+                map[x][y] = Biome::OCEAN;
+            }
         }
     }
 
