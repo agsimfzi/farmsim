@@ -62,7 +62,14 @@ void World::interact(Player_Inventory& player_inventory)
         if (f) {
             Item* i = player_inventory.equippedItem();
             if (!i) {
-                if (f->planted) { // HARVEST
+                if (info.building && info.building->type != Building::CONTAINER) { // PICKUP PRODUCTS
+                    Item* p = info.building->activeProduct();
+                    if (p) {
+                        player_inventory.addItem(p, p->count());
+                        info.building->clearProduct();
+                    }
+                } // END PICKUP PRODUCTS
+                else if (f->planted) { // HARVEST
                     if (!crops[t.x].contains(t.y)) {
                         std::cout << "FAILED TO FIND CROP AT TILE " << t << '\n';
                     }
@@ -73,13 +80,6 @@ void World::interact(Player_Inventory& player_inventory)
                         f->planted = false;
                     }
                 } // END HARVEST
-                else if (info.building && info.building->type != Building::CONTAINER) {
-                    Item* p = info.building->activeProduct();
-                    if (p) {
-                        player_inventory.addItem(p, p->count());
-                        info.building->clearProduct();
-                    }
-                }
             } // NO ITEM
             else if (i) { // VALID ITEM
                 if (f->detail == Detail_Type::WATER && i->getUID() == 1) { // watering can
@@ -519,20 +519,7 @@ Floor* World::activeFloor(sf::Vector2i i)
 
 void World::checkPickup(Player_Inventory& inventory, Player& player)
 {
-    Chunk* chunk = chunks.currentChunk();
-    if (chunk) {
-        std::vector<std::shared_ptr<Item>>& items = chunk->getItems();
-        for (auto i = items.begin(); i != items.end();) {
-            if ((pickup_all || (*i)->can_pickup)
-                && (*i)->getSprite().getGlobalBounds().contains(player.getPosition())) {
-                inventory.addItem((*i).get(), (*i)->count());
-                items.erase(i);
-            }
-            else {
-                i++;
-            }
-        }
-    }
+    chunks.checkPickup(inventory, player.getPosition(), pickup_all);
 }
 
 Chunk_Loader& World::getChunks()

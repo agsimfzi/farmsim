@@ -1,5 +1,7 @@
 #include <world/chunk_loader.hpp>
 
+#include <util/primordial.hpp>
+
 Chunk_Loader::Chunk_Loader(Map_Tile<Floor_Info>& info)
     : info { info }
 {}
@@ -58,6 +60,11 @@ sf::Vector2i Chunk_Loader::findChunk(sf::Vector2i coords)
     coords.x /= chunk_size.x;
     coords.y /= chunk_size.y;
     return coords;
+}
+
+sf::Vector2i Chunk_Loader::findChunk(sf::Vector2f pos)
+{
+    return findChunk(sf::Vector2i(pos / Tile::tileSize));
 }
 
 Chunk* Chunk_Loader::chunk(sf::Vector2i i)
@@ -177,6 +184,52 @@ bool Chunk_Loader::validChunkIndex(sf::Vector2i i)
 bool Chunk_Loader::validChunkIndex(int x, int y)
 {
     return validChunkIndex(sf::Vector2i(x, y));
+}
+
+void Chunk_Loader::checkPickup(Player_Inventory& inventory, sf::Vector2f player_pos, bool pickup_all)
+{
+    const static float move_threshold = 192.f;
+    const static float speed = 2.f;
+    std::vector<std::pair<sf::Vector2i, Item*>> to_move;
+    for (int x = -1; x <= 1; x++) {
+        for (int y = -1; y <= 1; y++) {
+            sf::Vector2i ci(current.x + x, current.y + y);
+            for (auto i = chunks[ci.x][ci.y]->getItems().begin();
+                      i != chunks[ci.x][ci.y]->getItems().end();) {
+                bool picking = (pickup_all || (*i)->can_pickup);
+                if (picking) {
+                    sf::Vector2f item_pos = (*i)->getPosition();
+                    if (scalarDistance(player_pos, item_pos) <= move_threshold) {
+                        // calculate movement vector and apply
+                        sf::Vector2f offset = calculateMoveVector(item_pos, player_pos, speed);
+                        (*i)->getSprite().move(offset);
+                    }
+
+                    if ((*i)->getSprite().getGlobalBounds().contains(player_pos)) {
+                        inventory.addItem((*i).get(), (*i)->count());
+                        chunks[ci.x][ci.y]->getItems().erase(i);
+                    }
+                    else {
+                        sf::Vector2i nc = findChunk((*i)->getPosition());
+                        if (ci != nc) {
+                            to_move.push_back(std::make_pair(nc, i->get()));
+                            chunks[ci.x][ci.y]->getItems().erase(i);
+                        }
+                        else {
+                            i++;
+                        }
+                    }
+                }
+                else {
+                    i++;
+                }
+            }
+        }
+    }
+
+    for (auto& p : to_move) {
+        chunks[p.first.x][p.first.y]->addItem(p.second, p.second->count(), p.second->getSprite().getPosition());
+    }
 }
 
 void Chunk_Loader::draw(sf::RenderTarget& target, sf::RenderStates states) const

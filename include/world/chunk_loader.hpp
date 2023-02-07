@@ -2,6 +2,8 @@
 
 #include <memory>
 
+#include <item/player_inventory.hpp>
+
 #include "chunk.hpp"
 #include "direction.hpp"
 #include "tile_info.hpp"
@@ -17,6 +19,7 @@ public:
 
     const Map_Tile<std::unique_ptr<Chunk>>& getChunks() const;
     sf::Vector2i findChunk(sf::Vector2i coords);
+    sf::Vector2i findChunk(sf::Vector2f pos);
     Chunk* chunk(sf::Vector2i i);
     Chunk* currentChunk();
 
@@ -38,6 +41,8 @@ public:
 
     void addBuilding(size_t uid, sf::Vector2i coords);
     void addItem(Item* item, size_t count, sf::Vector2i coords);
+
+    void checkPickup(Player_Inventory& inventory, sf::Vector2f player_pos, bool pickup_all);
 
 private:
     void moveChunks(Direction d);
