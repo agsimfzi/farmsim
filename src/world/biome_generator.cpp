@@ -11,8 +11,6 @@
 #include <world/perlin_noise.hpp>
 #include <world/radial_noise.hpp>
 
-#include <iostream>
-
 Biome_Generator::Biome_Generator(sf::Vector2i min, sf::Vector2i max)
     : world_min{ min }
     , world_max{ max }
@@ -23,11 +21,11 @@ Biome_Generator::Biome_Generator(sf::Vector2i min, sf::Vector2i max)
 void Biome_Generator::clear()
 {
     map.clear();
+    ocean.clear();
 }
 
 Map_Tile<Biome>& Biome_Generator::generate()
 {
-    sf::Clock timer;
     auto seed = []() { return prng::number(0u, UINT_MAX); };
     Perlin_Noise perlin_biome(seed());
     Perlin_Noise perlin_biome1(seed());
@@ -54,9 +52,11 @@ Map_Tile<Biome>& Biome_Generator::generate()
         perlin_beach.push_back(Perlin_Noise(seed()));
     }
 
-    double beach_threshold = 0.0006d; // keep fiddling with this value... consider a second layer of noise as well
-
+    double beach_threshold = 0.0006d;
     double ocean_threshold = 0.02d;
+    double lake_threshold = 0.008d;
+
+    // todo: find a way to scale thresholds based on the number of noise layers
 
     Radial_Noise radial_noise(world_min, world_max);
 
@@ -106,8 +106,6 @@ Map_Tile<Biome>& Biome_Generator::generate()
                     l *= perlin_lake[o].noise(i, j);
                 }
 
-                double lake_threshold = 0.008d;
-
                 if (l <= lake_threshold) {
                     lake[x][y] = true;
                 }
@@ -131,36 +129,22 @@ Map_Tile<Biome>& Biome_Generator::generate()
         }
     }
 
-    bool threading = true;
-if (threading) {
-
     // beach flood happens on a separate thread so it may be run concurrently with the ocean flood
     // it should take longer than the ocean flood,
 
-    std::packaged_task<void()> floodBeach([&]() { floodCheck(beach); });
-    std::future<void> omen = floodBeach.get_future();
-    std::thread thread = std::thread(std::move(floodBeach));
+    //std::packaged_task<void()> floodBeach([&]() { floodCheck(beach); });
+    //std::future<void> omen = floodBeach.get_future();
+    //std::thread thread = std::thread(std::move(floodBeach));
 
-    //std::async(std::launch::async, &floodCheck, beach);
+    auto omen = std::async(std::launch::async, [&]() { floodCheck(beach); });
 
     floodCheck(ocean);
 
     bool joining = true;
 
-    while (joining) {
-        while (thread.joinable()) {
-            auto status = omen.wait_for(std::chrono::milliseconds(0));
-            if (status == std::future_status::ready) {
-                thread.join();
-                joining = false;
-            }
-        }
-    }
-}
-else {
-    floodCheck(ocean);
-    floodCheck(beach);
-}
+    do {
+        joining = (omen.wait_for(std::chrono::milliseconds(0)) == std::future_status::ready);
+    } while (joining);
 
     for (int x = world_min.x; x <= world_max.x; x++) {
         for (int y = world_min.y; y <= world_max.y; y++) {
@@ -188,8 +172,6 @@ else {
             }
         }
     }
-
-    std::cout << "\tbiome generation took " << timer.getElapsedTime().asSeconds() << " seconds to complete.\n";
 
     return map;
 }
