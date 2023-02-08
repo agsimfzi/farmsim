@@ -19,7 +19,7 @@
 World::World(Item_Library& item_library)
     : item_library { item_library }
 {
-    sf::Vector2i size(32, 32);
+    sf::Vector2i size(64, 64);
     size.x *= chunks.chunk_size.x;
     size.y *= chunks.chunk_size.y;
     size.y -= 1;
@@ -63,32 +63,33 @@ void World::interact(Player_Inventory& player_inventory)
         Floor_Info& info = tile_library[t.x][t.y];
         if (f) {
             Item* i = player_inventory.equippedItem();
-            if (!i) {
-                if (info.building && info.building->type != Building::CONTAINER) { // PICKUP PRODUCTS
-                    Item* p = info.building->activeProduct();
-                    if (p) {
-                        player_inventory.addItem(p, p->count());
-                        info.building->clearProduct();
-                    }
-                } // END PICKUP PRODUCTS
-                else if (f->planted) { // HARVEST
-                    if (!crops[t.x].contains(t.y)) {
-                        std::cout << "FAILED TO FIND CROP AT TILE " << t << '\n';
-                    }
-                    else if (crops[t.x][t.y].fullyGrown()) {
-                        player_inventory.addItem(item_library.item(crops[t.x][t.y].harvestUID()));
-                        crops[t.x].erase(t.y);
-                        f->setType(Floor_Type::TILLED);
-                        f->planted = false;
-                    }
-                } // END HARVEST
-            } // NO ITEM
+            if (info.building && info.building->type != Building::CONTAINER) { // PICKUP PRODUCTS
+                Item* p = info.building->activeProduct();
+                if (p) {
+                    player_inventory.addItem(p, p->count());
+                    info.building->clearProduct();
+                }
+            } // END PICKUP PRODUCTS
+            else if (f->planted) { // HARVEST
+                if (!crops[t.x].contains(t.y)) {
+                    std::cout << "FAILED TO FIND CROP AT TILE " << t << '\n';
+                }
+                else if (crops[t.x][t.y].fullyGrown()) {
+                    player_inventory.addItem(item_library.item(crops[t.x][t.y].harvestUID()));
+                    crops[t.x].erase(t.y);
+                    f->setType(Floor_Type::TILLED);
+                    f->planted = false;
+                }
+            } // END HARVEST
             else if (i) { // VALID ITEM
+                if (i->getType() == Item_Type::SEED && plantableTile(info)) { // SEED
+                    plantCrop(i);
+                }
                 if (f->detail == Detail_Type::WATER && i->getUID() == 1) { // watering can
                     i->resetUses();
                     player_inventory.changed = true;
                 }
-                else if (i->getType() == Item_Type::BUILDING && emptyTile(info)) { // PLACE BUILDING
+                else if (i->getType() == Item_Type::BUILDING && buildableTile(info)) { // PLACE BUILDING
                     info.building = std::make_shared<Building>(*building_library(i->getUID()));
                     chunks.addBuilding(i->getUID(), t);
                     player_inventory.takeEquipped();
@@ -313,7 +314,7 @@ std::vector<sf::FloatRect> World::getLocalImpassableTiles(sf::Vector2i p)
             else {
                 sf::Vector2i c(x, y);
                 Floor* f = chunks.floor(c);
-                if (f && (f->detail == Detail_Type::WATER || !emptyTile(c))) {
+                if (f && !passableTile(c)) {
                     tiles.push_back(f->getGlobalBounds());
                 }
             }
@@ -328,9 +329,6 @@ void World::useItem(Item* item)
     switch (item->getType()) {
         case Item_Type::TOOL:
             useTool(item);
-            break;
-        case Item_Type::SEED:
-            plantCrop(item);
             break;
         default:
             break;
@@ -461,22 +459,21 @@ void World::hammer()
 
 void World::plantCrop(Item* item)
 {
-    if (activeTile) {
-        sf::Vector2i t = *activeTile;
-        Floor* f = chunks.floor(*activeTile);
-        if ((f->type == Floor_Type::TILLED
-        || f->type == Floor_Type::WATERED)
-        && !f->planted) {
-            item->take(1);
-            f->planted = true;
+    // no need for a redundant check of activeTile, as that is handled in ::interact()
+    sf::Vector2i t = *activeTile;
+    Floor* f = chunks.floor(*activeTile);
+    if ((f->type == Floor_Type::TILLED
+    || f->type == Floor_Type::WATERED)
+    && !f->planted) {
+        item->take(1);
+        f->planted = true;
 
-            Crop* c = crop_library.get(item->getUID());
-            if (c) {
-                crops[t.x][t.y] = Crop(*c);
-                crops[t.x][t.y].place(t, f->getPosition());
-            }
-            tileToLibrary(t);
+        Crop* c = crop_library.get(item->getUID());
+        if (c) {
+            crops[t.x][t.y] = Crop(*c);
+            crops[t.x][t.y].place(t, f->getPosition());
         }
+        tileToLibrary(t);
     }
 }
 
@@ -612,6 +609,36 @@ bool World::emptyTile(sf::Vector2i i)
 bool World::emptyTile(Floor_Info& info)
 {
     return (!info.tree && !info.rock && !info.building);
+}
+
+bool World::buildableTile(sf::Vector2i i)
+{
+    return buildableTile(tile_library[i.x][i.y]);
+}
+
+bool World::buildableTile(Floor_Info& info)
+{
+    return (emptyTile(info) && info.detail != Detail_Type::WATER && !plantableTile(info));
+}
+
+bool World::plantableTile(sf::Vector2i i)
+{
+    return plantableTile(tile_library[i.x][i.y]);
+}
+
+bool World::plantableTile(Floor_Info& info)
+{
+    return (info.floor == Floor_Type::TILLED || info.floor == Floor_Type::TILLED);
+}
+
+bool World::passableTile(sf::Vector2i i)
+{
+    return passableTile(tile_library[i.x][i.y]);
+}
+
+bool World::passableTile(Floor_Info& info)
+{
+    return (emptyTile(info) && info.detail != Detail_Type::WATER);
 }
 
 void World::draw(sf::RenderTarget& target, sf::RenderStates states) const

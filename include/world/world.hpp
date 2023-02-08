@@ -124,6 +124,14 @@ private:
     bool emptyTile(sf::Vector2i i);
     bool emptyTile(Floor_Info& info);
 
+    bool buildableTile(sf::Vector2i i);
+    bool plantableTile(sf::Vector2i i);
+    bool passableTile(sf::Vector2i i);
+
+    bool buildableTile(Floor_Info& info);
+    bool plantableTile(Floor_Info& info);
+    bool passableTile(Floor_Info& info);
+
     void checkBuildings();
 
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;

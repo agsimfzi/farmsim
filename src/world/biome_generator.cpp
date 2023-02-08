@@ -1,6 +1,8 @@
 #include <world/biome_generator.hpp>
 
+#include <future>
 #include <math.h>
+#include <thread>
 #include <vector>
 
 #include <util/prng.hpp>
@@ -25,7 +27,8 @@ void Biome_Generator::clear()
 
 Map_Tile<Biome>& Biome_Generator::generate()
 {
-    auto seed = [&]() { return prng::number(0u, UINT_MAX); };
+    sf::Clock timer;
+    auto seed = []() { return prng::number(0u, UINT_MAX); };
     Perlin_Noise perlin_biome(seed());
     Perlin_Noise perlin_biome1(seed());
 
@@ -41,9 +44,19 @@ Map_Tile<Biome>& Biome_Generator::generate()
 
     std::vector<Perlin_Noise> perlin_lake;
     size_t lake_count = 3;
-    for (size_t l = 0; l < lake_count; l++) {
+    for (size_t p = 0; p < lake_count; p++) {
         perlin_lake.push_back(Perlin_Noise(seed()));
     }
+
+    std::vector<Perlin_Noise> perlin_beach;
+    size_t beach_count = 3;
+    for (size_t p = 0; p < beach_count; p++) {
+        perlin_beach.push_back(Perlin_Noise(seed()));
+    }
+
+    double beach_threshold = 0.0006d; // keep fiddling with this value... consider a second layer of noise as well
+
+    double ocean_threshold = 0.02d;
 
     Radial_Noise radial_noise(world_min, world_max);
 
@@ -64,9 +77,6 @@ Map_Tile<Biome>& Biome_Generator::generate()
                 }
                 o *= radial_noise.inv(x, y);
 
-                double ocean_threshold = 0.02d;
-                double beach_diff = 0.004d;
-
                 if (o <= ocean_threshold) {
                     ocean[x][y] = true;
                 }
@@ -74,10 +84,15 @@ Map_Tile<Biome>& Biome_Generator::generate()
                     ocean[x][y] = false;
                 }
 
-                // GENERATE BEACHES USING OCEAN NOISE AND A SLIGHTLY HIGHER THRESHOLD
-                // A DISCRETE LAYER OF BEACH NOISE MAY BE USED DURING ASSIGNMENT
-                // BUT DON'T USE THAT HERE, OR ELSE THE FLOOD FILL WILL FAIL :(
-                if (o - beach_diff <= ocean_threshold) {
+                // MAKE BEACHES FROM OCEAN NOISE
+
+                for (size_t p = 0; p < beach_count; p++) {
+                    o *= perlin_beach[p].noise(i, j);
+                }
+
+                o *= radial_noise.inv(x, y); // apply radial gradient again
+
+                if (ocean[x][y] || o <= beach_threshold) {
                     beach[x][y] = true;
                 }
                 else {
@@ -116,12 +131,36 @@ Map_Tile<Biome>& Biome_Generator::generate()
         }
     }
 
-    std::cout << "\tnoise generated!\n";
+    bool threading = true;
+if (threading) {
+
+    // beach flood happens on a separate thread so it may be run concurrently with the ocean flood
+    // it should take longer than the ocean flood,
+
+    std::packaged_task<void()> floodBeach([&]() { floodCheck(beach); });
+    std::future<void> omen = floodBeach.get_future();
+    std::thread thread = std::thread(std::move(floodBeach));
+
+    //std::async(std::launch::async, &floodCheck, beach);
 
     floodCheck(ocean);
-    std::cout << "\tocean flooded!\n";
+
+    bool joining = true;
+
+    while (joining) {
+        while (thread.joinable()) {
+            auto status = omen.wait_for(std::chrono::milliseconds(0));
+            if (status == std::future_status::ready) {
+                thread.join();
+                joining = false;
+            }
+        }
+    }
+}
+else {
+    floodCheck(ocean);
     floodCheck(beach);
-    std::cout << "\tbeach flooded!\n";
+}
 
     for (int x = world_min.x; x <= world_max.x; x++) {
         for (int y = world_min.y; y <= world_max.y; y++) {
@@ -131,17 +170,6 @@ Map_Tile<Biome>& Biome_Generator::generate()
                 }
             }
         }
-    }
-
-    std::cout << "\tcoastal lakes drained!\n";
-
-    Perlin_Noise b_n(seed());
-    double beach_threshold = 0.3d;
-
-    std::vector<Perlin_Noise> perlin_beach;
-    size_t beach_count = 2;
-    for (size_t b = 0; b < beach_count; b++) {
-        perlin_beach.push_back(Perlin_Noise(seed()));
     }
 
     // couldn't get the beach noise to work for some reason
@@ -161,7 +189,7 @@ Map_Tile<Biome>& Biome_Generator::generate()
         }
     }
 
-    std::cout << "\twater set!\n";
+    std::cout << "\tbiome generation took " << timer.getElapsedTime().asSeconds() << " seconds to complete.\n";
 
     return map;
 }
