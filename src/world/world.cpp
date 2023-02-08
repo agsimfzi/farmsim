@@ -19,7 +19,7 @@
 World::World(Item_Library& item_library)
     : item_library { item_library }
 {
-    sf::Vector2i size(64, 64);
+    sf::Vector2i size(96, 96);
     size.x *= chunks.chunk_size.x;
     size.y *= chunks.chunk_size.y;
     size.y -= 1;
@@ -153,7 +153,6 @@ bool World::inRange(sf::Vector2i c1, sf::Vector2i c2)
         && diff.y >= -1 && diff.y <= 1);
 }
 
-
 void World::makeBiomes()
 {
     std::cout << "generating biomes\n";
@@ -169,7 +168,11 @@ void World::makeBiomes()
             info.planted = false;
             info.biome = biomes[x][y];
             info.detail_pos = sf::Vector2i(0, 0);
-            if (info.biome == Biome::OCEAN || info.biome == Biome::LAKE || info.biome == Biome::RIVER) {
+
+            if (info.biome == Biome::NULL_TYPE) {
+                info.floor = Floor_Type::NULL_TYPE;
+            }
+            else if (info.biome == Biome::OCEAN || info.biome == Biome::LAKE || info.biome == Biome::RIVER) {
                 info.floor = Floor_Type::SAND;
                 info.detail = Detail_Type::WATER;
             }

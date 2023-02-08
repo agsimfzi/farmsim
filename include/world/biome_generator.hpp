@@ -21,6 +21,7 @@ private:
     Map_Tile<Biome> map;
     Map_Tile<Detail_Type> details;
     Map_Tile<bool> ocean;
+    Map_Tile<bool> empty;
 
     bool adjacentOcean(int x, int y);
 };

@@ -20,8 +20,8 @@ void Minimap::load(World& world)
         colors[Biome::GRASSLAND] = sf::Color(120, 215, 130);
         colors[Biome::FOREST] = sf::Color(30, 140, 40);
         colors[Biome::BEACH] = sf::Color(249, 222, 112);
-        colors[Biome::OCEAN] = sf::Color(50, 50, 125);
-        colors[Biome::LAKE] = sf::Color(75, 75, 175);
+        colors[Biome::OCEAN] = sf::Color(25, 25, 100);
+        colors[Biome::LAKE] = sf::Color(100, 100, 225);
         colors[Biome::RIVER] = sf::Color(50, 50, 125);
 
     Map_Tile<Floor_Info>& tiles = world.getTileLibrary();
@@ -33,6 +33,9 @@ void Minimap::load(World& world)
     map.resize(size.x * size.y);
     for (int x = min.x; x <= max.x; x++) {
         for (int y = min.y; y <= max.y; y++) {
+            if (tiles[x][y].floor == Floor_Type::NULL_TYPE) {
+                continue;
+            }
             sf::Vector2f pos(tiles[x][y].coordinates);
             map.append(sf::Vertex(pos, colors[tiles[x][y].biome]));
         }

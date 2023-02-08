@@ -6,5 +6,8 @@ enum class Biome {
     BEACH,
     LAKE,
     RIVER,
-    OCEAN
+    OCEAN,
+    NULL_TYPE
 };
+
+

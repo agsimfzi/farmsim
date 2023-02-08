@@ -52,8 +52,8 @@ Map_Tile<Biome>& Biome_Generator::generate()
         perlin_beach.push_back(Perlin_Noise(seed()));
     }
 
-    double beach_threshold = 0.0006d;
-    double ocean_threshold = 0.02d;
+    double beach_threshold = 0.001d;
+    double ocean_threshold = 0.032d;
     double lake_threshold = 0.008d;
 
     // todo: find a way to scale thresholds based on the number of noise layers
@@ -78,9 +78,17 @@ Map_Tile<Biome>& Biome_Generator::generate()
                 o *= radial_noise.inv(x, y);
 
                 if (o <= ocean_threshold) {
+                    if (radial_noise.inv(x, y) < 0.001d)
+                    {
+                        empty[x][y] = true;
+                    }
+                    else {
+                        empty[x][y] = false;
+                    }
                     ocean[x][y] = true;
                 }
                 else {
+                    empty[x][y] = false;
                     ocean[x][y] = false;
                 }
 
@@ -156,13 +164,13 @@ Map_Tile<Biome>& Biome_Generator::generate()
         }
     }
 
-    // couldn't get the beach noise to work for some reason
-    // it made it all checkered... look for solutions from within
-
     for (int x = world_min.x; x <= world_max.x; x++) {
         for (int y = world_min.y; y <= world_max.y; y++) {
             if (lake[x][y]) {
                 map[x][y] = Biome::LAKE;
+            }
+            else if(empty[x][y]) {
+                map[x][y] = Biome::NULL_TYPE;
             }
             else if (ocean[x][y]) {
                 map[x][y] = Biome::OCEAN;
