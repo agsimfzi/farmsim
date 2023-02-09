@@ -5,12 +5,14 @@ enum class Floor_Type {
     TILLED,
     WATERED,
     SAND,
+    BASALT,
     NULL_TYPE
 };
 
 enum class Detail_Type {
     GRASS,
     WATER,
+    LAVA,
     NULL_TYPE
 };
 
@@ -25,6 +27,8 @@ inline std::string floorTypeToString(Floor_Type t)
             return "WATERED";
         case Floor_Type::SAND:
             return "SAND";
+        case Floor_Type::BASALT:
+            return "BASALT";
         default:
             return "";
     }
@@ -37,6 +41,8 @@ inline std::string detailTypeToString(Detail_Type t)
             return "GRASS";
         case Detail_Type::WATER:
             return "WATER";
+        case Detail_Type::LAVA:
+            return "LAVA";
         default:
             return "";
     }

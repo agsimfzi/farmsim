@@ -36,6 +36,12 @@ Map_Tile<Biome>& Biome_Generator::generate()
     Perlin_Noise perlin_biome(seed());
     Perlin_Noise perlin_biome1(seed());
 
+    std::vector<Perlin_Noise> perlin_volcano;
+    size_t volcano_count = 3;
+    for (size_t p = 0; p < volcano_count; p++) {
+        perlin_volcano.push_back(Perlin_Noise(seed()));
+    }
+
     std::vector<Perlin_Noise> perlin_land;
     size_t land_count = 3;
     for (size_t p = 0; p < land_count; p++) {
@@ -59,6 +65,8 @@ Map_Tile<Biome>& Biome_Generator::generate()
     double beach_threshold = 0.001d;
     double ocean_threshold = 0.032d;
     double lake_threshold = 0.015d;
+    double volcano_threshold = 0.0032d;
+    double caldera_threshold = 0.02d;
 
     // todo: find a way to scale thresholds based on the number of noise layers
 
@@ -66,6 +74,8 @@ Map_Tile<Biome>& Biome_Generator::generate()
 
     for (int x = world_min.x; x <= world_max.x; x++) {
         for (int y = world_min.y; y <= world_max.y; y++) {
+            double radial = radial_noise.get(x, y);
+            double radial_inverse = radial_noise.inv(x, y);
             Biome b;
             double i = 10.d * ((double)x / (double)size.x);
             double j = 10.d * ((double)y / (double)size.y);
@@ -75,10 +85,10 @@ Map_Tile<Biome>& Biome_Generator::generate()
             for (size_t p = 0; p < land_count; p++) {
                 o *= perlin_land[p].noise(i, j);
             }
-            o *= radial_noise.inv(x, y);
+            o *= radial_inverse;
 
             if (o <= ocean_threshold) {
-                if (radial_noise.inv(x, y) < 0.0002d)
+                if (radial_inverse < 0.0002d)
                 {
                     empty[x][y] = true;
                 }
@@ -98,7 +108,7 @@ Map_Tile<Biome>& Biome_Generator::generate()
                 o *= perlin_beach[p].noise(i, j);
             }
 
-            o *= radial_noise.inv(x, y); // apply radial gradient again
+            o *= radial_inverse; // apply radial gradient again
 
             if (ocean[x][y] || o <= beach_threshold) {
                 beach[x][y] = true;
@@ -114,7 +124,7 @@ Map_Tile<Biome>& Biome_Generator::generate()
                 l *= perlin_lake[o].noise(i, j);
             }
 
-            if (l <= lake_threshold) {
+            if (l <= lake_threshold && radial < 0.5d) {
                 lake[x][y] = true;
             }
             else {
@@ -125,7 +135,22 @@ Map_Tile<Biome>& Biome_Generator::generate()
             // MAKE LAND BIOMES
             double t = perlin_biome.noise(i, j);
             t *= perlin_biome1.noise(i, j);
-            if (t < 0.25d) {
+
+            double v = 1.d;
+            for (size_t p = 0; p < volcano_count; p++) {
+                v *= perlin_volcano[o].noise(i, j);
+            }
+            v *= radial;
+            v *= radial;
+            if (v < volcano_threshold) {
+                if (radial < caldera_threshold) {
+                    b = Biome::CALDERA;
+                }
+                else {
+                    b = Biome::VOLCANO;
+                }
+            }
+            else if (t < 0.25d) {
                 b = Biome::GRASSLAND;
             }
             else {
@@ -155,13 +180,20 @@ Map_Tile<Biome>& Biome_Generator::generate()
 
     std::cout << "starting floods...\n";
     floodCheck(ocean);
+    std::cout << "ocean flooded!\n";
     floodCheck(beach);
+    std::cout << "beach flooded!\n";
 
     for (int x = world_min.x; x <= world_max.x; x++) {
         for (int y = world_min.y; y <= world_max.y; y++) {
-            if (!lake[x][y]) {
-                if (adjacentOcean(x, y)) {
-                    drainFill(x, y, lake);
+            if (lake[x][y]) {
+                if (adjacentLava(x, y)) {
+                    lake[x][y] = false;
+                    biomes[x][y] = Biome::VOLCANO;
+                }
+                else if (adjacentOcean(x, y)) {
+                    //lake[x][y] = false;
+                    //ocean[x][y] = true;
                 }
             }
         }
@@ -197,6 +229,19 @@ bool Biome_Generator::adjacentOcean(int x, int y)
     for (int ix = x - 1; ix <= x + 1; ix++) {
         for (int iy = y - 1; iy <= y + 1; iy++) {
             if (ocean[ix][iy]) {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
+bool Biome_Generator::adjacentLava(int x, int y)
+{
+    for (int ix = x - 1; ix <= x + 1; ix++) {
+        for (int iy = y - 1; iy <= y + 1; iy++) {
+            if (biomes[ix][iy] == Biome::CALDERA) {
                 return true;
             }
         }

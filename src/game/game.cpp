@@ -14,6 +14,8 @@ Game::Game(sf::View& nview)
     player = Player(Database::getPlayerData(), Texture_Manager::get("PLAYER"));
     player.setPosition(sf::Vector2f(0.f, 0.f));
 
+    // load position from world instead, in startGame()
+
     player_inventory.addItem(item_library("furnace"));
     player_inventory.addItem(item_library("copper ore"), 50);
     player_inventory.addItem(item_library("iron ore"), 50);
@@ -59,6 +61,8 @@ World& Game::getWorld()
 
 void Game::startGame()
 {
+    player.setPosition(sf::Vector2f(2560.f, 2560.f));
+    view.setCenter(player.getPosition());
     world.finalize(player.getCoordinates(Tile::tileSize));
 }
 

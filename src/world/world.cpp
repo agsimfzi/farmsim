@@ -19,7 +19,7 @@
 World::World(Item_Library& item_library)
     : item_library { item_library }
 {
-    sf::Vector2i size(96, 96);
+    sf::Vector2i size(192, 192);
     size.x *= chunks.chunk_size.x;
     size.y *= chunks.chunk_size.y;
     size.y -= 1;
@@ -179,6 +179,13 @@ void World::makeBiomes()
             else if (info.biome == Biome::BEACH) {
                 info.floor = Floor_Type::SAND;
             }
+            else if (info.biome == Biome::VOLCANO) {
+                info.floor = Floor_Type::BASALT;
+            }
+            else if (info.biome == Biome::CALDERA) {
+                info.floor = Floor_Type::BASALT;
+                info.detail = Detail_Type::LAVA;
+            }
             else {
                 info.floor = Floor_Type::DIRT;
 
@@ -196,6 +203,7 @@ void World::makeBiomes()
         }
     }
     autotile(world_min, world_max, Detail_Type::WATER);
+    autotile(world_min, world_max, Detail_Type::LAVA);
     std::cout << "biomes made!\n";
 }
 
@@ -611,7 +619,11 @@ bool World::emptyTile(sf::Vector2i i)
 
 bool World::emptyTile(Floor_Info& info)
 {
-    return (!info.tree && !info.rock && !info.building);
+    return (!info.tree
+            && !info.rock
+            && !info.building
+            && info.detail != Detail_Type::WATER
+            && info.detail != Detail_Type::LAVA);
 }
 
 bool World::buildableTile(sf::Vector2i i)
@@ -621,7 +633,7 @@ bool World::buildableTile(sf::Vector2i i)
 
 bool World::buildableTile(Floor_Info& info)
 {
-    return (emptyTile(info) && info.detail != Detail_Type::WATER && !plantableTile(info));
+    return (emptyTile(info) && !plantableTile(info));
 }
 
 bool World::plantableTile(sf::Vector2i i)
@@ -641,7 +653,7 @@ bool World::passableTile(sf::Vector2i i)
 
 bool World::passableTile(Floor_Info& info)
 {
-    return (emptyTile(info) && info.detail != Detail_Type::WATER);
+    return (emptyTile(info));
 }
 
 void World::draw(sf::RenderTarget& target, sf::RenderStates states) const

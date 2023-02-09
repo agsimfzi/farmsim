@@ -73,6 +73,9 @@ void UI::scroll(float delta)
 
         game.getInventory().setEquipped(inventory_interface.getEquippedIndex());
     }
+    else if (overlay_active && minimap.isExpanded()) {
+        minimap.zoom(delta);
+    }
 }
 
 void UI::numRelease(int num)

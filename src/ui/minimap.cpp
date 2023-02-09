@@ -23,6 +23,8 @@ void Minimap::load(World& world)
         colors[Biome::OCEAN] = sf::Color(15, 15, 100);
         colors[Biome::LAKE] = sf::Color(125, 125, 250);
         colors[Biome::RIVER] = sf::Color::Magenta;//(50, 50, 125);
+        colors[Biome::VOLCANO] = sf::Color(88, 77, 77);
+        colors[Biome::CALDERA] = sf::Color(220, 108, 16);
 
     Map_Tile<Floor_Info>& tiles = world.getTileLibrary();
     sf::Vector2i min = world.worldMin();
@@ -116,6 +118,16 @@ void Minimap::checkDrag()
         sf::Vector2i diff = drag_pos - mpos;
         view.move(diff.x, diff.y);
         drag_pos = mpos;
+    }
+}
+
+void Minimap::zoom(float delta)
+{
+    if (delta < 0.f) {
+        view.zoom(1.1f);
+    }
+    else if (delta > 0.f) {
+        view.zoom(0.9f);
     }
 }
 

@@ -27,6 +27,7 @@ private:
     Radial_Noise radial_noise;
 
     bool adjacentOcean(int x, int y);
+    bool adjacentLava(int x, int y);
 
     void runRivers();
 };

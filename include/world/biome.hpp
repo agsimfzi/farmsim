@@ -7,6 +7,8 @@ enum class Biome {
     LAKE,
     RIVER,
     OCEAN,
+    VOLCANO,
+    CALDERA,
     NULL_TYPE
 };
 
