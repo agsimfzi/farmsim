@@ -42,6 +42,28 @@ sf::Color randomColor(unsigned int alpha);
 ///
 sf::Color randomColor();
 
+template <typename T>
+sf::Vector2<T> normalizeVector(sf::Vector2<T> v)
+{
+    T x = 0;
+    if (v.x > 0) {
+        x = 1;
+    }
+    else if (v.x < 0) {
+        x = -1;
+    }
+
+    T y = 0;
+    if (v.y > 0) {
+        y = 1;
+    }
+    else if (v.y < 0) {
+        y = -1;
+    }
+
+    return sf::Vector2<T>(x, y);
+}
+
 /////////////////////////////////////////////////////////////
 /// \brief
 ///

@@ -5,23 +5,29 @@
 #include <thread>
 #include <vector>
 
+#include <util/primordial.hpp>
 #include <util/prng.hpp>
 
 #include <world/flood_fill.hpp>
 #include <world/perlin_noise.hpp>
-#include <world/radial_noise.hpp>
 
 Biome_Generator::Biome_Generator(sf::Vector2i min, sf::Vector2i max)
     : world_min{ min }
     , world_max{ max }
+    , radial_noise{ min, max }
 {
     size = world_max - world_min;
 }
 
 void Biome_Generator::clear()
 {
-    map.clear();
+    biomes.clear();
+    details.clear();
     ocean.clear();
+    lake.clear();
+    rivers.clear();
+    beach.clear();
+    empty.clear();
 }
 
 Map_Tile<Biome>& Biome_Generator::generate()
@@ -37,8 +43,6 @@ Map_Tile<Biome>& Biome_Generator::generate()
     }
 
     //Map_Tile<bool> ocean;
-    Map_Tile<bool> lake;
-    Map_Tile<bool> beach;
 
     std::vector<Perlin_Noise> perlin_lake;
     size_t lake_count = 3;
@@ -54,86 +58,81 @@ Map_Tile<Biome>& Biome_Generator::generate()
 
     double beach_threshold = 0.001d;
     double ocean_threshold = 0.032d;
-    double lake_threshold = 0.008d;
+    double lake_threshold = 0.015d;
 
     // todo: find a way to scale thresholds based on the number of noise layers
 
-    Radial_Noise radial_noise(world_min, world_max);
+
 
     for (int x = world_min.x; x <= world_max.x; x++) {
         for (int y = world_min.y; y <= world_max.y; y++) {
             Biome b;
-            if (radial_noise.inv(x, y) > 0.9d) {
-                b = Biome::GRASSLAND;
+            double i = 10.d * ((double)x / (double)size.x);
+            double j = 10.d * ((double)y / (double)size.y);
+
+            // MAKE OCEANS
+            double o = 1.d;
+            for (size_t p = 0; p < land_count; p++) {
+                o *= perlin_land[p].noise(i, j);
             }
-            else {
-                double i = 10.d * ((double)x / (double)size.x);
-                double j = 10.d * ((double)y / (double)size.y);
+            o *= radial_noise.inv(x, y);
 
-                // MAKE OCEANS
-                double o = 1.d;
-                for (size_t p = 0; p < land_count; p++) {
-                    o *= perlin_land[p].noise(i, j);
-                }
-                o *= radial_noise.inv(x, y);
-
-                if (o <= ocean_threshold) {
-                    if (radial_noise.inv(x, y) < 0.001d)
-                    {
-                        empty[x][y] = true;
-                    }
-                    else {
-                        empty[x][y] = false;
-                    }
-                    ocean[x][y] = true;
+            if (o <= ocean_threshold) {
+                if (radial_noise.inv(x, y) < 0.0002d)
+                {
+                    empty[x][y] = true;
                 }
                 else {
                     empty[x][y] = false;
-                    ocean[x][y] = false;
                 }
-
-                // MAKE BEACHES FROM OCEAN NOISE
-
-                for (size_t p = 0; p < beach_count; p++) {
-                    o *= perlin_beach[p].noise(i, j);
-                }
-
-                o *= radial_noise.inv(x, y); // apply radial gradient again
-
-                if (ocean[x][y] || o <= beach_threshold) {
-                    beach[x][y] = true;
-                }
-                else {
-                    beach[x][y] = false;
-                }
-
-
-                // MAKE LAKES
-                double l = 1.d;
-                for (size_t p = 0; p < lake_count; p++) {
-                    l *= perlin_lake[o].noise(i, j);
-                }
-
-                if (l <= lake_threshold) {
-                    lake[x][y] = true;
-                }
-                else {
-                    lake[x][y] = false;
-                }
-
-
-                // MAKE LAND BIOMES
-                double t = perlin_biome.noise(i, j);
-                t *= perlin_biome1.noise(i, j);
-                if (t < 0.25d) {
-                    b = Biome::GRASSLAND;
-                }
-                else {
-                    b = Biome::FOREST;
-                }
+                ocean[x][y] = true;
+            }
+            else {
+                empty[x][y] = false;
+                ocean[x][y] = false;
             }
 
-            map[x][y] = b;
+            // MAKE BEACHES FROM OCEAN NOISE
+
+            for (size_t p = 0; p < beach_count; p++) {
+                o *= perlin_beach[p].noise(i, j);
+            }
+
+            o *= radial_noise.inv(x, y); // apply radial gradient again
+
+            if (ocean[x][y] || o <= beach_threshold) {
+                beach[x][y] = true;
+            }
+            else {
+                beach[x][y] = false;
+            }
+
+
+            // MAKE LAKES
+            double l = 1.d;
+            for (size_t p = 0; p < lake_count; p++) {
+                l *= perlin_lake[o].noise(i, j);
+            }
+
+            if (l <= lake_threshold) {
+                lake[x][y] = true;
+            }
+            else {
+                lake[x][y] = false;
+            }
+
+
+            // MAKE LAND BIOMES
+            double t = perlin_biome.noise(i, j);
+            t *= perlin_biome1.noise(i, j);
+            if (t < 0.25d) {
+                b = Biome::GRASSLAND;
+            }
+            else {
+                b = Biome::FOREST;
+            }
+
+            biomes[x][y] = b;
         }
     }
 
@@ -143,7 +142,7 @@ Map_Tile<Biome>& Biome_Generator::generate()
     //std::packaged_task<void()> floodBeach([&]() { floodCheck(beach); });
     //std::future<void> omen = floodBeach.get_future();
     //std::thread thread = std::thread(std::move(floodBeach));
-
+/*
     auto omen = std::async(std::launch::async, [&]() { floodCheck(beach); });
 
     floodCheck(ocean);
@@ -152,7 +151,11 @@ Map_Tile<Biome>& Biome_Generator::generate()
 
     do {
         joining = (omen.wait_for(std::chrono::milliseconds(0)) == std::future_status::ready);
-    } while (joining);
+    } while (joining);*/
+
+    std::cout << "starting floods...\n";
+    floodCheck(ocean);
+    floodCheck(beach);
 
     for (int x = world_min.x; x <= world_max.x; x++) {
         for (int y = world_min.y; y <= world_max.y; y++) {
@@ -164,34 +167,29 @@ Map_Tile<Biome>& Biome_Generator::generate()
         }
     }
 
+    runRivers();
+
     for (int x = world_min.x; x <= world_max.x; x++) {
         for (int y = world_min.y; y <= world_max.y; y++) {
             if (lake[x][y]) {
-                map[x][y] = Biome::LAKE;
+                biomes[x][y] = Biome::LAKE;
             }
             else if(empty[x][y]) {
-                map[x][y] = Biome::NULL_TYPE;
+                biomes[x][y] = Biome::NULL_TYPE;
             }
             else if (ocean[x][y]) {
-                map[x][y] = Biome::OCEAN;
+                biomes[x][y] = Biome::OCEAN;
+            }
+            else if (rivers[x][y]) {
+                biomes[x][y] = Biome::RIVER;
             }
             else if (beach[x][y]) {
-                map[x][y] = Biome::BEACH;
+                biomes[x][y] = Biome::BEACH;
             }
         }
     }
 
-    return map;
-}
-
-sf::Vector2i Biome_Generator::getMin()
-{
-    return world_min;
-}
-
-sf::Vector2i Biome_Generator::getMax()
-{
-    return world_max;
+    return biomes;
 }
 
 bool Biome_Generator::adjacentOcean(int x, int y)
@@ -205,4 +203,43 @@ bool Biome_Generator::adjacentOcean(int x, int y)
     }
 
     return false;
+}
+
+void Biome_Generator::runRivers()
+{
+    //const size_t count = prng::number(2, 5);
+
+    //for (size_t i = 0; i < count; i++) {
+        sf::Vector2i index;
+        index.x = prng::number(-128, 128);
+        index.y = prng::number(-128, 128);
+        /*
+        do {
+            index.x = prng::number((world_min.x * 2) / 3, (world_max.x * 2) / 3);
+            index.y = prng::number((world_min.y * 2) / 3, (world_max.y * 2) / 3);
+            std::cout << "attempting to place river start at " << index << "; noise is " << radial_noise.get(index.x, index.y) << '\n';
+        } while (radial_noise.get(index.x, index.y) > 0.9d);
+            std::cout << "placing river start at " << index << '\n';
+            */
+        sf::Vector2i bias = normalizeVector(index);
+
+        bool running = true;
+
+        int size = 6;
+
+        while (running) {
+            for (int x = index.x - size; x <= index.x + size; x++) {
+                for (int y = index.y - size; y <= index.y + size; y++) {
+                    if (!ocean[x][y] && !lake[x][y]) {
+                        rivers[x][y] = true;
+                    }
+                }
+            }
+            index += bias;
+            if (ocean[index.x][index.y]) {
+                running = false;
+            }
+            size = prng::number(1, 3);
+        }
+    //}
 }
