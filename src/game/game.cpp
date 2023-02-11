@@ -61,9 +61,9 @@ World& Game::getWorld()
 
 void Game::startGame()
 {
-    player.setPosition(sf::Vector2f(2560.f, 2560.f));
+    world.finalize();
+    player.setPosition(world.startPosition());
     view.setCenter(player.getPosition());
-    world.finalize(player.getCoordinates(Tile::tileSize));
 }
 
 void Game::clickLeft()

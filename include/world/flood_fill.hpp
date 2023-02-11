@@ -12,8 +12,6 @@ inline void floodFill(int x, int y, Map_Tile<bool>& to_flood, Map_Tile<bool>& fl
 {
     // BE *VERY* CAREFUL ABOUT USING THIS RECURSIVE FLOOD FILL
     // IT ***WILL*** CAUSE A STACK OVERFLOW!!!!!!!!!
-    // RECURSION IS ACCEPTABLE FOR DRAINING COASTAL LAKES BECAUSE THEY DON'T GET BIG...
-        // (BUT EVEN THEN YOU SHOULD PROBABLY SWITCH OFF IT)
     flooding[x][y] = true;
 
     if (!flooding[x - 1][y] && to_flood[x - 1][y]) {

@@ -11,6 +11,8 @@
 #include <world/flood_fill.hpp>
 #include <world/perlin_noise.hpp>
 
+#include <util/vector2_stream.hpp>
+
 Biome_Generator::Biome_Generator(sf::Vector2i min, sf::Vector2i max)
     : world_min{ min }
     , world_max{ max }
@@ -211,6 +213,7 @@ Map_Tile<Biome>& Biome_Generator::generate()
             }
             else if (ocean[x][y]) {
                 biomes[x][y] = Biome::OCEAN;
+                beach[x][y] = false;
             }
             else if (rivers[x][y]) {
                 biomes[x][y] = Biome::RIVER;
@@ -221,7 +224,44 @@ Map_Tile<Biome>& Biome_Generator::generate()
         }
     }
 
+    std::cout << "splitting beaches\n";
+    splitBeaches();
+
     return biomes;
+}
+
+sf::Vector2i Biome_Generator::getStartCoordinates()
+{
+    std::cout << "finding start coordinates!\n";
+    sf::Vector2i start(0, 0);
+    size_t n = beaches.size() / 2;
+    do {
+        size_t b_index = prng::number((size_t)0, n);
+        size_t s_index = prng::number(beaches[b_index].size());
+        start = beaches[b_index][s_index];
+        std::cout << "attempting to place start at " << start << "...\n";
+    } while(checkForIsland(start));
+    std::cout << "\tplaced!\n";
+    return start;
+}
+
+bool Biome_Generator::checkForIsland(sf::Vector2i i)
+{
+    sf::Vector2i origin(0, 0);
+    sf::Vector2i direction = normalizeVector(i);
+    while (i != origin) {
+        if (std::abs(i.x) > std::abs(i.y)) {
+            i.x -= direction.x;
+        }
+        else {
+            i.y -= direction.y;
+        }
+
+        if (ocean[i.x][i.y]) {
+            return true;
+        }
+    }
+    return false;
 }
 
 bool Biome_Generator::adjacentOcean(int x, int y)
@@ -287,4 +327,52 @@ void Biome_Generator::runRivers()
             size = prng::number(1, 3);
         }
     //}
+}
+
+void Biome_Generator::splitBeaches()
+{
+    size_t n = 0;
+    for (int x = world_min.x; x <= world_max.x; x++) {
+        for (int y = world_min.y; y <= world_max.y; y++) {
+            if (beach[x][y]) {
+                std::cout << "placing beach " << n++ << " at " << x << ", " << y << '\n';
+                beaches.push_back(std::vector<sf::Vector2i>());
+                floodBeach(sf::Vector2i(x, y));
+            }
+        }
+    }
+
+    size_t mean = 0;
+    for (const auto& b : beaches) {
+        mean += b.size();
+    }
+    mean /= beaches.size();
+
+    std::sort(beaches.begin(), beaches.end(), [](const std::vector<sf::Vector2i>& a, const std::vector<sf::Vector2i>& b){ return a.size() > b.size(); });
+}
+
+void Biome_Generator::floodBeach(sf::Vector2i i)
+{
+    std::queue<sf::Vector2i> q;
+    q.push(i);
+    while(q.size() > 0) {
+        sf::Vector2i n = q.front();
+        q.pop();
+        if (beach[n.x][n.y]) {
+            beaches.back().push_back(n);
+            beach[n.x][n.y] = false;
+            if (beach[n.x - 1][n.y]) {
+                q.push(sf::Vector2i(n.x - 1, n.y));
+            }
+            if (beach[n.x + 1][n.y]) {
+                q.push(sf::Vector2i(n.x + 1, n.y));
+            }
+            if (beach[n.x][n.y - 1]) {
+                q.push(sf::Vector2i(n.x, n.y - 1));
+            }
+            if (beach[n.x][n.y + 1]) {
+                q.push(sf::Vector2i(n.x, n.y + 1));
+            }
+        }
+    }
 }

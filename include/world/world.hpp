@@ -33,7 +33,7 @@ public:
     void makeBiomes();
     void makeGrass();
     void initialAutotile();
-    void finalize(sf::Vector2i player_coordinates);
+    void finalize();
 
     Map_Tile<Crop>& getCrops();
 
@@ -73,6 +73,8 @@ public:
 
     Chunk_Loader& getChunks();
 
+    sf::Vector2f startPosition();
+
     void pickupAll();
     void stopPickupAll();
 
@@ -107,6 +109,8 @@ private:
 
     std::vector<std::shared_ptr<Building>> buildings;
 
+    sf::Vector2i start_coords;
+
     bool pickup_all = false;
 
     void autotile(sf::Vector2i start, sf::Vector2i end, Detail_Type type);
@@ -133,6 +137,8 @@ private:
     bool passableTile(Floor_Info& info);
 
     void checkBuildings();
+
+    void placeWreckage();
 
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
 };

@@ -1,0 +1,1 @@
+#include <world/lootable.hpp>

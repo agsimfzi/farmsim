@@ -19,7 +19,7 @@
 World::World(Item_Library& item_library)
     : item_library { item_library }
 {
-    sf::Vector2i size(192, 192);
+    sf::Vector2i size(64, 64);
     size.x *= chunks.chunk_size.x;
     size.y *= chunks.chunk_size.y;
     size.y -= 1;
@@ -204,6 +204,9 @@ void World::makeBiomes()
     }
     autotile(world_min, world_max, Detail_Type::WATER);
     autotile(world_min, world_max, Detail_Type::LAVA);
+
+    start_coords = biome_gen.getStartCoordinates();
+
     std::cout << "biomes made!\n";
 }
 
@@ -232,9 +235,15 @@ void World::makeGrass()
     std::cout << "\n\ngrass made!\n";
 }
 
-void World::finalize(sf::Vector2i player_coordinates)
+void World::finalize()
 {
-    chunks.check(player_coordinates);
+    chunks.check(start_coords);
+    placeWreckage();
+}
+
+sf::Vector2f World::startPosition()
+{
+    return chunks.floor(start_coords)->getPosition();
 }
 
 void World::autotile(sf::Vector2i start, sf::Vector2i end, Detail_Type type)
@@ -255,6 +264,9 @@ void World::autotile(sf::Vector2i start, sf::Vector2i end, Detail_Type type)
         }
     }
 }
+
+void World::placeWreckage()
+{}
 
 int World::autotileX(sf::Vector2i i, Detail_Type type)
 {

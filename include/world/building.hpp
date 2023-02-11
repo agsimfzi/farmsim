@@ -21,6 +21,8 @@ public:
 
     enum Type {
         CONTAINER,
+        MACHINE,
+        LOOTABLE,
         FURNACE,
         SAW,
         NULL_TYPE
@@ -31,6 +33,9 @@ public:
     static inline Type stringToType(std::string s) {
         std::transform(s.begin(), s.end(), s.begin(), ::toupper);
         if (s == "FURNACE") {
+            return FURNACE;
+        }
+        else if (s == "FURNACE") {
             return FURNACE;
         }
         else {
