@@ -15,6 +15,8 @@ Building_Library::Building_Library()
                 case Building::CONTAINER:
                     b = std::make_shared<Container>();
                     break;
+                case Building::CRAFTING_TABLE:
+                    b = std::make_shared<Crafting_Table>();
                 case Building::FURNITURE:
                     //b = std::make_shared<Furniture>();
                     break;
@@ -36,6 +38,9 @@ Building_Library::Building_Library()
             b->uid = item.uid;
             if (item.subtype.find("MACHINE") == std::string::npos) {
                 b->type = Building::stringToType(item.subtype);
+                if (b->type == Building::CRAFTING_TABLE) {
+                    b->reactions = Database::getCraftingRecipes();
+                }
             }
             else {
                 b->type = Building::MACHINE;
