@@ -24,7 +24,7 @@ void Automaton::make()
 {
     for (int x = min.x - padding.x; x <= max.x + padding.x; x++) {
         for (int y = min.y - padding.y; y <= max.y + padding.y; y++) {
-            bool c = !(x < min.x || x > max.x || y < min.y || y > max.y);
+            //bool c = !(x < min.x || x > max.x || y < min.y || y > max.y);
             cells[x][y] = prng::boolean(chance);
         }
     }

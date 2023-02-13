@@ -31,6 +31,11 @@ bool Item::stackable()
     return stack_size > 1;
 }
 
+int Item::stackSize()
+{
+    return stack_size;
+}
+
 std::string Item::getName()
 {
     return name;

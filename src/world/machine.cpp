@@ -1,6 +1,6 @@
 #include <world/machine.hpp>
 
-#include <util/primordial.hpp>
+#include <util/primordial.hpp> // for equalStrings
 
 #include <iostream>
 
@@ -8,60 +8,77 @@ Machine::Machine()
 {
     interface = true;
     inventory.push_back(std::vector<std::shared_ptr<Item>>());
-        inventory.back().push_back(std::shared_ptr<Item>());
-        inventory.back().push_back(std::shared_ptr<Item>());
+        inventory.back().resize(3);
     inventory.push_back(std::vector<std::shared_ptr<Item>>());
-        inventory.back().push_back(std::shared_ptr<Item>());
+        inventory.back().resize(1);
+
+    active_product = inventory.back().front();
 }
 
-bool Machine::validReagant(std::string name)
+bool Machine::validReagant(std::string name, int rxn)
 {
-    for (const auto& r : reactions) {
-        for (const auto& reagant : r.reagants) {
+    //std::cout << "testing " << name << " as reagant...";
+    if (rxn == -1) {
+        for (const auto& r : reactions) {
+            for (const auto& reagant : r.reagants) {
+                if (equalStrings(name, reagant)) {
+                    //std::cout << " valid!\n";
+                    return true;
+                }
+            }
+        }
+    }
+    else {
+        for (const auto& reagant : reactions[rxn].reagants) {
             if (equalStrings(name, reagant)) {
-                //std::cout << "TRUE!\n";
+                //std::cout << " valid!\n";
                 return true;
             }
         }
     }
-
+   // std::cout << " INVALID!\n";
     return false;
 }
 
 void Machine::checkReaction()
 {
-    if (active_reagant) {
-        size_t n = reactions.size();
-        int rxn = -1;
-        for (size_t i = 0; i < n; i++) {
-            if (equalStrings(active_reagant->getName(), reactions[i].reagant)) {
-                rxn = i;
-                break;
-            }
-        }
-        if (rxn != current_reaction) {
-            current_reaction = rxn;
-            reaction_tick = 0;
+    size_t n = reactions.size();
+    for (size_t i = 0; i < n; i++) {
+        if (checkReagants(i)) {
+            current_reaction = i;
+            return;
         }
     }
+    current_reaction = -1;
 }
 
-bool Machine::checkReagants()
+bool Machine::checkReagants(size_t i)
 {
-    bool good = false;
-    if (current_reaction >= 0) {
-        good = true;
-        std::vector<std::string> reagants = reactions[current_reaction].reagants;
-        for (const auto& reagant : reactions[current_reaction].reagants) {
-            for (size_t i = 0; i <)
+    size_t n;
+    if (i >= 0 && (!active_product || active_product->count() < active_product->stackSize())) {
+        std::vector<std::string> reagants = reactions[i].reagants;
+        for (const auto& r : reagants) {
+            //std::cout << "\tseeking " << r << '\n';
         }
+        for (const auto& item : inventory.front()) {
+            if (item) {
+                auto it = std::find_if(reagants.begin(), reagants.end(), [&](std::string str) { return equalStrings(item->getName(), str); });
+                if (it == reagants.end()) {
+                    return false;
+                }
+                else {
+                    reagants.erase(it);
+                }
+            }
+        }
+        n = reagants.size();
+        //std::cout << "\t\t" << n << " items remaining!\n";
     }
-    return good;
+    return (n == 0);
 }
 
 void Machine::tick(Item_Library& item_library)
 {
-    //std::cout << "running building tick...\n";
     if (current_reaction >= 0) {
         if (!active_product
         || equalStrings(active_product->getName(), reactions[current_reaction].product)) {
@@ -75,10 +92,14 @@ void Machine::tick(Item_Library& item_library)
                     active_product->setCount(active_product->count() + 1);
                 }
 
-                active_reagant->setCount(active_reagant->count() - 1);
-                if (active_reagant->count() == 0) {
-                    active_reagant = nullptr;
-                    current_reaction = -1;
+                for (auto& active_reagant : inventory.front()) {
+                    if (active_reagant && validReagant(active_reagant->getName(), current_reaction)) {
+                        active_reagant->setCount(active_reagant->count() - 1);
+                        if (active_reagant->count() == 0) {
+                            active_reagant = nullptr;
+                            endReaction();
+                        }
+                    }
                 }
 
                 reaction_tick = 0;
@@ -98,39 +119,45 @@ void Machine::endReaction()
     reaction_tick = 0;
 }
 
-void Machine::clearReagant()
+void Machine::clearReagant(size_t i)
 {
-    active_reagant.reset();
-    endReaction();
+    if (i >= 0 && i < inventory.front().size() && inventory.front()[i]) {
+        inventory.front()[i].reset();
+        endReaction();
+        checkReaction();
+    }
 }
 
 void Machine::clearProduct()
 {
     active_product.reset();
+    checkReaction();
 }
 
-Item* Machine::activeReagants()
+std::vector<std::shared_ptr<Item>> Machine::activeReagants()
 {
     return inventory.front();
 }
 
-Item* Machine::activeProduct()
+std::shared_ptr<Item> Machine::activeProduct()
 {
-    return inventory.back().front();
+    return active_product;
 }
 
-bool Machine::addReagant(Item* item)
+size_t Machine::addReagant(std::shared_ptr<Item> item)
 {
-    bool added = false;
-    if (item) {
+    size_t remainder = item->count();
+    if (item && validReagant(item->getName(), current_reaction)) {
+        std::cout << "adding reagant... ";
         int first_empty_index = -1;
         size_t n = inventory.front().size();
         for (size_t i = 0; i < n; i++) {
-            if (item) {
-                if (inventory.front()[i]->getUID(), item->getUID()) {
+            if (inventory.front()[i]) {
+                if (inventory.front()[i]->getUID() == item->getUID()) {
                     inventory.front()[i]->add(item->count());
-                    item = nullptr;
-                    added = true;
+                    remainder = 0;
+                    checkReaction();
+                    std::cout << "merged into cell " << i << "!\n";
                     break;
                 }
             }
@@ -138,15 +165,17 @@ bool Machine::addReagant(Item* item)
                 first_empty_index = i;
             }
         }
-        if (first_empty_index > 0 && item) {
+        if (first_empty_index >= 0) {
             inventory.front()[first_empty_index] = std::make_shared<Item>(*item);
-            added = true;
+            remainder = 0;
+            checkReaction();
+            std::cout << "placed in cell " << first_empty_index << "!\n";
         }
     }
-    return added;
+    return remainder;
 }
 
-void Machine::setProduct(Item* item)
+void Machine::setProduct(std::shared_ptr<Item> item)
 {
     if (item) {
         if (inventory.back().front()) {

@@ -4,7 +4,8 @@
 
 #include <item/player_inventory.hpp>
 
-#include <world/building.hpp>
+#include <world/container.hpp>
+#include <world/machine.hpp>
 
 #include "building_interface.hpp"
 #include "inventory_cell.hpp"
@@ -12,8 +13,6 @@
 class Inventory_Interface : public sf::Drawable {
 public:
     Inventory_Interface(Player_Inventory& inventory);
-
-    Player_Inventory& inventory;
 
     void update();
 
@@ -40,7 +39,7 @@ public:
 
     void startDrag();
     void checkDrag();
-    void endDrag(std::function<void(Item*)> drop);
+    void endDrag(std::function<void(std::shared_ptr<Item>)> drop);
     void cancelDrag();
 
     std::shared_ptr<Item> dragItem;
@@ -49,6 +48,8 @@ public:
     void loadBuilding(Building* b);
 
 private:
+    Player_Inventory& inventory;
+
     void placeMergeSwap(sf::Vector2i i);
     void swap(sf::Vector2i i);
     void resize();
@@ -63,5 +64,6 @@ private:
     void setProgressBarSize();
     void clearProgressBar();
     void checkReaction();
+    void readBuilding();
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
 };

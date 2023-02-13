@@ -25,9 +25,9 @@ class Machine : public Building {
 public:
     Machine();
 
-    Machine_Type machine_type;
+    bool validReagant(std::string name, int rxn = -1);
 
-    bool validReagant(std::string name);
+    Machine_Type machine_type;
 
     int current_reaction = -1;
     size_t reaction_tick = 0;
@@ -36,18 +36,23 @@ public:
 
     void tick(Item_Library& item_library);
 
-    float progress();
+    float reactionProgress();
 
     void endReaction();
 
-    void clearReagant();
+    void clearReagant(size_t i);
     void clearProduct();
 
-    void addReagant(Item* item);
-    void setProduct(Item* item);
+    size_t addReagant(std::shared_ptr<Item> i);
+    void setProduct(std::shared_ptr<Item> item);
 
-    std::vector<Item*> activeReagants();
-    Item* activeProduct();
+    std::vector<std::shared_ptr<Item>> activeReagants();
+    std::shared_ptr<Item> activeProduct();
 
-    bool checkReagants();
+    bool checkReagants(size_t i);
+
+private:
+    std::vector<std::string> valid_reagants;
+
+    std::shared_ptr<Item> active_product;
 };

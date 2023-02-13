@@ -48,6 +48,9 @@ public:
 
     sf::View& getView();
 
+    void giveItemToPlayer(std::string name, size_t count = 1);
+    void giveItemToPlayer(size_t uid, size_t count = 1);
+
 private:
     Item_Library item_library;
 

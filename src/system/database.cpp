@@ -347,9 +347,10 @@ std::map<Machine_Type, std::vector<Reaction>> Database::getReactions()
 
         while (reagant_string.find(',') != std::string::npos) {
             std::string r = reagant_string.substr(0, reagant_string.find(','));
-            reagant_string = reagant_string.substr(reagant_string.find(',') + 1);
             reagants.push_back(r);
+            reagant_string = reagant_string.substr(reagant_string.find(',') + 1);
         }
+        reagants.push_back(reagant_string);
 
         Reaction r;
             r.name = name;

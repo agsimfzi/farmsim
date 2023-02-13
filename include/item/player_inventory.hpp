@@ -12,16 +12,16 @@ public:
     size_t rowCount = 4;
     size_t rowWidth = 8;
 
-    Item* operator()(const size_t row, const size_t col) { return items[row][col].get(); }
+    std::shared_ptr<Item> operator()(const size_t row, const size_t col) { return items[row][col]; }
 
     void resize(const size_t rows, const size_t cols);
 
-    void addItem(Item* item, size_t count = 1);
+    void addItem(std::shared_ptr<Item> item, size_t count = 1);
     size_t takeItem(size_t x, size_t y, size_t count);
     void clearItem(size_t x, size_t y);
-    void placeItem(size_t x, size_t y, Item* item);
+    void placeItem(size_t x, size_t y, std::shared_ptr<Item> item);
 
-    Item* equippedItem();
+    std::shared_ptr<Item> equippedItem();
 
     void setEquipped(size_t index);
     void takeEquipped(int count = -1);

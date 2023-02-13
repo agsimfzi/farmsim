@@ -159,15 +159,15 @@ void Chunk_Loader::eraseBuilding(sf::Vector2i i)
     }
 }
 
-void Chunk_Loader::addBuilding(size_t uid, sf::Vector2i coords)
+void Chunk_Loader::addBuilding(Building* b, sf::Vector2i coords)
 {
     sf::Vector2i ci = findChunk(coords);
     if (chunks.contains(ci.x) && chunks[ci.x].contains(ci.y)) {
-        chunks[ci.x][ci.y]->addBuilding(uid, coords);
+        chunks[ci.x][ci.y]->addBuilding(b, coords);
     }
 }
 
-void Chunk_Loader::addItem(Item* item, size_t count, sf::Vector2i coords)
+void Chunk_Loader::addItem(std::shared_ptr<Item> item, size_t count, sf::Vector2i coords)
 {
     sf::Vector2i ci = findChunk(coords);
     if (chunks.contains(ci.x) && chunks[ci.x].contains(ci.y)) {
@@ -190,7 +190,7 @@ void Chunk_Loader::checkPickup(Player_Inventory& inventory, sf::Vector2f player_
 {
     const static float move_threshold = 192.f;
     const static float speed = 2.f;
-    std::vector<std::pair<sf::Vector2i, Item*>> to_move;
+    std::vector<std::pair<sf::Vector2i, std::shared_ptr<Item>>> to_move;
     for (int x = -1; x <= 1; x++) {
         for (int y = -1; y <= 1; y++) {
             sf::Vector2i ci(current.x + x, current.y + y);
@@ -206,13 +206,13 @@ void Chunk_Loader::checkPickup(Player_Inventory& inventory, sf::Vector2f player_
                     }
 
                     if ((*i)->getSprite().getGlobalBounds().contains(player_pos)) {
-                        inventory.addItem((*i).get(), (*i)->count());
+                        inventory.addItem((*i), (*i)->count());
                         chunks[ci.x][ci.y]->getItems().erase(i);
                     }
                     else {
                         sf::Vector2i nc = findChunk((*i)->getPosition());
                         if (ci != nc) {
-                            to_move.push_back(std::make_pair(nc, i->get()));
+                            to_move.push_back(std::make_pair(nc, *i));
                             chunks[ci.x][ci.y]->getItems().erase(i);
                         }
                         else {

@@ -6,6 +6,8 @@
 
 #include <world/tile.hpp>
 
+#include <iostream>
+
 const float Inventory_Interface::cell_padding = Inventory_Cell::frameOutlineSize;
 
 Inventory_Interface::Inventory_Interface(Player_Inventory& inventory)
@@ -22,6 +24,7 @@ Inventory_Interface::Inventory_Interface(Player_Inventory& inventory)
 
     progress_bar.setFillColor(sf::Color::White);
     progress_bar.setSize(sf::Vector2f(Tile::tileSize, 0.f));
+    progress_bar.setOrigin(sf::Vector2f(Tile::tileSize / 2.f, Tile::tileSize / 2.f));
 }
 
 void Inventory_Interface::readInventory()
@@ -31,6 +34,7 @@ void Inventory_Interface::readInventory()
 
     for (size_t r = 0; r < nr; r++) {
         for (size_t c = 0; c < nc; c++) {
+            cells[r][c].clearItem();
             cells[r][c].setItem(inventory(r, c));
         }
     }
@@ -40,7 +44,7 @@ void Inventory_Interface::update()
 {
     checkDrag();
 
-    if (building && building->type == Building::MACHINE && building->current_reaction >= 0) {
+    if (machine && machine->current_reaction >= 0) {
         checkReaction();
         setProgressBarSize();
     }
@@ -48,15 +52,26 @@ void Inventory_Interface::update()
 
 void Inventory_Interface::checkReaction()
 {
-    cells[inventory.rowCount].front().setItem(building->activeReagant());
-    cells[inventory.rowCount + 1].front().setItem(building->activeProduct());
+    size_t r = inventory.rowCount;
+    size_t n = cells[r].size();
+    std::vector<std::shared_ptr<Item>> reagants = machine->activeReagants();
+    for (size_t i = 0; i < n; i++) {
+        cells[r][i].updateCount();
+    }
+    r++;
+    if (!cells[r].front().getItem()) {
+        cells[r].front().setItem(machine->activeProduct());
+    }
+    else {
+        cells[inventory.rowCount + 1].front().updateCount();
+    }
 }
 
 void Inventory_Interface::setProgressBarSize()
 {
     sf::Vector2f size;
     size.x = Tile::tileSize;
-    size.y = (Tile::tileSize * building->progress());
+    size.y = (Tile::tileSize * machine->reactionProgress());
     progress_bar.setSize(size);
 }
 
@@ -148,7 +163,9 @@ void Inventory_Interface::close()
     }
     open = false;
     expanded = false;
-    building = nullptr;
+    container = nullptr;
+    machine = nullptr;
+    clearProgressBar();
 
     while (cells.size() > inventory.rowCount) {
         cells.pop_back();
@@ -161,9 +178,9 @@ void Inventory_Interface::startDrag()
     sf::Vector2i index = mousedIndex(mpos);
     if (index.x >= 0 && index.y >= 0) {
         sf::Vector2u i(index);
-        Item* item = cells[i.x][i.y].getItem();
+        std::shared_ptr<Item> item = cells[i.x][i.y].getItem();
         if (item) {
-            dragItem = std::make_shared<Item>(*item);
+            dragItem = item;
             cells[i.x][i.y].clearItem();
             dragging = true;
             dragStartIndex = index;
@@ -175,15 +192,15 @@ void Inventory_Interface::startDrag()
             if (i.x < inventory.rowCount) {
                 inventory.clearItem(i.x, i.y);
             }
-            else if (building) {
-                if (building->type != Building::CONTAINER) {
-                    if (i.x == inventory.rowCount) {
-                        building->clearReagant();
-                        clearProgressBar();
-                    }
-                    else if (i.x == inventory.rowCount + 1) {
-                        building->clearProduct();
-                    }
+            else if (container) {
+            }
+            else if (machine) {
+                if (i.x == inventory.rowCount) {
+                    machine->clearReagant(i.y);
+                    clearProgressBar();
+                }
+                else if (i.x == inventory.rowCount + 1) {
+                    machine->clearProduct();
                 }
             }
         }
@@ -201,7 +218,7 @@ void Inventory_Interface::checkDrag()
     }
 }
 
-void Inventory_Interface::endDrag(std::function<void(Item*)> drop)
+void Inventory_Interface::endDrag(std::function<void(std::shared_ptr<Item>)> drop)
 {
     dragging = false;
     if (!dragItem) {
@@ -215,7 +232,7 @@ void Inventory_Interface::endDrag(std::function<void(Item*)> drop)
     }
     else {
         dragItem->can_pickup = false;
-        drop(dragItem.get());
+        drop(dragItem);
         dragItem.reset();
     }
 }
@@ -223,36 +240,37 @@ void Inventory_Interface::endDrag(std::function<void(Item*)> drop)
 void Inventory_Interface::placeMergeSwap(sf::Vector2i i)
 {
     sf::Vector2i dsi = dragStartIndex;
-    Item* si = cells[i.x][i.y].getItem();
+    std::shared_ptr<Item> si = cells[i.x][i.y].getItem();
     if (i.x >= (int)inventory.rowCount) { // BUILDING PLACEMENT
-        if (building) {
-            if (building->type != Building::CONTAINER) {
-                if (i.x == (int)inventory.rowCount && building->validReagant(dragItem->getName())) {
-                    Item* reagant = building->activeReagant();
-                    if (!reagant) {
-                        building->setReagant(dragItem.get());
-                        cells[i.x][i.y].setItem(dragItem.get());
-                        dragItem.reset();
-                    }
-                    else if (reagant->getUID() == dragItem->getUID()) {
-                        building->setReagant(dragItem.get());
-                        cells[i.x][i.y].setItem(dragItem.get());
-                        dragItem.reset();
-                    }
-                    else {
-                        swap(i);
-                        building->checkReaction();
-                    }
-                }
-                else {
+        std::cout << "BUILDING PLACEMENT\n";
+        if (container) {
+        }
+        else if (machine) {
+            if (i.x == (int)inventory.rowCount) {
+                std::cout << "\tPLACING REAGANT...\n";
+                size_t remainder = machine->addReagant(dragItem);
+                if (remainder > 0) {
+                    std::cout << "\t\thad remainder\n";
+                    dragItem->setCount(remainder);
                     dragging = true;
                     return;
                 }
+                else {
+                    std::cout << "\t\tending drag\n";
+                    dragItem = nullptr;
+                }
+                readBuilding();
+            }
+            else {
+                std::cout << "\tFAILED TO PLACE PRODUCT!\n";
+                dragging = true;
+                return;
             }
         }
     } // END BUILDING PLACEMENT
     else { // INVENTORY PLACEMENT
-        if (dsi.x < (int)inventory.rowCount) {
+        std::cout << "INVENTORY PLACEMENT\n";
+        //if (dsi.x < (int)inventory.rowCount) {
             if (si) {
                 if (si->getUID() == dragItem->getUID()) {
                     si->add(dragItem->count());
@@ -261,43 +279,55 @@ void Inventory_Interface::placeMergeSwap(sf::Vector2i i)
                     dragItem.reset();
                 }
                 else {
-                    swap(i);
+                    if (container || (machine && machine->validReagant(si->getName()))) {
+                        swap(i);
+                    }
+                    else {
+                        dragging = true;
+                        return;
+                    }
                 }
             }
             else {
-                cells[i.x][i.y].setItem(dragItem.get());
-                inventory.placeItem(i.x, i.y, dragItem.get());
+                cells[i.x][i.y].setItem(dragItem);
+                inventory.placeItem(i.x, i.y, dragItem);
                 dragItem.reset();
             }
+        /*}
+        else if (container) {
         }
-        else if (building) {
-            if (building->type != Building::CONTAINER) {
-                if (i.x == (int)cells.size() - 1) {
+        else if (machine) {
+            return;
+            if (i.x == (int)cells.size() - 1) { // reject product slot placement
+                dragging = true;
+            }
+            else {
+                if (si) {
                     dragging = true;
-                }
-                else {
-                    if (si) {
-                        if (si->getUID() == dragItem->getUID()) {
-                            si->add(dragItem->count());
-                            cells[i.x][i.y].setItem(si);
-                            inventory.placeItem(i.x, i.y, si);
-                            dragItem.reset();
-                        }
-                        if (building->validReagant(si->getName())) {
-                            swap(i);
-                        }
-                        else {
-                            dragging = true;
-                        }
+                    return;
+                    if (si->getUID() == dragItem->getUID()) {
+                        si->add(dragItem->count());
+                        cells[i.x][i.y].setItem(si);
+                        inventory.placeItem(i.x, i.y, si);
+                        dragItem.reset();
+                        dragItem = nullptr;
+                        readBuilding();
+                    }
+                    if (machine->validReagant(si->getName())) {
+                        swap(i);
                     }
                     else {
-                        cells[i.x][i.y].setItem(dragItem.get());
-                        inventory.placeItem(i.x, i.y, dragItem.get());
-                        dragItem.reset();
+                        dragging = true;
                     }
                 }
+                else {
+                    cells[i.x][i.y].setItem(dragItem);
+                    inventory.placeItem(i.x, i.y, dragItem);
+                    dragItem.reset();
+                    dragItem = nullptr;
+                }
             }
-        }
+        }*/
     } // END INVENTORY PLACEMENT
 }
 
@@ -306,37 +336,71 @@ void Inventory_Interface::swap(sf::Vector2i i)
     sf::Vector2i dsi = dragStartIndex;
     cells[dsi.x][dsi.y].setItem(cells[i.x][i.y].getItem());
     cells[i.x][i.y].clearItem();
-    cells[i.x][i.y].setItem(dragItem.get());
+    cells[i.x][i.y].setItem(dragItem);
     dragItem.reset();
 
     if (dsi.x < (int)inventory.rowCount) {
         inventory.placeItem(dsi.x, dsi.y, cells[dsi.x][dsi.y].getItem());
     }
-    else if (building->type != Building::CONTAINER) {
-        building->clearReagant();
-        building->setReagant(cells[dsi.x][dsi.y].getItem());
+    else if (container) {
+    }
+    else if (machine) {
+        machine->clearReagant(dsi.y);
+        machine->addReagant(cells[dsi.x][dsi.y].getItem());
     }
 
     if (i.x < (int)inventory.rowCount) {
         inventory.placeItem(i.x, i.y, cells[i.x][i.y].getItem());
     }
-    else if (building->type != Building::CONTAINER) {
-        building->clearReagant();
-        building->setReagant(cells[i.x][i.y].getItem());
+    else if (container) {
+    }
+    else if (machine) {
+        machine->clearReagant(i.y);
+        machine->addReagant(cells[i.x][i.y].getItem());
+    }
+}
+
+void Inventory_Interface::readBuilding()
+{
+    std::cout << "READING BUILDING\n";
+    std::vector<std::vector<std::shared_ptr<Item>>>* items;
+    if (container) {
+        items = &container->getInventory();
+    }
+    else if (machine) {
+        items = &machine->getInventory();
+    }
+    else { [[unlikely]]
+        return;
+    }
+
+    size_t r = items->size();
+    size_t n = inventory.rowCount;
+    for (size_t i = 0; i < r; i++) {
+        size_t c = (*items)[i].size();
+        for (size_t j = 0; j < c; j++) {
+            cells[i + n][j].clearItem();
+            cells[i + n][j].setItem((*items)[i][j]);
+        }
     }
 }
 
 void Inventory_Interface::cancelDrag()
 {
-    cells[dragStartIndex.x][dragStartIndex.y].setItem(dragItem.get());
-    if (dragStartIndex.x >= (int)inventory.rowCount && building) {
-        if (building->type != Building::CONTAINER) {
+    cells[dragStartIndex.x][dragStartIndex.y].setItem(dragItem);
+    if (dragStartIndex.x >= (int)inventory.rowCount) {
+        if (container) {
+        }
+        else if (machine) {
             if (dragStartIndex.x == (int)inventory.rowCount) {
-                building->setReagant(dragItem.get());
-                building->checkReaction();
+                machine->addReagant(dragItem);
+                if (dragItem) {
+                    dragging = true;
+                    return;
+                }
             }
             else if (dragStartIndex.x == (int)inventory.rowCount + 1) {
-                building->setProduct(dragItem.get());
+                machine->setProduct(dragItem);
             }
         }
     }
@@ -366,29 +430,35 @@ void Inventory_Interface::loadBuilding(Building* b)
     while (cells.size() > inventory.rowCount) {
         cells.pop_back();
     }
-    building = b;
     if (b && b->interface) {
-        if (b->type != Building::CONTAINER) {
-            sf::Vector2f pos = cells[1].back().getPosition();
-            pos.x += (Tile::tileSize * 2.f);
-            std::vector<Inventory_Cell> c;
-            c.push_back(Inventory_Cell(b->activeReagant()));
-            c.back().setPosition(pos);
-            cells.emplace_back(std::move(c));
-            pos.x -= (Tile::tileSize / 2.f);
-            pos.y += (Tile::tileSize / 2.f);
-            progress_bar.setPosition(pos);
-            pos.x += (Tile::tileSize / 2.f);
-            pos.y += (Tile::tileSize * 1.5f);
-            c.clear();
-            c.push_back(Inventory_Cell(b->activeProduct()));
-            c.back().setPosition(pos);
-            cells.emplace_back(std::move(c));
+        bool is_machine = false;
+        if (b->type == Building::CONTAINER) {
+            container = dynamic_cast<Container*>(b);
+        }
+        else if (b->type == Building::MACHINE) {
+            is_machine = true;
+            machine = dynamic_cast<Machine*>(b);
             setProgressBarSize();
         }
-        else {
-            building = nullptr;
-            clearProgressBar();
+
+        std::vector<std::vector<std::shared_ptr<Item>>>& inventory = b->getInventory();
+
+        sf::Vector2f pos = cells[1].back().getPosition();
+        pos.x += (Tile::tileSize * 2.f);
+        float sx = pos.x;
+        sf::Vector2f progress_pos = pos;
+        progress_pos.y += (Tile::tileSize);
+        progress_bar.setPosition(progress_pos);
+        for (const auto& row : inventory) {
+            pos.x = sx;
+            cells.push_back(std::vector<Inventory_Cell>());
+            for (const auto& item : row) {
+                cells.back().push_back(Inventory_Cell(item));
+                cells.back().back().setPosition(pos);
+                pos.x += Tile::tileSize;
+            }
+
+            pos.y += Tile::tileSize * (1 + is_machine);
         }
     }
 }
@@ -407,7 +477,7 @@ void Inventory_Interface::draw(sf::RenderTarget& target, sf::RenderStates states
         }
     }
 
-    if (open && building && building->current_reaction >= 0) {
+    if (machine && machine->current_reaction >= 0) {
         target.draw(progress_bar, states);
     }
 

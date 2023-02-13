@@ -16,6 +16,7 @@ public:
 
     bool sellable();
     bool stackable();
+    int stackSize();
 
     std::string getName();
     size_t getUID();

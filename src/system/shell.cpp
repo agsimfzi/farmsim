@@ -12,6 +12,8 @@ Shell::Shell()
     cursor.loadFromSystem(sf::Cursor::Cross);
     window.setMouseCursor(cursor);
 
+    window.setKeyRepeatEnabled(false);
+
     viewGame = sf::View(sf::Vector2f(0.f, 0.f), sf::Vector2f(window.getSize()));
     viewGame.setCenter(sf::Vector2f(0.f, 0.f));
 
@@ -121,8 +123,8 @@ void Shell::loadNewLevel()
     loads.push_back(std::bind(&World::makeBiomes, &game.getWorld()));
     messages.push_back("making biomes...");
 
-    loads.push_back(std::bind(&World::makeGrass, &game.getWorld()));
-    messages.push_back("making grass...");
+    //loads.push_back(std::bind(&World::makeGrass, &game.getWorld()));
+    //messages.push_back("making grass...");
 
     //loads.push_back(std::bind(&World::initialAutotile, &game.getWorld()));
     //messages.push_back("autotiling...");

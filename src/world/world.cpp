@@ -19,7 +19,7 @@
 World::World(Item_Library& item_library)
     : item_library { item_library }
 {
-    sf::Vector2i size(64, 64);
+    sf::Vector2i size(16, 16);
     size.x *= chunks.chunk_size.x;
     size.y *= chunks.chunk_size.y;
     size.y -= 1;
@@ -43,8 +43,14 @@ void World::update(Player_Inventory& player_inventory, Player& player)
         tickClock.restart();
         tick();
         chunks.check(player.getCoordinates(Tile::tileSize));
-        for (auto& b : buildings) {
-            b->tick(item_library);
+        for (auto m = machines.begin(); m != machines.end();) {
+            if (!(*m)) {
+                machines.erase(m);
+            }
+            else {
+                (*m)->tick(item_library);
+                m++;
+            }
         }
     }
 
@@ -62,12 +68,13 @@ void World::interact(Player_Inventory& player_inventory)
         Floor* f = chunks.floor(*activeTile);
         Floor_Info& info = tile_library[t.x][t.y];
         if (f) {
-            Item* i = player_inventory.equippedItem();
-            if (info.building && info.building->type != Building::CONTAINER) { // PICKUP PRODUCTS
-                Item* p = info.building->activeProduct();
+            std::shared_ptr<Item> i = player_inventory.equippedItem();
+            if (info.building && info.building->type == Building::MACHINE) { // PICKUP PRODUCTS
+                auto m = std::dynamic_pointer_cast<Machine>(info.building);
+                std::shared_ptr<Item> p = m->activeProduct();
                 if (p) {
                     player_inventory.addItem(p, p->count());
-                    info.building->clearProduct();
+                    m->clearProduct();
                 }
             } // END PICKUP PRODUCTS
             else if (f->planted) { // HARVEST
@@ -75,7 +82,7 @@ void World::interact(Player_Inventory& player_inventory)
                     std::cout << "FAILED TO FIND CROP AT TILE " << t << '\n';
                 }
                 else if (crops[t.x][t.y].fullyGrown()) {
-                    player_inventory.addItem(item_library.item(crops[t.x][t.y].harvestUID()));
+                    player_inventory.addItem(std::make_shared<Item>(*item_library.item(crops[t.x][t.y].harvestUID())));
                     crops[t.x].erase(t.y);
                     f->setType(Floor_Type::TILLED);
                     f->planted = false;
@@ -83,34 +90,24 @@ void World::interact(Player_Inventory& player_inventory)
             } // END HARVEST
             else if (i) { // VALID ITEM
                 if (i->getType() == Item_Type::SEED && plantableTile(info)) { // SEED
-                    plantCrop(i);
+                    plantCrop(i.get());
                 }
                 if (f->detail == Detail_Type::WATER && i->getUID() == 1) { // watering can
                     i->resetUses();
                     player_inventory.changed = true;
                 }
                 else if (i->getType() == Item_Type::BUILDING && buildableTile(info)) { // PLACE BUILDING
-                    info.building = std::make_shared<Building>(*building_library(i->getUID()));
-                    chunks.addBuilding(i->getUID(), t);
+                    info.building = building_library(i->getUID());
+                    chunks.addBuilding(info.building.get(), t);
                     player_inventory.takeEquipped();
-                    buildings.push_back(info.building);
+                    if (info.building->type == Building::MACHINE) {
+                        machines.push_back(std::dynamic_pointer_cast<Machine>(info.building));
+                    }
                 }
-                else if (info.building && info.building->validReagant(i->getName())) { // ADD REAGANT
-                    if (!info.building->activeReagant()) {
-                        std::cout << "reagants are empty\n";
-                        info.building->setReagant(i);
-                        player_inventory.takeEquipped(-1);
-                        player_inventory.changed = true;
-                        info.building->checkReaction();
-                    }
-                    else if (info.building->activeReagant()->getName() == i->getName()) {
-                        std::cout << "reagant present, count from " << info.building->activeReagant()->count() << " to ";
-                        info.building->activeReagant()->add(1);
-                        player_inventory.takeEquipped(1);
-                        player_inventory.changed = true;
-                        std::cout << info.building->activeReagant()->count() << '\n';
-                    }
-                } // ADD REAGANT
+                else if (info.building && info.building->type == Building::MACHINE) {
+                    auto m = std::dynamic_pointer_cast<Machine>(info.building);
+                    m->addReagant(i);
+                }
             } // END VALID ITEM
         }
     }
@@ -421,7 +418,8 @@ void World::axe(int factor)
                 // create stump
                 tile_library[t.x][t.y].tree = false;
                 chunks.eraseTree(t);
-                Item* item = item_library.item("wood");
+                Item* i = item_library.item("wood");
+                std::shared_ptr<Item> item = std::make_shared<Item>(*i);
                 size_t count = prng::number(7, 13);
                 chunks.addItem(item, count, t);
             }
@@ -440,26 +438,27 @@ void World::pick(int factor)
                 if (rock->dead()) {
                     tile_library[t.x][t.y].rock = false;
                     chunks.eraseRock(t);
-                    Item* item = item_library.item("stone");
+                    std::string key = "stone";
                     size_t count = prng::number(2, 4);
-                    chunks.addItem(item, count, t);
-                    item = nullptr;
                     unsigned int ore_roll = prng::number(0u, 100u);
+                    if (ore_roll < 20) {
+                        key = "coal";
+                        count = prng::number(3, 7);
+                    }
                     if (ore_roll < 12) {
-                        item = item_library.item("copper ore");
+                        key = "copper ore";
                         count = prng::number(3, 4);
                     }
                     else if (ore_roll < 18) {
-                        item = item_library.item("iron ore");
+                        key = "iron ore";
                         count = prng::number(2, 3);
                     }
                     else if (ore_roll < 21) {
-                        item = item_library.item("gold ore");
+                        key = "gold ore";
                         count = prng::number(1, 2);
                     }
-                    if (item) {
-                        chunks.addItem(item, count, t);
-                    }
+                    std::shared_ptr<Item> item = std::make_shared<Item>(*item_library.item(key));
+                    chunks.addItem(item, count, t);
                 }
             }
         }
@@ -473,7 +472,7 @@ void World::hammer()
         sf::Vector2i t = *activeTile;
         Building* b = tile_library[t.x][t.y].building.get();
         if (b) {
-            chunks.addItem(item_library(b->uid), 1, t);
+            chunks.addItem(std::make_shared<Item>(*item_library(b->uid)), 1, t);
             tile_library[t.x][t.y].building = nullptr;
             chunks.eraseBuilding(t);
         }

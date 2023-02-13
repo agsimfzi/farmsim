@@ -25,7 +25,6 @@ UI::UI(sf::RenderWindow& window, Game& game)
 
 void UI::init()
 {
-    inventory_interface.readInventory();
     minimap.load(game.getWorld());
 }
 
@@ -156,7 +155,7 @@ bool UI::clickLeft()
     if (parsed) {
         if (inventory_interface.open) {
             if (inventory_interface.dragging) {
-                auto drop = [&](Item* i) { game.getWorld().getChunks().addItem(i, i->count(), game.getPlayer().getCoordinates(Tile::tileSize)); };
+                auto drop = [&](std::shared_ptr<Item> i) { game.getWorld().getChunks().addItem(i, i->count(), game.getPlayer().getCoordinates(Tile::tileSize)); };
                 inventory_interface.endDrag(drop);
             }
             else {
@@ -212,11 +211,16 @@ bool UI::releaseRight()
 
 void UI::checkBuilding()
 {
-    game.getWorld().setActiveBuilding();
-    Building* b = game.getWorld().activeBuilding();
-    if (b) {
-        toggleInventory();
-        inventory_interface.loadBuilding(b);
+    if (!overlay_active) {
+        game.getWorld().setActiveBuilding();
+        Building* b = game.getWorld().activeBuilding();
+        if (b) {
+            toggleInventory();
+            inventory_interface.loadBuilding(b);
+        }
+    }
+    else {
+        closeOverlay();
     }
 }
 

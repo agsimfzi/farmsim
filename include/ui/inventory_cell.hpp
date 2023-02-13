@@ -6,7 +6,7 @@
 
 class Inventory_Cell : public sf::Drawable {
 public:
-    Inventory_Cell(Item* item = nullptr);
+    Inventory_Cell(std::shared_ptr<Item> item = nullptr);
 
     void setPosition(sf::Vector2f pos);
 
@@ -21,9 +21,12 @@ public:
     void activate();
     void deactivate();
 
-    void setItem(Item* i);
+    void setItem(std::shared_ptr<Item> i);
     void clearItem();
-    Item* getItem();
+    std::shared_ptr<Item> getItem();
+
+    void updateCount();
+    void setCount(size_t count);
 
     template <typename T>
     bool contains(sf::Vector2<T> pos)
@@ -35,7 +38,7 @@ public:
 
 private:
     sf::RectangleShape frame;
-    std::unique_ptr<Item> item = nullptr;
+    std::shared_ptr<Item> item = nullptr;
 
     sf::Text numberText;
 

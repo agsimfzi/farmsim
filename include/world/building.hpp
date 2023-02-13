@@ -11,6 +11,7 @@
 class Building {
 public:
     Building() = default;
+    virtual ~Building() = default;
 
     std::string name;
     size_t uid;
@@ -31,7 +32,10 @@ public:
 
     std::vector<Reaction> reactions;
 
-    static inline Type stringToType(std::string s) {
+    std::vector<std::vector<std::shared_ptr<Item>>>& getInventory();
+
+    static inline Type stringToType(std::string s)
+    {
         std::transform(s.begin(), s.end(), s.begin(), ::toupper);
         if (s == "CONTAINER") {
             return CONTAINER;
@@ -50,6 +54,30 @@ public:
         }
         else {
             return Type::NULL_TYPE;
+        }
+    }
+
+    static inline std::string typeToString(Type t)
+    {
+        switch(t) {
+            case CONTAINER:
+                return "CONTAINER";
+                break;
+            case FURNITURE:
+                return "FURNITURE";
+                break;
+            case MACHINE:
+                return "MACHINE";
+                break;
+            case LOOTABLE:
+                return "LOOTABLE";
+                break;
+            case STRUCTURE:
+                return "STRUCTURE";
+                break;
+            default:
+                return "";
+                break;
         }
     }
 

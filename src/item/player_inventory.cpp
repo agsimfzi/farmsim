@@ -22,7 +22,7 @@ void Player_Inventory::resize(const size_t rows, const size_t cols)
     changed = true;
 }
 
-void Player_Inventory::addItem(Item* item, size_t count)
+void Player_Inventory::addItem(std::shared_ptr<Item> item, size_t count)
 {
     if (item) {
         item->can_pickup = true;
@@ -68,7 +68,7 @@ void Player_Inventory::clearItem(size_t x, size_t y)
     items[x][y] = nullptr;
 }
 
-void Player_Inventory::placeItem(size_t x, size_t y, Item* item)
+void Player_Inventory::placeItem(size_t x, size_t y, std::shared_ptr<Item> item)
 {
     items[x][y] = nullptr;
     items[x][y] = std::make_shared<Item>(*item);
@@ -88,9 +88,9 @@ void Player_Inventory::update()
     }
 }
 
-Item* Player_Inventory::equippedItem()
+std::shared_ptr<Item> Player_Inventory::equippedItem()
 {
-    return items[equippedRow][equippedIndex].get();
+    return items[equippedRow][equippedIndex];
 }
 
 void Player_Inventory::takeEquipped(int count)

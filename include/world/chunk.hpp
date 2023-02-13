@@ -32,8 +32,8 @@ public:
 
     std::vector<std::shared_ptr<Item>>& getItems();
 
-    void addBuilding(size_t uid, sf::Vector2i c);
-    void addItem(Item* item, size_t count, sf::Vector2f pos);
+    void addBuilding(Building* b, sf::Vector2i c);
+    void addItem(std::shared_ptr<Item> item, size_t count, sf::Vector2f pos);
 
 private:
     sf::FloatRect f_bounds;

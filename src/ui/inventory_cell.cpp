@@ -2,6 +2,8 @@
 
 #include <resources/font_manager.hpp>
 
+#include <iostream>
+
 const sf::Vector2f Inventory_Cell::frameSize = sf::Vector2f(64.f, 64.f);
 const float Inventory_Cell::frameOutlineSize = 2.f;
 
@@ -12,9 +14,9 @@ const sf::Color Inventory_Cell::colorUseBar = sf::Color(40, 250, 60);
 
 const sf::Vector2f Inventory_Cell::use_bar_size = sf::Vector2f(64.f, 6.f);
 
-Inventory_Cell::Inventory_Cell(Item* item)
+Inventory_Cell::Inventory_Cell(std::shared_ptr<Item> i)
 {
-    setItem(item);
+    setItem(i);
     frame.setOutlineColor(colorOutline);
     frame.setOutlineThickness(frameOutlineSize);
     frame.setSize(frameSize);
@@ -52,31 +54,30 @@ void Inventory_Cell::deactivate()
     frame.setFillColor(colorInactive);
 }
 
-void Inventory_Cell::setItem(Item* i)
+void Inventory_Cell::setItem(std::shared_ptr<Item> i)
 {
     if (i) {
-        if (item && item->getUID() != i->getUID()) {
-            clearItem();
-        }
-
+        std::cout << "adding " << i->count() << " " << i->getName() << " to cell\n";
         if (!item) {
-            item = std::make_unique<Item>(*i);
-            item->setSprite(i->getSprite());
+            item = i;
             item->setPosition(frame.getPosition());
+            i.reset();
+        }
+        else if (item->getUID() == i->getUID()) {
+            item->add(i->count());
+            i.reset();
         }
 
-
-        item->setCount(i->count());
-        if (i->count() == 1) {
+        if (item->count() == 1) {
             numberText.setString("");
         }
         else {
-            numberText.setString(std::to_string(i->count()));
+            numberText.setString(std::to_string(item->count()));
         }
 
-        if (i->getUID() == 1) { // watering can
+        if (item->getUID() == 1) { // watering can
             usable = true;
-            calculateUseBarSize(i->usePercent());
+            calculateUseBarSize(item->usePercent());
         }
         else {
             usable = false;
@@ -96,13 +97,30 @@ void Inventory_Cell::calculateUseBarSize(int percent)
 
 void Inventory_Cell::clearItem()
 {
-    item = nullptr;
+    item.reset();
     numberText.setString("");
 }
 
-Item* Inventory_Cell::getItem()
+std::shared_ptr<Item> Inventory_Cell::getItem()
 {
-    return item.get();
+    return item;
+}
+
+void Inventory_Cell::updateCount()
+{
+    if (item) {
+        if (item->count() == 1) {
+            numberText.setString("");
+        }
+        else {
+            numberText.setString(std::to_string(item->count()));
+        }
+    }
+}
+
+void Inventory_Cell::setCount(size_t count)
+{
+    item->setCount(count);
 }
 
 sf::Vector2f Inventory_Cell::getPosition()

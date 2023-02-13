@@ -16,25 +16,41 @@ Game::Game(sf::View& nview)
 
     // load position from world instead, in startGame()
 
-    player_inventory.addItem(item_library("furnace"));
-    player_inventory.addItem(item_library("copper ore"), 50);
-    player_inventory.addItem(item_library("iron ore"), 50);
-    player_inventory.addItem(item_library("gold ore"), 50);
+    giveItemToPlayer("furnace");
+    giveItemToPlayer("copper ore", 50);
+    giveItemToPlayer("iron ore", 50);
+    giveItemToPlayer("gold ore", 50);
 
-    player_inventory.addItem(item_library(0));
-    player_inventory.addItem(item_library(1));
-    player_inventory.addItem(item_library(3));
-    player_inventory.addItem(item_library("hammer"));
+    giveItemToPlayer(0);
+    giveItemToPlayer(1);
+    giveItemToPlayer(3);
+    giveItemToPlayer("hammer");
 
-    player_inventory.addItem(item_library(100), 25);
-    player_inventory.addItem(item_library(1000), 50);
-    player_inventory.addItem(item_library(1001), 50);
+    giveItemToPlayer(100, 25);
+    giveItemToPlayer(1000, 50);
+    giveItemToPlayer(1001, 50);
 
-    player_inventory.addItem(item_library(2));
+    giveItemToPlayer((2));
 
-    player_inventory.addItem(item_library(3001));
+    giveItemToPlayer(5001);
 
-    player_inventory.addItem(item_library(121), 50);
+    giveItemToPlayer(("chest"));
+
+    giveItemToPlayer(121, 50);
+}
+
+void Game::giveItemToPlayer(std::string name, size_t count)
+{
+    Item i = *item_library(name);
+    player_inventory.addItem(std::make_shared<Item>(i), count);
+}
+
+void Game::giveItemToPlayer(size_t uid, size_t count)
+{
+    Item* i = item_library(uid);
+    if (i) {
+        player_inventory.addItem(std::make_shared<Item>(*i), count);
+    }
 }
 
 void Game::update(float deltaTime)
@@ -70,9 +86,9 @@ void Game::startGame()
 
 void Game::clickLeft()
 {
-    Item* equipped = player_inventory.equippedItem();
+    std::shared_ptr<Item> equipped = player_inventory.equippedItem();
     if (equipped) {
-        world.useItem(equipped);
+        world.useItem(equipped.get());
         player_inventory.changed = true;
     }
 }
