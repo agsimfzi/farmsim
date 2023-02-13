@@ -19,7 +19,7 @@
 World::World(Item_Library& item_library)
     : item_library { item_library }
 {
-    sf::Vector2i size(16, 16);
+    sf::Vector2i size(32, 32);
     size.x *= chunks.chunk_size.x;
     size.y *= chunks.chunk_size.y;
     size.y -= 1;
@@ -280,6 +280,11 @@ void World::placeWreckage()
     items.back()->setCount(1);
     items.push_back(item_library.shared("watering can"));
     items.back()->setCount(1);
+    items.push_back(item_library.shared(1000));
+    items.back()->setCount(10);
+    items.push_back(item_library.shared(1001));
+    items.back()->setCount(10);
+    items.push_back(item_library.shared("chest"));
 
     distance = 11;
     size_t n = items.size();

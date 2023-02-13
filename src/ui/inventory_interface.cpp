@@ -193,6 +193,8 @@ void Inventory_Interface::startDrag()
                 inventory.clearItem(i.x, i.y);
             }
             else if (container) {
+                index.x -= inventory.rowCount;
+                container->clearItem(index);
             }
             else if (machine) {
                 if (i.x == inventory.rowCount) {
@@ -239,11 +241,20 @@ void Inventory_Interface::endDrag(std::function<void(std::shared_ptr<Item>)> dro
 
 void Inventory_Interface::placeMergeSwap(sf::Vector2i i)
 {
-    sf::Vector2i dsi = dragStartIndex;
     std::shared_ptr<Item> si = cells[i.x][i.y].getItem();
     if (i.x >= (int)inventory.rowCount) { // BUILDING PLACEMENT
         std::cout << "BUILDING PLACEMENT\n";
         if (container) {
+            if (si) {
+                swap(i);
+            }
+            else {
+                sf::Vector2i c(i);
+                c.x -= inventory.rowCount;
+                container->setItem(dragItem, c);
+                dragItem.reset();
+            }
+            readBuilding();
         }
         else if (machine) {
             if (i.x == (int)inventory.rowCount) {
@@ -343,6 +354,9 @@ void Inventory_Interface::swap(sf::Vector2i i)
         inventory.placeItem(dsi.x, dsi.y, cells[dsi.x][dsi.y].getItem());
     }
     else if (container) {
+        sf::Vector2i c(dsi);
+        c.x -= inventory.rowCount;
+        container->setItem(cells[dsi.x][dsi.y].getItem(), c);
     }
     else if (machine) {
         machine->clearReagant(dsi.y);
@@ -353,6 +367,9 @@ void Inventory_Interface::swap(sf::Vector2i i)
         inventory.placeItem(i.x, i.y, cells[i.x][i.y].getItem());
     }
     else if (container) {
+        sf::Vector2i c(i);
+        c.x -= inventory.rowCount;
+        container->setItem(cells[i.x][i.y].getItem(), c);
     }
     else if (machine) {
         machine->clearReagant(i.y);
