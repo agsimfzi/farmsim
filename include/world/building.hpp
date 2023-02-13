@@ -28,11 +28,15 @@ public:
         NULL_TYPE
     };
 
+    short int health = 30;
+
     Type type;
 
     std::vector<Reaction> reactions;
 
     std::vector<std::vector<std::shared_ptr<Item>>>& getInventory();
+
+    bool empty();
 
     static inline Type stringToType(std::string s)
     {

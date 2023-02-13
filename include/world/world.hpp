@@ -140,5 +140,7 @@ private:
 
     void placeWreckage();
 
+    sf::Vector2i randomNearbyEmptyTile(sf::Vector2i i, int distance = 1);
+
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
 };

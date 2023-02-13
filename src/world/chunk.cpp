@@ -2,6 +2,8 @@
 
 #include <resources/Texture_Manager.hpp>
 
+#include <util/vector2_stream.hpp>
+
 Chunk::Chunk(sf::Vector2i start, sf::Vector2i size, Map_Tile<Floor_Info>& info)
     : start { start }
 {
@@ -155,6 +157,7 @@ void Chunk::addBuilding(Building* building, sf::Vector2i c)
 
     sprite.setTexture(Texture_Manager::get(texture));
 
+
     sf::Vector2i pos;
     pos.x = (sheet_id % 10) * 64;
     pos.y = (sheet_id / 10) * 64;
@@ -170,6 +173,7 @@ void Chunk::addBuilding(Building* building, sf::Vector2i c)
 void Chunk::addItem(std::shared_ptr<Item> item, size_t count, sf::Vector2f pos)
 {
     if (item && count > 0) {
+        std::cout << "adding " << item->count() << " " << item->getName() << " to " << pos << '\n';
         items.push_back(item);
         items.back()->setCount(count);
         items.back()->setPosition(pos);

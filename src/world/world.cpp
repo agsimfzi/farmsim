@@ -263,7 +263,55 @@ void World::autotile(sf::Vector2i start, sf::Vector2i end, Detail_Type type)
 }
 
 void World::placeWreckage()
-{}
+{
+    std::shared_ptr<Item> axe = std::make_shared<Item>(*item_library("axe"));
+    axe->can_pickup = false;
+
+    int distance = 1;
+    sf::Vector2i coords = randomNearbyEmptyTile(start_coords, distance);
+    chunks.addItem(axe, 1, coords);
+
+    std::vector<std::shared_ptr<Item>> items;
+    items.push_back(item_library.shared("pickaxe"));
+    items.back()->setCount(1);
+    items.push_back(item_library.shared("hammer"));
+    items.back()->setCount(1);
+    items.push_back(item_library.shared("hoe"));
+    items.back()->setCount(1);
+    items.push_back(item_library.shared("watering can"));
+    items.back()->setCount(1);
+
+    distance = 11;
+    size_t n = items.size();
+    for (size_t i = 0; i < n; i++) {
+        coords = randomNearbyEmptyTile(start_coords, distance);
+        std::shared_ptr<Lootable> lootable = std::make_shared<Lootable>(*std::dynamic_pointer_cast<Lootable>(building_library("crate")));
+        lootable->getInventory().front().front() = items[i];
+        tile_library[coords.x][coords.y].building = lootable;
+        chunks.addBuilding(tile_library[coords.x][coords.y].building.get(), coords);
+        lootable.reset();
+    }
+}
+
+sf::Vector2i World::randomNearbyEmptyTile(sf::Vector2i i, int distance)
+{
+    std::cout << "random tile...";
+    std::vector<sf::Vector2i> empty;
+
+    for (int x = i.x - distance; x <= i.x + distance; x++) {
+        for (int y = i.y - distance; y <= i.y + distance; y++) {
+            sf::Vector2i c(x, y);
+            if (emptyTile(c) && c != i) {
+                empty.push_back(c);
+            }
+        }
+    }
+
+    sf::Vector2i t = empty[prng::number(empty.size())];
+
+    std::cout << "get!\n";
+    return t;
+}
 
 int World::autotileX(sf::Vector2i i, Detail_Type type)
 {
@@ -409,19 +457,31 @@ void World::water()
 void World::axe(int factor)
 {
     sf::Vector2i t = *activeTile;
-    if (tile_library[t.x][t.y].tree) {
+    Floor_Info& info = tile_library[t.x][t.y];
+    if (info.tree) {
         Tree* tree = chunks.tree(t);
-        if (tree) {
-            tree->hit(factor);
-            if (tree->dead()) {
-                // create logs on ground
-                // create stump
-                tile_library[t.x][t.y].tree = false;
-                chunks.eraseTree(t);
-                Item* i = item_library.item("wood");
-                std::shared_ptr<Item> item = std::make_shared<Item>(*i);
-                size_t count = prng::number(7, 13);
-                chunks.addItem(item, count, t);
+        tree->hit(factor);
+        if (tree->dead()) {
+            // create logs on ground
+            // create stump
+            info.tree = false;
+            chunks.eraseTree(t);
+            Item* i = item_library.item("wood");
+            std::shared_ptr<Item> item = std::make_shared<Item>(*i);
+            size_t count = prng::number(7, 13);
+            chunks.addItem(item, count, t);
+        }
+    }
+    else if (info.building) {
+        std::shared_ptr<Building> b = info.building;
+        if (b->type == Building::LOOTABLE) {
+            b->health -= factor;
+            if (b->health <= 0) {
+                for (auto& i : b->getInventory().front()) {
+                    chunks.addItem(i, i->count(), t);
+                }
+                info.building.reset();
+                chunks.eraseBuilding(t);
             }
         }
     }
@@ -472,6 +532,9 @@ void World::hammer()
         sf::Vector2i t = *activeTile;
         Building* b = tile_library[t.x][t.y].building.get();
         if (b) {
+            if (b->type == Building::CONTAINER && !b->empty()) {
+                return;
+            }
             chunks.addItem(std::make_shared<Item>(*item_library(b->uid)), 1, t);
             tile_library[t.x][t.y].building = nullptr;
             chunks.eraseBuilding(t);

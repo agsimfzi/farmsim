@@ -11,6 +11,7 @@ Item_Library::Item_Library()
     std::vector<Item_Data> items = Database::getItemPrototypes();
     for (auto& item : items) {
         Item i(item);
+        i.setCount(1);
         sf::Sprite sprite;
         sf::IntRect textureRect;
 
@@ -80,4 +81,13 @@ Item* Item_Library::item(std::string name)
 Item* Item_Library::item(size_t uid)
 {
     return uidShelf[uid].get();
+}
+
+std::shared_ptr<Item> Item_Library::shared(size_t uid)
+{
+    return std::make_shared<Item>(*uidShelf[uid]);
+}
+std::shared_ptr<Item> Item_Library::shared(std::string name)
+{
+    return std::make_shared<Item>(*stringShelf[name]);
 }

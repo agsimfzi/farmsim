@@ -57,7 +57,6 @@ void Inventory_Cell::deactivate()
 void Inventory_Cell::setItem(std::shared_ptr<Item> i)
 {
     if (i) {
-        std::cout << "adding " << i->count() << " " << i->getName() << " to cell\n";
         if (!item) {
             item = i;
             item->setPosition(frame.getPosition());

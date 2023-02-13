@@ -15,7 +15,7 @@ Game::Game(sf::View& nview)
     player.setPosition(sf::Vector2f(0.f, 0.f));
 
     // load position from world instead, in startGame()
-
+/*
     giveItemToPlayer("furnace");
     giveItemToPlayer("copper ore", 50);
     giveItemToPlayer("iron ore", 50);
@@ -37,6 +37,9 @@ Game::Game(sf::View& nview)
     giveItemToPlayer(("chest"));
 
     giveItemToPlayer(121, 50);
+
+    giveItemToPlayer("crate");
+*/
 }
 
 void Game::giveItemToPlayer(std::string name, size_t count)

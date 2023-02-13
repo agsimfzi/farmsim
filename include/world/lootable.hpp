@@ -6,7 +6,7 @@
 
 class Lootable : public Building {
 public:
-    Lootable() = default;
+    Lootable();
 
 private:
 };
