@@ -314,9 +314,9 @@ std::vector<Crop_Data> Database::getCropPrototypes()
     return crops;
 }
 
-std::map<Building::Type, std::vector<Reaction>> Database::getReactions()
+std::map<Machine_Type, std::vector<Reaction>> Database::getReactions()
 {
-    std::map<Building::Type, std::vector<Reaction>> reactions;
+    std::map<Machine_Type, std::vector<Reaction>> reactions;
 
     open();
 
@@ -330,22 +330,30 @@ std::map<Building::Type, std::vector<Reaction>> Database::getReactions()
         int column = 0;
 
         std::string name;
-        std::string reagant;
+        std::string reagant_string;
         std::string product;
         int length;
         std::string location;
 
         name = reinterpret_cast<const char*>(sqlite3_column_text(statement, column++));
-        reagant = reinterpret_cast<const char*>(sqlite3_column_text(statement, column++));
+        reagant_string = reinterpret_cast<const char*>(sqlite3_column_text(statement, column++));
         product = reinterpret_cast<const char*>(sqlite3_column_text(statement, column++));
         length = sqlite3_column_int(statement, column++);
         location = reinterpret_cast<const char*>(sqlite3_column_text(statement, column++));
 
-        Building::Type loc_type = Building::stringToType(location);
+        Machine_Type loc_type = stringToMachineType(location);
+
+        std::vector<std::string> reagants;
+
+        while (reagant_string.find(',') != std::string::npos) {
+            std::string r = reagant_string.substr(0, reagant_string.find(','));
+            reagant_string = reagant_string.substr(reagant_string.find(',') + 1);
+            reagants.push_back(r);
+        }
 
         Reaction r;
             r.name = name;
-            r.reagant = reagant;
+            r.reagants = reagants;
             r.product = product;
             r.length = length;
 

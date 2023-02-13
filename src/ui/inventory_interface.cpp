@@ -40,7 +40,7 @@ void Inventory_Interface::update()
 {
     checkDrag();
 
-    if (building && building->type != Building::CONTAINER && building->current_reaction >= 0) {
+    if (building && building->type == Building::MACHINE && building->current_reaction >= 0) {
         checkReaction();
         setProgressBarSize();
     }

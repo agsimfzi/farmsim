@@ -17,57 +17,43 @@ public:
     int value;
 
     //bool active = false;
-    std::vector<Reaction> reactions;
 
     enum Type {
         CONTAINER,
+        FURNITURE,
         MACHINE,
         LOOTABLE,
-        FURNACE,
-        SAW,
+        STRUCTURE,
         NULL_TYPE
     };
 
     Type type;
 
+    std::vector<Reaction> reactions;
+
     static inline Type stringToType(std::string s) {
         std::transform(s.begin(), s.end(), s.begin(), ::toupper);
-        if (s == "FURNACE") {
-            return FURNACE;
+        if (s == "CONTAINER") {
+            return CONTAINER;
         }
-        else if (s == "FURNACE") {
-            return FURNACE;
+        else if (s == "FURNITURE") {
+            return FURNITURE;
+        }
+        else if (s == "MACHINE") {
+            return MACHINE;
+        }
+        else if (s == "LOOTABLE") {
+            return LOOTABLE;
+        }
+        else if (s == "STRUCTURE") {
+            return STRUCTURE;
         }
         else {
             return Type::NULL_TYPE;
         }
     }
 
-    bool interface = true;
+    bool interface = false;
 
-    bool validReagant(std::string name);
-
-    int current_reaction = -1;
-    size_t reaction_tick = 0;
-
-    void checkReaction();
-
-    void tick(Item_Library& item_library);
-
-    float progress();
-
-    void endReaction();
-
-    void clearReagant();
-    void clearProduct();
-
-    void setReagant(Item* item);
-    void setProduct(Item* item);
-
-    Item* activeReagant();
-    Item* activeProduct();
-
-private:
-    std::shared_ptr<Item> active_reagant = nullptr;
-    std::shared_ptr<Item> active_product = nullptr;
+    std::vector<std::vector<std::shared_ptr<Item>>> inventory;
 };

@@ -57,7 +57,8 @@ private:
     sf::Vector2i mousedIndex(const sf::Vector2i& mpos);
     const static float cell_padding;
     sf::Vector2i dragStartIndex;
-    Building* building = nullptr;
+    Machine* machine = nullptr;
+    Container* container = nullptr;
     sf::RectangleShape progress_bar;
     void setProgressBarSize();
     void clearProgressBar();

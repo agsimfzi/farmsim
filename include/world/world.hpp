@@ -107,7 +107,7 @@ private:
 
     std::unique_ptr<sf::Vector2i> activeTile;
 
-    std::vector<std::shared_ptr<Building>> buildings;
+    std::vector<std::shared_ptr<Machine>> machines;
 
     sf::Vector2i start_coords;
 
