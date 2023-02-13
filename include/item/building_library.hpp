@@ -7,6 +7,7 @@
 
 #include <world/building.hpp>
 #include <world/container.hpp>
+#include <world/crafting_table.hpp>
 //#include <world/furniture.hpp>
 #include <world/machine.hpp>
 #include <world/lootable.hpp>
