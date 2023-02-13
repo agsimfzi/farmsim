@@ -12,25 +12,13 @@ Game::Game(sf::View& nview)
     : view { nview }
 {
     player = Player(Database::getPlayerData(), Texture_Manager::get("PLAYER"));
-    player.setPosition(sf::Vector2f(0.f, 0.f));
-
-    // load position from world instead, in startGame()
 /*
     giveItemToPlayer("furnace");
     giveItemToPlayer("copper ore", 50);
     giveItemToPlayer("iron ore", 50);
     giveItemToPlayer("gold ore", 50);
 
-    giveItemToPlayer(0);
-    giveItemToPlayer(1);
-    giveItemToPlayer(3);
-    giveItemToPlayer("hammer");
-
     giveItemToPlayer(100, 25);
-    giveItemToPlayer(1000, 50);
-    giveItemToPlayer(1001, 50);
-
-    giveItemToPlayer((2));
 
     giveItemToPlayer(5001);
 
@@ -144,6 +132,16 @@ Entity* Game::mousedEntity(sf::Vector2f mpos)
 sf::View& Game::getView()
 {
     return view;
+}
+
+float Game::energyPercent()
+{
+    return (static_cast<float>(player.energy) / static_cast<float>(player.max_energy));
+}
+
+int Game::playerEnergy()
+{
+    return player.energy;
 }
 
 void Game::draw(sf::RenderTarget& target, sf::RenderStates states) const

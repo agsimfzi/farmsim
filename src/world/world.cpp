@@ -43,14 +43,11 @@ void World::update(Player_Inventory& player_inventory, Player& player)
         tickClock.restart();
         tick();
         chunks.check(player.getCoordinates(Tile::tileSize));
-        for (auto m = machines.begin(); m != machines.end();) {
-            if (!(*m)) {
-                machines.erase(m);
-            }
-            else {
-                (*m)->tick(item_library);
-                m++;
-            }
+        energy_add_index++;
+        if (energy_add_index >= energy_add_threshold
+         && player.energy < player.max_energy) {
+            energy_add_index = 0;
+            player.energy++;
         }
     }
 
@@ -59,6 +56,12 @@ void World::update(Player_Inventory& player_inventory, Player& player)
     }
 
     checkPickup(player_inventory, player);
+
+    player.energy -= energyDiff();
+    if (player.energy < 0) {
+        player.energy = 0;
+    }
+    energy = player.energy;
 }
 
 void World::interact(Player_Inventory& player_inventory)
@@ -292,6 +295,8 @@ void World::placeWreckage()
         coords = randomNearbyEmptyTile(start_coords, distance);
         std::shared_ptr<Lootable> lootable = std::make_shared<Lootable>(*std::dynamic_pointer_cast<Lootable>(building_library("crate")));
         lootable->getInventory().front().front() = items[i];
+        lootable->getInventory().front().push_back(item_library.shared("plank"));
+        lootable->getInventory().front().back()->setCount(prng::number(1, 3));
         tile_library[coords.x][coords.y].building = lootable;
         chunks.addBuilding(tile_library[coords.x][coords.y].building.get(), coords);
         lootable.reset();
@@ -410,7 +415,8 @@ void World::useItem(Item* item)
 
 void World::useTool(Item* item)
 {
-    if (activeTile) {
+    if (activeTile && energy > 0) {
+        energy_diff = item->useFactor();
         switch (item->getUID()) {
             default:
                 break;
@@ -434,6 +440,13 @@ void World::useTool(Item* item)
                 break;
         }
     }
+}
+
+int World::energyDiff()
+{
+    int d = energy_diff;
+    energy_diff = 0;
+    return d;
 }
 
 void World::hoe()
@@ -589,6 +602,16 @@ void World::tick()
         for (auto& y : x.second) {
             sf::Vector2i c = y.second.getCoordinates();
             y.second.tick(chunks.floor(c)->type == Floor_Type::WATERED);
+        }
+    }
+
+    for (auto m = machines.begin(); m != machines.end();) {
+        if (!(*m)) {
+            machines.erase(m);
+        }
+        else {
+            (*m)->tick(item_library);
+            m++;
         }
     }
 }

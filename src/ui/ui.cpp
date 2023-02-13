@@ -21,6 +21,8 @@ UI::UI(sf::RenderWindow& window, Game& game)
     player_pos.setPosition(sf::Vector2f(1800.f, 1000.f));
     player_pos.setFont(font);
     player_pos.setFillColor(sf::Color(200, 200, 200));
+
+    energy_bar.setPosition(sf::Vector2f(1600.f, 980.f));
 }
 
 void UI::init()
@@ -51,6 +53,12 @@ void UI::update()
     }
 
     minimap.update(game.getPlayer().getCoordinates(Tile::tileSize));
+
+    int nrg = game.playerEnergy();
+    if (last_player_energy != nrg) {
+        last_player_energy = nrg;
+        energy_bar.update(game.energyPercent());
+    }
 
 }
 
@@ -238,6 +246,8 @@ void UI::draw(sf::RenderTarget& target, sf::RenderStates states) const
     target.draw(inventory_interface, states);
 
     target.draw(player_pos, states);
+
+    target.draw(energy_bar, states);
 
     target.draw(minimap, states); // MUST BE LAST AS IT DEFINES ITS OWN VIEW!
 }

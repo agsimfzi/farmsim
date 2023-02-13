@@ -82,8 +82,13 @@ public:
     void closeActiveBuilding();
     Building* activeBuilding();
 
+    int energyDiff();
+
 private:
     bool changeActiveTile(Floor_Type prereq, Floor_Type ntype);
+
+    int energy_diff = 0;
+    int energy;
 
     Building* active_building{ nullptr };
 
@@ -112,6 +117,9 @@ private:
     sf::Vector2i start_coords;
 
     bool pickup_all = false;
+
+    size_t energy_add_threshold = 15;
+    size_t energy_add_index = 0;
 
     void autotile(sf::Vector2i start, sf::Vector2i end, Detail_Type type);
     int autotileX(sf::Vector2i i, Detail_Type type);

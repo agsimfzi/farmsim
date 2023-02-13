@@ -51,6 +51,10 @@ public:
     void giveItemToPlayer(std::string name, size_t count = 1);
     void giveItemToPlayer(size_t uid, size_t count = 1);
 
+    int playerEnergy();
+    int maxPlayerEnergy();
+    float energyPercent();
+
 private:
     Item_Library item_library;
 
