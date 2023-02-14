@@ -17,6 +17,7 @@ Building_Library::Building_Library()
                     break;
                 case Building::CRAFTING_TABLE:
                     b = std::make_shared<Crafting_Table>();
+                    break;
                 case Building::FURNITURE:
                     //b = std::make_shared<Furniture>();
                     break;

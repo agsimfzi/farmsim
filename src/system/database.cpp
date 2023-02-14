@@ -8,6 +8,8 @@
 
 #include <audio/sound_context.hpp>
 
+#include <iostream>
+
 //////////////////////////////////////////////////////////////
 
 sqlite3* Database::db = nullptr;
@@ -359,6 +361,62 @@ std::map<Machine_Type, std::vector<Reaction>> Database::getReactions()
             r.length = length;
 
         reactions[loc_type].push_back(r);
+    }
+
+    close();
+
+    return reactions;
+}
+
+std::vector<Reaction> Database::getCraftingRecipes()
+{
+    std::vector<Reaction> reactions;
+
+    open();
+
+    sqlite3_stmt* statement;
+
+    std::string sql = "SELECT * FROM 'CRAFTING_RECIPES'";
+
+    rc = sqlite3_prepare_v2(db, sql.c_str(), sql.length(), &statement, NULL);
+
+    while ((rc = sqlite3_step(statement)) == SQLITE_ROW) {
+        int column = 0;
+
+        std::string name;
+        std::string reagant_string;
+        std::string product;
+        std::string location;
+
+        name = reinterpret_cast<const char*>(sqlite3_column_text(statement, column++));
+        reagant_string = reinterpret_cast<const char*>(sqlite3_column_text(statement, column++));
+        product = reinterpret_cast<const char*>(sqlite3_column_text(statement, column++));
+
+        std::vector<std::string> reagants;
+        std::vector<short unsigned int> counts;
+
+        while (reagant_string.find(';') != std::string::npos) {
+            std::string r = reagant_string.substr(0, reagant_string.find(';'));
+            reagant_string = reagant_string.substr(reagant_string.find(';') + 1);
+            std::string reagant = r.substr(0, r.find(','));
+            std::string count = r.substr(r.find(',') + 1, r.find(';'));
+            reagants.push_back(reagant);
+            counts.push_back(std::stoi(count));
+        }
+
+        Reaction r;
+            r.name = name;
+            r.reagants = reagants;
+            r.reagant_count = counts;
+            r.product = product;
+
+        std::cout << "crafting recipe loaded: " << r.name;
+        for (size_t i = 0; i < r.reagants.size(); i++) {
+            std::cout << "\n\t," << r.reagant_count[i] << " " << r.reagants[i];
+        }
+        std::cout << "\n\t\t-> " << r.product << '\n';
+
+        reactions.push_back(r);
     }
 
     close();

@@ -4,7 +4,7 @@
 
 #include "building.hpp"
 
-class Crafting_Table {
+class Crafting_Table : public Building {
 public:
     Crafting_Table();
 };

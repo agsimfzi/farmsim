@@ -56,6 +56,8 @@ public:
 
     static std::map<Machine_Type, std::vector<Reaction>> getReactions();
 
+    static std::vector<Reaction> getCraftingRecipes();
+
     static std::map<std::string, Action_Trigger> getActions();
 
     static void saveActions(std::vector<Action> actions);
