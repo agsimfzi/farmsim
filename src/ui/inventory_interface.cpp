@@ -4,6 +4,8 @@
 
 #include <resources/font_manager.hpp>
 
+#include <util/fmouse.hpp>
+
 #include <world/tile.hpp>
 
 #include <iostream>
@@ -171,6 +173,21 @@ void Inventory_Interface::close()
         cells.pop_back();
     }
 }
+
+void Inventory_Interface::clickLeft(sf::RenderWindow& window)
+{
+    if (crafting_table) {
+        Reaction* rxn = reaction_interface.click(fMouse(window, reaction_interface.getView()));
+        if (rxn) {
+        }
+    }
+    else {
+        startDrag();
+    }
+}
+
+void Inventory_Interface::clickRight()
+{}
 
 void Inventory_Interface::startDrag()
 {
@@ -492,6 +509,10 @@ void Inventory_Interface::draw(sf::RenderTarget& target, sf::RenderStates states
                 //std::cout << "drawing cell " << r << ", " << c << '\n';
             }
         }
+    }
+
+    if (crafting_table || machine) {
+        target.draw(reaction_interface, states);
     }
 
     if (machine && machine->current_reaction >= 0) {

@@ -5,10 +5,11 @@
 #include <item/player_inventory.hpp>
 
 #include <world/container.hpp>
+#include <world/crafting_table.hpp>
 #include <world/machine.hpp>
 
-#include "building_interface.hpp"
 #include "inventory_cell.hpp"
+#include "reaction_interface.hpp"
 
 class Inventory_Interface : public sf::Drawable {
 public:
@@ -31,6 +32,9 @@ public:
 
     void pollChanges();
 
+    void clickLeft(sf::RenderWindow& window);
+    void clickRight();
+
     bool open = false;
     bool dragging = false;
     bool expanded = false;
@@ -50,17 +54,22 @@ public:
 private:
     Player_Inventory& inventory;
 
-    void placeMergeSwap(sf::Vector2i i);
-    void swap(sf::Vector2i i);
-    void resize();
-    void placeCells();
-    size_t equippedIndex = 0;
-    sf::Vector2i mousedIndex(const sf::Vector2i& mpos);
+    Reaction_Interface reaction_interface;
+
     const static float cell_padding;
     sf::Vector2i dragStartIndex;
     Machine* machine = nullptr;
     Container* container = nullptr;
+    Crafting_Table* crafting_table = nullptr;
+    size_t equippedIndex = 0;
+
     sf::RectangleShape progress_bar;
+
+    void placeMergeSwap(sf::Vector2i i);
+    void swap(sf::Vector2i i);
+    void resize();
+    void placeCells();
+    sf::Vector2i mousedIndex(const sf::Vector2i& mpos);
     void setProgressBarSize();
     void clearProgressBar();
     void checkReaction();
