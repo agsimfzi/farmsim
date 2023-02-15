@@ -12,8 +12,9 @@
 
 const float Inventory_Interface::cell_padding = Inventory_Cell::frameOutlineSize;
 
-Inventory_Interface::Inventory_Interface(Player_Inventory& inventory)
+Inventory_Interface::Inventory_Interface(Player_Inventory& inventory, sf::View& view)
     : inventory { inventory }
+    , view{ view }
 {
     cells.push_back(std::vector<Inventory_Cell>());
     resize();
@@ -47,8 +48,9 @@ void Inventory_Interface::update()
     checkDrag();
 
     if (machine && machine->current_reaction >= 0) {
-        checkReaction();
+        std::cout << "updating machine, rxn " << machine->current_reaction << "!\n";
         setProgressBarSize();
+        checkReaction();
     }
 }
 
@@ -169,6 +171,8 @@ void Inventory_Interface::close()
     machine = nullptr;
     clearProgressBar();
 
+    reaction_interface.close();
+
     while (cells.size() > inventory.rowCount) {
         cells.pop_back();
     }
@@ -176,7 +180,7 @@ void Inventory_Interface::close()
 
 void Inventory_Interface::clickLeft(sf::RenderWindow& window)
 {
-    if (crafting_table) {
+    if (crafting) {
         Reaction* rxn = reaction_interface.click(fMouse(window, reaction_interface.getView()));
         if (rxn) {
         }
@@ -459,20 +463,32 @@ sf::Vector2i Inventory_Interface::mousedIndex(const sf::Vector2i& mpos)
     return sf::Vector2i(-1, -1);
 }
 
-void Inventory_Interface::loadBuilding(Building* b)
+void Inventory_Interface::loadBuilding(Building* b, Item_Library& item_library)
 {
     while (cells.size() > inventory.rowCount) {
         cells.pop_back();
     }
     if (b && b->interface) {
         bool is_machine = false;
-        if (b->type == Building::CONTAINER) {
-            container = dynamic_cast<Container*>(b);
-        }
-        else if (b->type == Building::MACHINE) {
-            is_machine = true;
-            machine = dynamic_cast<Machine*>(b);
-            setProgressBarSize();
+        switch(b->type) {
+            case Building::CONTAINER:
+                container = dynamic_cast<Container*>(b);
+                break;
+            case Building::MACHINE:
+                is_machine = true;
+                machine = dynamic_cast<Machine*>(b);
+                if (machine->current_reaction >= 0) {
+                    setProgressBarSize();
+                }
+                reaction_interface.load(b->reactions, inventory, item_library);
+                break;
+            case Building::CRAFTING:
+                is_machine = true;
+                crafting = dynamic_cast<Crafting*>(b);
+                reaction_interface.load(b->reactions, inventory, item_library);
+                break;
+            default:
+                return;
         }
 
         std::vector<std::vector<std::shared_ptr<Item>>>& inventory = b->getInventory();
@@ -511,8 +527,9 @@ void Inventory_Interface::draw(sf::RenderTarget& target, sf::RenderStates states
         }
     }
 
-    if (crafting_table || machine) {
+    if (crafting || machine) {
         target.draw(reaction_interface, states);
+        target.setView(view);
     }
 
     if (machine && machine->current_reaction >= 0) {

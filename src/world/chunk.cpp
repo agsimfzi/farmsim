@@ -157,7 +157,6 @@ void Chunk::addBuilding(Building* building, sf::Vector2i c)
 
     sprite.setTexture(Texture_Manager::get(texture));
 
-
     sf::Vector2i pos;
     pos.x = (sheet_id % 10) * 64;
     pos.y = (sheet_id / 10) * 64;

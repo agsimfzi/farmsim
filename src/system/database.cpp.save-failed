@@ -372,7 +372,7 @@ std::map<Machine_Type, std::vector<Reaction>> Database::getReactions()
 
 std::map<Crafting_Type, std::vector<Reaction>> Database::getRecipes()
 {
-    std::map<Crafting_Type, std::vector<Reaction>> recipes;
+    std::map<Machine_Type, std::vector<Reaction>> recipes;
 
     open();
 
@@ -388,6 +388,7 @@ std::map<Crafting_Type, std::vector<Reaction>> Database::getRecipes()
         std::string name;
         std::string reagant_string;
         std::string product;
+        int length;
         std::string location;
 
         name = reinterpret_cast<const char*>(sqlite3_column_text(statement, column++));
@@ -397,7 +398,7 @@ std::map<Crafting_Type, std::vector<Reaction>> Database::getRecipes()
 
         Crafting_Type loc_type = stringToCraftingType(location);
 
-        std::vector<Reagant> reagants;
+        std::vector<std::string> reagants;
 
         while (reagant_string.find(';') != std::string::npos) {
             std::string r = reagant_string.substr(0, reagant_string.find(';'));
@@ -412,6 +413,7 @@ std::map<Crafting_Type, std::vector<Reaction>> Database::getRecipes()
             r.name = name;
             r.reagants = reagants;
             r.product = product;
+            r.length = length;
 
         recipes[loc_type].push_back(r);
     }

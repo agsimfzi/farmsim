@@ -11,7 +11,9 @@
 ///
 class UI : public sf::Drawable {
 public:
-    UI(sf::RenderWindow& window, Game& game);
+    UI() = delete;
+
+    UI(sf::RenderWindow& window, Game& game, sf::View& view);
 
     void scale(sf::RenderWindow& window);
 
@@ -50,6 +52,8 @@ private:
     sf::RenderWindow& window;
     Game& game;
     sf::Font& font;
+
+    //sf::View& view;
 
     Entity_Mouseover entityInfo;
 

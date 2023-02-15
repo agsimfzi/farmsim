@@ -5,7 +5,7 @@
 #include <item/player_inventory.hpp>
 
 #include <world/container.hpp>
-#include <world/crafting_table.hpp>
+#include <world/crafting.hpp>
 #include <world/machine.hpp>
 
 #include "inventory_cell.hpp"
@@ -13,7 +13,7 @@
 
 class Inventory_Interface : public sf::Drawable {
 public:
-    Inventory_Interface(Player_Inventory& inventory);
+    Inventory_Interface(Player_Inventory& inventory, sf::View& view);
 
     void update();
 
@@ -49,10 +49,12 @@ public:
     std::shared_ptr<Item> dragItem;
     sf::Text dragCountText;
 
-    void loadBuilding(Building* b);
+    void loadBuilding(Building* b, Item_Library& item_library);
 
 private:
     Player_Inventory& inventory;
+
+    sf::View& view;
 
     Reaction_Interface reaction_interface;
 
@@ -60,7 +62,7 @@ private:
     sf::Vector2i dragStartIndex;
     Machine* machine = nullptr;
     Container* container = nullptr;
-    Crafting_Table* crafting_table = nullptr;
+    Crafting* crafting = nullptr;
     size_t equippedIndex = 0;
 
     sf::RectangleShape progress_bar;

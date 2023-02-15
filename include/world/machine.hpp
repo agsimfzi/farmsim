@@ -4,7 +4,7 @@
 
 enum class Machine_Type {
     FURNACE,
-    SAW,
+    TABLE_SAW,
     NULL_TYPE
 };
 
@@ -13,8 +13,8 @@ inline Machine_Type stringToMachineType(std::string s) {
     if (s == "FURNACE") {
         return Machine_Type::FURNACE;
     }
-    else if (s == "SAW") {
-        return Machine_Type::SAW;
+    else if (s == "TABLE_SAW") {
+        return Machine_Type::TABLE_SAW;
     }
     else {
         return Machine_Type::NULL_TYPE;

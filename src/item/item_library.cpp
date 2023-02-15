@@ -31,12 +31,15 @@ Item_Library::Item_Library()
                 texture = "CONTAINER";
                 break;
             case 4:
-                texture = "FURNITURE";
+                texture = "CRAFTING";
                 break;
             case 5:
-                texture = "MACHINE";
+                texture = "FURNITURE";
                 break;
             case 6:
+                texture = "MACHINE";
+                break;
+            case 7:
                 texture = "LOOTABLE";
                 break;
             default:
@@ -89,5 +92,12 @@ std::shared_ptr<Item> Item_Library::shared(size_t uid)
 }
 std::shared_ptr<Item> Item_Library::shared(std::string name)
 {
-    return std::make_shared<Item>(*stringShelf[name]);
+    std::transform(name.begin(), name.end(), name.begin(), ::tolower);
+    if (stringShelf.contains(name)) {
+        return std::make_shared<Item>(*stringShelf[name]);
+    }
+    else {
+        std::cout << "FAILED TO FIND ITEM OF NAME " << name << '\n';
+        return nullptr;
+    }
 }

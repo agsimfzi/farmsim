@@ -55,6 +55,8 @@ public:
     int maxPlayerEnergy();
     float energyPercent();
 
+    Item_Library& getItemLibrary();
+
 private:
     Item_Library item_library;
 

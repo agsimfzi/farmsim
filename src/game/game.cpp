@@ -144,6 +144,11 @@ int Game::playerEnergy()
     return player.energy;
 }
 
+Item_Library& Game::getItemLibrary()
+{
+    return item_library;
+}
+
 void Game::draw(sf::RenderTarget& target, sf::RenderStates states) const
 {
     target.draw(world, states);

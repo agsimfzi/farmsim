@@ -288,8 +288,12 @@ void World::placeWreckage()
     items.push_back(item_library.shared(1001));
     items.back()->setCount(10);
     items.push_back(item_library.shared("chest"));
+    items.push_back(item_library.shared("workbench"));
+    items.push_back(item_library.shared("furnace"));
+    items.push_back(item_library.shared("table saw"));
+    items.push_back(item_library.shared("anvil"));
 
-    distance = 11;
+    distance = 3;
     size_t n = items.size();
     for (size_t i = 0; i < n; i++) {
         coords = randomNearbyEmptyTile(start_coords, distance);
@@ -300,6 +304,7 @@ void World::placeWreckage()
         tile_library[coords.x][coords.y].building = lootable;
         chunks.addBuilding(tile_library[coords.x][coords.y].building.get(), coords);
         lootable.reset();
+        distance += prng::number(0, 2);
     }
 }
 

@@ -17,12 +17,10 @@ Machine::Machine()
 
 bool Machine::validReagant(std::string name, int rxn)
 {
-    //std::cout << "testing " << name << " as reagant...";
     if (rxn == -1) {
         for (const auto& r : reactions) {
             for (const auto& reagant : r.reagants) {
-                if (equalStrings(name, reagant)) {
-                    //std::cout << " valid!\n";
+                if (equalStrings(name, reagant.name)) {
                     return true;
                 }
             }
@@ -30,13 +28,11 @@ bool Machine::validReagant(std::string name, int rxn)
     }
     else {
         for (const auto& reagant : reactions[rxn].reagants) {
-            if (equalStrings(name, reagant)) {
-                //std::cout << " valid!\n";
+            if (equalStrings(name, reagant.name)) {
                 return true;
             }
         }
     }
-   // std::cout << " INVALID!\n";
     return false;
 }
 
@@ -56,13 +52,12 @@ bool Machine::checkReagants(size_t i)
 {
     size_t n;
     if (i >= 0 && (!active_product || active_product->count() < active_product->stackSize())) {
-        std::vector<std::string> reagants = reactions[i].reagants;
+        std::vector<Reagant> reagants = reactions[i].reagants;
         for (const auto& r : reagants) {
-            //std::cout << "\tseeking " << r << '\n';
         }
         for (const auto& item : inventory.front()) {
             if (item) {
-                auto it = std::find_if(reagants.begin(), reagants.end(), [&](std::string str) { return equalStrings(item->getName(), str); });
+                auto it = std::find_if(reagants.begin(), reagants.end(), [&](Reagant& r) { return equalStrings(item->getName(), r.name); });
                 if (it == reagants.end()) {
                     return false;
                 }
@@ -72,7 +67,6 @@ bool Machine::checkReagants(size_t i)
             }
         }
         n = reagants.size();
-        //std::cout << "\t\t" << n << " items remaining!\n";
     }
     return (n == 0);
 }
@@ -110,6 +104,7 @@ void Machine::tick(Item_Library& item_library)
 
 float Machine::reactionProgress()
 {
+    std::cout << "checking progress of rxn " << current_reaction << ": " << reactions[current_reaction].name << ", length " << reactions[current_reaction].length << '\n';
     return (static_cast<float>(reaction_tick) / static_cast<float>(reactions[current_reaction].length));
 }
 

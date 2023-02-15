@@ -26,6 +26,7 @@
 #include <sqlite3.h>
 
 #include <world/building.hpp>
+#include <world/crafting.hpp>
 #include <world/machine.hpp>
 #include <world/crop_data.hpp>
 #include <world/tile.hpp>
@@ -56,7 +57,7 @@ public:
 
     static std::map<Machine_Type, std::vector<Reaction>> getReactions();
 
-    static std::vector<Reaction> getCraftingRecipes();
+    static std::map<Crafting_Type, std::vector<Reaction>> getRecipes();
 
     static std::map<std::string, Action_Trigger> getActions();
 

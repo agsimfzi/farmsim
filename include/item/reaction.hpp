@@ -2,10 +2,19 @@
 
 #include <vector>
 
+struct Reagant {
+    std::string name;
+    short unsigned int count = 1;
+
+    Reagant() = default;
+    Reagant(std::string n)
+        : name { n }
+    {}
+};
+
 struct Reaction {
     std::string name;
-    std::vector<std::string> reagants;
-    std::vector<short unsigned int> reagant_count;
+    std::vector<Reagant> reagants;
     std::string product;
-    size_t length;
+    size_t length = 1;
 };

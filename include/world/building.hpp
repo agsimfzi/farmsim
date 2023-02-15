@@ -21,7 +21,7 @@ public:
 
     enum Type {
         CONTAINER,
-        CRAFTING_TABLE,
+        CRAFTING,
         FURNITURE,
         MACHINE,
         LOOTABLE,
@@ -45,8 +45,8 @@ public:
         if (s == "CONTAINER") {
             return CONTAINER;
         }
-        else if (s == "CRAFTING_TABLE") {
-            return CRAFTING_TABLE;
+        else if (s == "CRAFTING") {
+            return CRAFTING;
         }
         else if (s == "FURNITURE") {
             return FURNITURE;
@@ -70,6 +70,9 @@ public:
         switch(t) {
             case CONTAINER:
                 return "CONTAINER";
+                break;
+            case CRAFTING:
+                return "CRAFTING";
                 break;
             case FURNITURE:
                 return "FURNITURE";

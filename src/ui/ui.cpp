@@ -7,12 +7,12 @@
 
 //////////////////////////////////////////////////////////////
 
-UI::UI(sf::RenderWindow& window, Game& game)
+UI::UI(sf::RenderWindow& window, Game& game, sf::View& view)
     : window { window }
     , game { game }
     , font { Font_Manager::get(Font::UI) }
     , entityInfo { Font_Manager::get(Font::UI) }
-    , inventory_interface { Inventory_Interface(game.getInventory()) }
+    , inventory_interface { Inventory_Interface(game.getInventory(), view) }
 {
     overlay.setPosition(sf::Vector2f(0.f, 0.f));
     overlay.setSize(sf::Vector2f(1920.f, 1080.f));
@@ -224,7 +224,7 @@ void UI::checkBuilding()
         Building* b = game.getWorld().activeBuilding();
         if (b) {
             toggleInventory();
-            inventory_interface.loadBuilding(b);
+            inventory_interface.loadBuilding(b, game.getItemLibrary());
         }
     }
     else {
