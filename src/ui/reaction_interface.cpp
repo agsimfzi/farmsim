@@ -8,12 +8,30 @@ const sf::Color Reaction_Panel::color_bg_available = sf::Color(230, 209, 135);
 const sf::Color Reaction_Panel::color_bg_unavailable = sf::Color(82, 82, 82);
 const float Reaction_Panel::outline_thickness = 1.f;
 
-Reaction_Panel::Reaction_Panel(Reaction& rxn, Item_Library& item_library)
+Reaction_Panel::Reaction_Panel(Reaction& rxn, Item_Library& item_library, sf::Vector2f pos)
 {
+    frame.setPosition(pos);
+    frame.setSize(sf::Vector2f(392.f, 128.f));
+    frame.setOutlineThickness(outline_thickness);
+    frame.setOutlineColor(sf::Color::Black);
+
+    pos.x += 48.f;
+    pos.y += 80.f;
+
     for (auto& r : rxn.reagants) {
         reagants.push_back(item_library.shared(r.name));
+        reagants.back()->setPosition(pos);
+
+        pos.x += 96.f;
     }
+
+    // place arrow
+
+    pos.x += 96.f;
+
     product = item_library.shared(rxn.product);
+    product->setPosition(pos);
+
     if (product) {
         std::cout << "\tloaded product from reaction " << rxn.name << ": " << product->getName() << "!\n";
     }
@@ -21,9 +39,6 @@ Reaction_Panel::Reaction_Panel(Reaction& rxn, Item_Library& item_library)
         std::cout << "\tFAILED TO LOAD PRODUCT FROM REACTION " << rxn.name << ": " << product->getName() << "!\n";
     }
 
-    frame.setSize(sf::Vector2f(392.f, 96.f));
-    frame.setOutlineThickness(outline_thickness);
-    frame.setOutlineColor(sf::Color::Black);
     unsetAvailable();
 }
 
@@ -68,9 +83,14 @@ void Reaction_Interface::load(std::vector<Reaction> rxn, Player_Inventory& inven
     reactions = rxn;
 
     panels.clear();
+
+    sf::Vector2f pos(4.f, 4.f);
+
     for (auto& r : reactions) {
-        panels.push_back(Reaction_Panel(r, item_library));
+        panels.push_back(Reaction_Panel(r, item_library, pos));
+        pos.y += 132.f;
     }
+    setScrollable(pos.y);
     check(inventory);
 }
 
@@ -81,17 +101,21 @@ void Reaction_Interface::check(Player_Inventory& inventory)
     }
 }
 
+void Reaction_Interface::close()
+{
+    reactions.clear();
+    panels.clear();
+    scrollbar.setSize(sf::Vector2f(scrollbar.getSize().x, 0.f));
+    view.move(sf::Vector2f(0.f, -current_scroll));
+    current_scroll = 0.f;
+    frame.height = 0.f;
+}
+
 Reaction* Reaction_Interface::click(sf::Vector2f mpos)
 {
     Reaction* r = nullptr;
     // uhhhhh
     return r;
-}
-
-void Reaction_Interface::close()
-{
-    reactions.clear();
-    panels.clear();
 }
 
 void Reaction_Interface::draw(sf::RenderTarget& target, sf::RenderStates states) const

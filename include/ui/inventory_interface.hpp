@@ -24,6 +24,7 @@ public:
     void setEquippedIndex(size_t active);
     size_t getEquippedIndex();
 
+    bool scroll(float delta, sf::RenderWindow& window);
     void scrollLeft();
     void scrollRight();
 

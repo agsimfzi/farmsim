@@ -48,6 +48,8 @@ public:
 
     void checkBuilding();
 
+    void loadDefaultReactions();
+
 private:
     sf::RenderWindow& window;
     Game& game;

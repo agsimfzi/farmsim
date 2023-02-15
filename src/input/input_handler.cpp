@@ -61,7 +61,7 @@ Input_Handler::Input_Handler(sf::RenderWindow& nwindow, Game& game, UI& ui, Menu
             release = std::bind(&Player::rightEnd, player);
         }
         else if (action.first == "Open Inventory") {
-            press = std::bind(&UI::toggleInventory, &ui);
+            press = [&]() { ui.toggleInventory(); ui.loadDefaultReactions(); };
             release = [](){};
         }
         else if (action.first == "Open Map") {

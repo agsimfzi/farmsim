@@ -8,8 +8,6 @@
 
 #include <world/tile.hpp>
 
-#include <iostream>
-
 const float Inventory_Interface::cell_padding = Inventory_Cell::frameOutlineSize;
 
 Inventory_Interface::Inventory_Interface(Player_Inventory& inventory, sf::View& view)
@@ -48,7 +46,6 @@ void Inventory_Interface::update()
     checkDrag();
 
     if (machine && machine->current_reaction >= 0) {
-        std::cout << "updating machine, rxn " << machine->current_reaction << "!\n";
         setProgressBarSize();
         checkReaction();
     }
@@ -102,11 +99,15 @@ void Inventory_Interface::placeCells()
     sf::Vector2f pos(x, screenHeight - x);
     size_t nr = cells.size();
     size_t nc;
+    float max_x = 0.f;
     for (size_t r = 0; r < nr; r++) {
         nc = cells[r].size();
         for (size_t c = 0; c < nc; c++) {
             cells[r][c].setPosition(pos);
             pos.x += Inventory_Cell::frameSize.x + cell_padding;
+        }
+        if (pos.x > max_x) {
+            max_x = pos.x;
         }
         pos.x = x;
         if (r == 0) {
@@ -116,6 +117,13 @@ void Inventory_Interface::placeCells()
             pos.y += Inventory_Cell::frameSize.y + cell_padding;
         }
     }
+
+    pos.x = max_x + 256.f;
+    pos.y -= 512.f;
+
+    sf::Vector2f size(420.f, 512.f);
+
+    reaction_interface.setView(pos, size);
 }
 
 void Inventory_Interface::pollChanges()
@@ -138,11 +146,26 @@ void Inventory_Interface::setEquippedIndex(size_t active)
     cells[0][equippedIndex].deactivate();
     equippedIndex = active;
     cells[0][equippedIndex].activate();
+    inventory.setEquipped(equippedIndex);
 }
 
 size_t Inventory_Interface::getEquippedIndex()
 {
     return equippedIndex;
+}
+
+bool Inventory_Interface::scroll(float delta, sf::RenderWindow& window)
+{
+    if (reaction_interface.scroll(delta, fMouse(window, reaction_interface.getView()))) {
+        return false;
+    }
+    else if (delta > 0.f) {
+        scrollLeft();
+    }
+    else if (delta < 0.f) {
+        scrollRight();
+    }
+    return true;
 }
 
 void Inventory_Interface::scrollLeft()
@@ -264,7 +287,6 @@ void Inventory_Interface::placeMergeSwap(sf::Vector2i i)
 {
     std::shared_ptr<Item> si = cells[i.x][i.y].getItem();
     if (i.x >= (int)inventory.rowCount) { // BUILDING PLACEMENT
-        std::cout << "BUILDING PLACEMENT\n";
         if (container) {
             if (si) {
                 swap(i);
@@ -279,29 +301,24 @@ void Inventory_Interface::placeMergeSwap(sf::Vector2i i)
         }
         else if (machine) {
             if (i.x == (int)inventory.rowCount) {
-                std::cout << "\tPLACING REAGANT...\n";
                 size_t remainder = machine->addReagant(dragItem);
                 if (remainder > 0) {
-                    std::cout << "\t\thad remainder\n";
                     dragItem->setCount(remainder);
                     dragging = true;
                     return;
                 }
                 else {
-                    std::cout << "\t\tending drag\n";
                     dragItem = nullptr;
                 }
                 readBuilding();
             }
             else {
-                std::cout << "\tFAILED TO PLACE PRODUCT!\n";
                 dragging = true;
                 return;
             }
         }
     } // END BUILDING PLACEMENT
     else { // INVENTORY PLACEMENT
-        std::cout << "INVENTORY PLACEMENT\n";
         //if (dsi.x < (int)inventory.rowCount) {
             if (si) {
                 if (si->getUID() == dragItem->getUID()) {
@@ -400,7 +417,6 @@ void Inventory_Interface::swap(sf::Vector2i i)
 
 void Inventory_Interface::readBuilding()
 {
-    std::cout << "READING BUILDING\n";
     std::vector<std::vector<std::shared_ptr<Item>>>* items;
     if (container) {
         items = &container->getInventory();
@@ -483,7 +499,6 @@ void Inventory_Interface::loadBuilding(Building* b, Item_Library& item_library)
                 reaction_interface.load(b->reactions, inventory, item_library);
                 break;
             case Building::CRAFTING:
-                is_machine = true;
                 crafting = dynamic_cast<Crafting*>(b);
                 reaction_interface.load(b->reactions, inventory, item_library);
                 break;
@@ -518,11 +533,10 @@ void Inventory_Interface::draw(sf::RenderTarget& target, sf::RenderStates states
     size_t nr = cells.size();
     size_t nc;
     for (size_t r = 0; r < nr; r++) {
-        nc = cells[r].size();
+        nc = cells[r].size();\
         for (size_t c = 0; (c < nc) && (open || r == 0); c++) {
             target.draw(cells[r][c], states);
             if (r >= inventory.rowCount) {
-                //std::cout << "drawing cell " << r << ", " << c << '\n';
             }
         }
     }

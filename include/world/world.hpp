@@ -84,6 +84,8 @@ public:
 
     int energyDiff();
 
+    Building_Library& getBuildingLibrary();
+
 private:
     bool changeActiveTile(Floor_Type prereq, Floor_Type ntype);
 

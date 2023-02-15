@@ -69,19 +69,16 @@ void UI::setMouseover(Entity* entity)
 
 void UI::scroll(float delta)
 {
-    if (!overlay_active && !inventory_interface.open) {
+    if (overlay_active && inventory_interface.open) {
         // parse "reverse inventory_interface scroll" setting
-        if (delta > 0.f) {
-            inventory_interface.scrollLeft();
-        }
-        else if (delta < 0.f) {
-            inventory_interface.scrollRight();
-        }
-
-        game.getInventory().setEquipped(inventory_interface.getEquippedIndex());
     }
-    else if (overlay_active && minimap.isExpanded()) {
+    if (overlay_active && minimap.isExpanded()) {
         minimap.zoom(delta);
+    }
+    else {
+        if (inventory_interface.scroll(delta, window)) {
+            game.getInventory().setEquipped(inventory_interface.getEquippedIndex());
+        }
     }
 }
 
@@ -113,6 +110,13 @@ void UI::stopInput()
 
 void UI::resize(sf::Vector2u windowSize)
 {
+}
+
+void UI::loadDefaultReactions()
+{
+    if (inventory_interface.open) {
+        inventory_interface.loadBuilding(game.getWorld().getBuildingLibrary()("null_crafting").get(), game.getItemLibrary());
+    }
 }
 
 void UI::toggleInventory()

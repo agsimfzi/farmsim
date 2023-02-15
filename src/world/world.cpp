@@ -308,6 +308,11 @@ void World::placeWreckage()
     }
 }
 
+Building_Library& World::getBuildingLibrary()
+{
+    return building_library;
+}
+
 sf::Vector2i World::randomNearbyEmptyTile(sf::Vector2i i, int distance)
 {
     std::cout << "random tile...";
