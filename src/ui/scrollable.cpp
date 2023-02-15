@@ -17,6 +17,18 @@ void Scrollable::setView(sf::Vector2f pos, sf::Vector2f size, sf::Vector2u windo
     view.setCenter(sf::Vector2f(size.x / 2, size.y / 2));
 }
 
+sf::View Scrollable::getView()
+{
+    return view;
+}
+
+void Scrollable::reset()
+{
+    scrollToTop();
+    scrollbar.setSize(sf::Vector2f(scrollbar.getSize().x, 0.f));
+    frame.height = 0.f;
+}
+
 void Scrollable::setScrollable(float max_height)
 {
     scrollbar.setFillColor(sf::Color::Black);
@@ -60,6 +72,12 @@ bool Scrollable::scroll(float delta, sf::Vector2f mpos){
     return contains;
 }
 
+void Scrollable::scrollToTop()
+{
+    view.move(sf::Vector2f(0.f, -current_scroll));
+    current_scroll = 0.f;
+}
+
 void Scrollable::resizeScrollbar(){
     sf::Vector2f scroll_size(scrollbar.getSize().x, view.getSize().y);
     if(frame.height > scroll_size.y){
@@ -77,9 +95,4 @@ void Scrollable::placeScrollbar(){
         //pos.y += (frame.height - scrollbar.getSize().y) * (current_scroll / max_scroll);
     }
     scrollbar.setPosition(pos);
-}
-
-sf::View& Scrollable::getView()
-{
-    return view;
 }

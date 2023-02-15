@@ -105,10 +105,7 @@ void Reaction_Interface::close()
 {
     reactions.clear();
     panels.clear();
-    scrollbar.setSize(sf::Vector2f(scrollbar.getSize().x, 0.f));
-    view.move(sf::Vector2f(0.f, -current_scroll));
-    current_scroll = 0.f;
-    frame.height = 0.f;
+    reset();
 }
 
 Reaction* Reaction_Interface::click(sf::Vector2f mpos)
