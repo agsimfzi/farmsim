@@ -52,9 +52,9 @@ void Scrollable::setScrollable(float max_height)
 }
 
 bool Scrollable::scroll(float delta, sf::Vector2f mpos){
-    bool contains = frame.contains(mpos);
+    bool c = contains(mpos);
 
-    if (contains) {
+    if (c) {
         delta *= -40.f;
         view.move(0.f, delta);
         current_scroll += delta;
@@ -69,7 +69,12 @@ bool Scrollable::scroll(float delta, sf::Vector2f mpos){
         placeScrollbar();
     }
 
-    return contains;
+    return c;
+}
+
+bool Scrollable::contains(sf::Vector2f mpos)
+{
+    return frame.contains(mpos);
 }
 
 void Scrollable::scrollToTop()

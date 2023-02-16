@@ -29,8 +29,8 @@ public:
 
     void update() override;
 
-    int energy{ 500 };
-    int max_energy{ 500 };
+    int energy{ 1000 };
+    int max_energy{ 1000 };
 
 private:
     unsigned int equipped = 0;

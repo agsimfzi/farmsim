@@ -8,6 +8,8 @@
 
 #include <world/tile.hpp>
 
+#include <util/vector2_stream.hpp>
+
 const float Inventory_Interface::cell_padding = Inventory_Cell::frameOutlineSize;
 
 Inventory_Interface::Inventory_Interface(Player_Inventory& inventory, sf::View& view)
@@ -203,14 +205,54 @@ void Inventory_Interface::close()
 
 void Inventory_Interface::clickLeft(sf::RenderWindow& window)
 {
-    if (crafting) {
-        Reaction* rxn = reaction_interface.click(fMouse(window, reaction_interface.getView()));
-        if (rxn) {
+    std::cout << "parsing click in inventory_interface!\n";
+    if (machine) {
+        sf::Vector2f mpos = fMouse(window, reaction_interface.getView());
+        if (reaction_interface.contains(mpos)) {
+            std::cout << "\treaction_interface click detected!\n";
+            std::pair<Reaction*, std::shared_ptr<Item>> rxn = reaction_interface.click(fMouse(window, reaction_interface.getView()));
+            Reaction* reaction = rxn.first;
+            // move reagants in machine to inventory
+            // move new reagants to machine
+            // re-read the interface
         }
     }
-    else {
-        startDrag();
+    else if (crafting) {
+        sf::Vector2f mpos = fMouse(window, reaction_interface.getView());
+        if (reaction_interface.contains(mpos)) {
+            std::cout << "\treaction_interface click detected!\n";
+            std::pair<Reaction*, std::shared_ptr<Item>> rxn = reaction_interface.click(fMouse(window, reaction_interface.getView()));
+            Reaction* reaction = rxn.first;
+            if (reaction && rxn.second) {
+                Item product = *rxn.second;
+                std::cout << "\tvalid reaction and product returned!\n";
+                auto remove = [&]()
+                              {
+                                for (const auto& r : reaction->reagants) {
+                                    inventory.removeItem(r.name, r.count);
+                                }
+                                readInventory();
+                              };
+                if (dragItem) {
+                    if (dragItem->getUID() == product.getUID()) {
+                        dragItem->add(product.count());
+                        remove();
+                        reaction_interface.check(inventory);
+                    }
+                }
+                else {
+                    dragItem = std::make_shared<Item>(product);
+                    dragging = true;
+                    checkDrag();
+                    remove();
+                    reaction_interface.check(inventory);
+                }
+                return;
+            }
+        }
     }
+
+    startDrag();
 }
 
 void Inventory_Interface::clickRight()

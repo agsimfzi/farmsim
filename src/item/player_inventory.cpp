@@ -1,5 +1,7 @@
 #include <item/player_inventory.hpp>
 
+#include <util/primordial.hpp>
+
 Player_Inventory::Player_Inventory()
 {
     resize(rowCount, rowWidth);
@@ -20,6 +22,42 @@ void Player_Inventory::resize(const size_t rows, const size_t cols)
     }
 
     changed = true;
+}
+
+void Player_Inventory::removeItem(std::string name, size_t count)
+{
+    for (size_t x = 0; x < rowCount; x++) {
+        for (size_t y = 0; y < rowWidth; y++) {
+            if (items[x][y] && equalStrings(name, items[x][y]->getName())) {
+                size_t i_count = items[x][y]->count();
+                if (count <= i_count) {
+                    items[x][y]->take(count);
+                    return;
+                }
+                else {
+                    count -= i_count;
+                    items[x][y]->take(i_count);
+                }
+
+                if (items[x][y]->count() == 0) {
+                    items[x][y].reset();
+                }
+            }
+        }
+    }
+}
+
+size_t Player_Inventory::countItem(std::string name)
+{
+    size_t count = 0;
+    for (size_t x = 0; x < rowCount; x++) {
+        for (size_t y = 0; y < rowWidth; y++) {
+            if (items[x][y] && equalStrings(name, items[x][y]->getName())) {
+                count += items[x][y]->count();
+            }
+        }
+    }
+    return count;
 }
 
 void Player_Inventory::addItem(std::shared_ptr<Item> item, size_t count)

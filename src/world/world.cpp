@@ -271,8 +271,8 @@ void World::placeWreckage()
     axe->can_pickup = false;
 
     int distance = 1;
-    sf::Vector2i coords = randomNearbyEmptyTile(start_coords, distance);
-    chunks.addItem(axe, 1, coords);
+    sf::Vector2i axe_coords = randomNearbyEmptyTile(start_coords, distance);
+    chunks.addItem(axe, 1, axe_coords);
 
     std::vector<std::shared_ptr<Item>> items;
     items.push_back(item_library.shared("pickaxe"));
@@ -287,16 +287,20 @@ void World::placeWreckage()
     items.back()->setCount(10);
     items.push_back(item_library.shared(1001));
     items.back()->setCount(10);
-    items.push_back(item_library.shared("chest"));
-    items.push_back(item_library.shared("workbench"));
-    items.push_back(item_library.shared("furnace"));
-    items.push_back(item_library.shared("table saw"));
-    items.push_back(item_library.shared("anvil"));
+    //items.push_back(item_library.shared("chest"));
+    //items.push_back(item_library.shared("workbench"));
+    //items.push_back(item_library.shared("furnace"));
+    //items.push_back(item_library.shared("table saw"));
+    //items.push_back(item_library.shared("anvil"));
+
+    sf::Vector2i coords;
 
     distance = 3;
     size_t n = items.size();
     for (size_t i = 0; i < n; i++) {
-        coords = randomNearbyEmptyTile(start_coords, distance);
+        do {
+            coords = randomNearbyEmptyTile(start_coords, distance);
+        } while (coords == axe_coords);
         std::shared_ptr<Lootable> lootable = std::make_shared<Lootable>(*std::dynamic_pointer_cast<Lootable>(building_library("crate")));
         lootable->getInventory().front().front() = items[i];
         lootable->getInventory().front().push_back(item_library.shared("plank"));
@@ -315,13 +319,12 @@ Building_Library& World::getBuildingLibrary()
 
 sf::Vector2i World::randomNearbyEmptyTile(sf::Vector2i i, int distance)
 {
-    std::cout << "random tile...";
     std::vector<sf::Vector2i> empty;
 
     for (int x = i.x - distance; x <= i.x + distance; x++) {
         for (int y = i.y - distance; y <= i.y + distance; y++) {
             sf::Vector2i c(x, y);
-            if (emptyTile(c) && c != i) {
+            if (c != i && emptyTile(c)) {
                 empty.push_back(c);
             }
         }
@@ -329,7 +332,6 @@ sf::Vector2i World::randomNearbyEmptyTile(sf::Vector2i i, int distance)
 
     sf::Vector2i t = empty[prng::number(empty.size())];
 
-    std::cout << "get!\n";
     return t;
 }
 

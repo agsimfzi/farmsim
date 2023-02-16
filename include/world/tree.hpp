@@ -19,6 +19,6 @@ public:
 private:
     sf::Vector2i coordinates;
 
-    short int health = 100;
-    short int max_health = 100;
+    short int health = 50;
+    short int max_health = 50;
 };

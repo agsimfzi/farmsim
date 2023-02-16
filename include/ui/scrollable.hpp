@@ -22,6 +22,8 @@ public:
 
     void placeScrollbar();
 
+    bool contains(sf::Vector2f mpos);
+
 protected:
     sf::RectangleShape scrollbar;
 

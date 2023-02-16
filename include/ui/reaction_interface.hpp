@@ -21,6 +21,10 @@ public:
     void setAvailable();
     void unsetAvailable();
 
+    bool contains(sf::Vector2f mpos);
+
+    std::shared_ptr<Item> getProduct();
+
 private:
     bool available;
 
@@ -48,7 +52,7 @@ public:
 
     void close();
 
-    Reaction* click(sf::Vector2f mpos);
+    std::pair<Reaction*, std::shared_ptr<Item>> click(sf::Vector2f mpos);
 
     void checkInventory(Player_Inventory& inventory);
 

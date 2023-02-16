@@ -171,7 +171,7 @@ bool UI::clickLeft()
                 inventory_interface.endDrag(drop);
             }
             else {
-                inventory_interface.startDrag();
+                inventory_interface.clickLeft(window);
             }
         }
         else if(minimap.isExpanded()) {

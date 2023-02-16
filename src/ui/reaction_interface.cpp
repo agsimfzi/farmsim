@@ -1,5 +1,7 @@
 #include <ui/reaction_interface.hpp>
 
+#include <cassert>
+
 #include <resources/font_manager.hpp>
 
 #include <iostream>
@@ -66,6 +68,16 @@ void Reaction_Panel::unsetAvailable()
     frame.setFillColor(color_bg_unavailable);
 }
 
+bool Reaction_Panel::contains(sf::Vector2f mpos)
+{
+    return frame.getGlobalBounds().contains(mpos);
+}
+
+std::shared_ptr<Item> Reaction_Panel::getProduct()
+{
+    return product;
+}
+
 void Reaction_Panel::draw(sf::RenderTarget& target, sf::RenderStates states) const
 {
     target.draw(frame, states);
@@ -98,6 +110,22 @@ void Reaction_Interface::check(Player_Inventory& inventory)
 {
     size_t n = reactions.size();
     for (size_t i = 0; i < n; i++) {
+        Reaction& r = reactions[i];
+        Reaction_Panel& p = panels[i];
+        bool available = true;
+
+        for (auto& reagant : r.reagants) {
+            if (inventory.countItem(reagant.name) < reagant.count) {
+                available = false;
+            }
+        }
+
+        if (available) {
+            p.setAvailable();
+        }
+        else {
+            p.unsetAvailable();
+        }
     }
 }
 
@@ -108,11 +136,19 @@ void Reaction_Interface::close()
     reset();
 }
 
-Reaction* Reaction_Interface::click(sf::Vector2f mpos)
+std::pair<Reaction*, std::shared_ptr<Item>> Reaction_Interface::click(sf::Vector2f mpos)
 {
     Reaction* r = nullptr;
-    // uhhhhh
-    return r;
+    std::shared_ptr<Item> p = nullptr;
+    size_t n = reactions.size();
+    assert(n == panels.size());
+    for (size_t i = 0; i < n; i++) {
+        if (panels[i].contains(mpos) && panels[i].isAvailable()) {
+            r = &reactions[i];
+            p = panels[i].getProduct();
+        }
+    }
+    return std::make_pair(r, p);
 }
 
 void Reaction_Interface::draw(sf::RenderTarget& target, sf::RenderStates states) const

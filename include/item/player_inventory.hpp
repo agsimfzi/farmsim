@@ -30,6 +30,10 @@ public:
 
     void update();
 
+    void removeItem(std::string name, size_t count);
+
+    size_t countItem(std::string name);
+
 private:
     std::vector<std::vector<std::shared_ptr<Item>>> items;
 
