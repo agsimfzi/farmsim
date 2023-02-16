@@ -10,12 +10,13 @@
 
 #include "inventory_cell.hpp"
 #include "reaction_interface.hpp"
+#include "tooltip.hpp"
 
 class Inventory_Interface : public sf::Drawable {
 public:
     Inventory_Interface(Player_Inventory& inventory, sf::View& view);
 
-    void update();
+    void update(sf::RenderWindow& window);
 
     std::vector<std::vector<Inventory_Cell>> cells;
 
@@ -77,5 +78,12 @@ private:
     void clearProgressBar();
     void checkReaction();
     void readBuilding();
+
+    void checkTooltip(sf::RenderWindow& window);
+
+    std::shared_ptr<Tooltip> active_tooltip;
+    sf::Vector2i tooltip_index;
+    bool reaction_tooltip = false;
+
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
 };

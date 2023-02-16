@@ -32,7 +32,7 @@ void Scrollable::reset()
 void Scrollable::setScrollable(float max_height)
 {
     scrollbar.setFillColor(sf::Color::Black);
-    scrollbar.setSize(sf::Vector2f(16.f, 16.f));
+    scrollbar.setSize(sf::Vector2f(12.f, 12.f));
 
     scroll_x_pos = view.getSize().x - scrollbar.getSize().x;
 

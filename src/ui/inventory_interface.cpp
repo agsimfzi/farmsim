@@ -10,6 +10,8 @@
 
 #include <util/vector2_stream.hpp>
 
+// please don't tell anyone how i live
+
 const float Inventory_Interface::cell_padding = Inventory_Cell::frameOutlineSize;
 
 Inventory_Interface::Inventory_Interface(Player_Inventory& inventory, sf::View& view)
@@ -43,13 +45,67 @@ void Inventory_Interface::readInventory()
     }
 }
 
-void Inventory_Interface::update()
+void Inventory_Interface::update(sf::RenderWindow& window)
 {
     checkDrag();
 
     if (machine && machine->current_reaction >= 0) {
         setProgressBarSize();
         checkReaction();
+    }
+
+    checkTooltip(window);
+}
+
+void Inventory_Interface::checkTooltip(sf::RenderWindow& window)
+{
+    sf::Vector2i moused = mousedIndex(sf::Mouse::getPosition());
+    if (active_tooltip) {
+        if (reaction_tooltip) {
+            std::shared_ptr<Tooltip> t = reaction_interface.findTooltip(fMouse(window, reaction_interface.getView()));
+            if (t != active_tooltip) {
+                active_tooltip = t;
+            }
+
+            if (!active_tooltip && moused.x >= 0 && moused.y >= 0) {
+                std::shared_ptr<Item> item = cells[moused.x][moused.y].getItem();
+                if (item) {
+                    active_tooltip = std::make_shared<Tooltip>(item);
+                }
+            }
+        }
+        else if (moused.x < 0 && moused.y < 0) {
+            active_tooltip = reaction_interface.findTooltip(fMouse(window, reaction_interface.getView()));
+        }
+        else {
+            if (tooltip_index != moused) {
+                std::shared_ptr<Item> item = cells[moused.x][moused.y].getItem();
+                if (item) {
+                    active_tooltip.reset();
+                    active_tooltip = std::make_shared<Tooltip>(item);
+                }
+            }
+        }
+        // disable tooltip if appropriate
+    }
+    else {
+        if (moused.x >= 0 && moused.y >= 0) {
+            std::shared_ptr<Item> item = cells[moused.x][moused.y].getItem();
+            if (item) {
+                active_tooltip = std::make_shared<Tooltip>(item);
+            }
+        }
+        else {
+            std::shared_ptr<Tooltip> t = reaction_interface.findTooltip(fMouse(window, reaction_interface.getView()));
+            if (t) {
+                active_tooltip = t;
+            }
+            // check reaction panels
+        }
+    }
+
+    if (active_tooltip) {
+        active_tooltip->setPosition(fMouse());
     }
 }
 
@@ -123,7 +179,7 @@ void Inventory_Interface::placeCells()
     pos.x = max_x + 256.f;
     pos.y -= 512.f;
 
-    sf::Vector2f size(420.f, 512.f);
+    sf::Vector2f size(86.f, 512.f);
 
     reaction_interface.setView(pos, size);
 }
@@ -198,6 +254,8 @@ void Inventory_Interface::close()
 
     reaction_interface.close();
 
+    active_tooltip.reset();
+
     while (cells.size() > inventory.rowCount) {
         cells.pop_back();
     }
@@ -227,12 +285,13 @@ void Inventory_Interface::clickLeft(sf::RenderWindow& window)
                 Item product = *rxn.second;
                 std::cout << "\tvalid reaction and product returned!\n";
                 auto remove = [&]()
-                              {
-                                for (const auto& r : reaction->reagants) {
-                                    inventory.removeItem(r.name, r.count);
-                                }
-                                readInventory();
-                              };
+                    {
+                        for (const auto& r : reaction->reagants) {
+                        inventory.removeItem(r.name, r.count);
+                        }
+                        readInventory();
+                    };
+
                 if (dragItem) {
                     if (dragItem->getUID() == product.getUID()) {
                         dragItem->add(product.count());
@@ -590,6 +649,10 @@ void Inventory_Interface::draw(sf::RenderTarget& target, sf::RenderStates states
 
     if (machine && machine->current_reaction >= 0) {
         target.draw(progress_bar, states);
+    }
+
+    if (active_tooltip) {
+        target.draw(*active_tooltip, states);
     }
 
     if (dragging && dragItem) {

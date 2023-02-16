@@ -51,10 +51,8 @@ void Machine::checkReaction()
 bool Machine::checkReagants(size_t i)
 {
     size_t n;
-    if (i >= 0 && (!active_product || active_product->count() < active_product->stackSize())) {
+    if ((int)i >= 0 && (!active_product || (int)active_product->count() < active_product->stackSize())) {
         std::vector<Reagant> reagants = reactions[i].reagants;
-        for (const auto& r : reagants) {
-        }
         for (const auto& item : inventory.front()) {
             if (item) {
                 auto it = std::find_if(reagants.begin(), reagants.end(), [&](Reagant& r) { return equalStrings(item->getName(), r.name); });

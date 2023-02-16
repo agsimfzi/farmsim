@@ -33,7 +33,7 @@ void UI::init()
 void UI::update()
 {
     if (inventory_interface.open) {
-        inventory_interface.update();
+        inventory_interface.update(window);
     }
     inventory_interface.pollChanges();
 

@@ -16,6 +16,16 @@ sf::Vector2f Item::getPosition()
     return sprite.getPosition();
 }
 
+std::string Item::getDescription()
+{
+    return description;
+}
+
+int Item::getValue()
+{
+    return value;
+}
+
 void Item::setPosition(sf::Vector2f pos)
 {
     sprite.setPosition(pos);

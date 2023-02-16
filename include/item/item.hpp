@@ -40,6 +40,9 @@ public:
 
     sf::Vector2f getPosition();
 
+    std::string getDescription();
+    int getValue();
+
 private:
     sf::Sprite sprite;
 

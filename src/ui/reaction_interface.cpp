@@ -13,23 +13,15 @@ const float Reaction_Panel::outline_thickness = 1.f;
 Reaction_Panel::Reaction_Panel(Reaction& rxn, Item_Library& item_library, sf::Vector2f pos)
 {
     frame.setPosition(pos);
-    frame.setSize(sf::Vector2f(392.f, 128.f));
+    frame.setSize(sf::Vector2f(66.f, 66.f));
     frame.setOutlineThickness(outline_thickness);
     frame.setOutlineColor(sf::Color::Black);
 
-    pos.x += 48.f;
-    pos.y += 80.f;
+    pos += (frame.getSize() / 2.f);
 
     for (auto& r : rxn.reagants) {
         reagants.push_back(item_library.shared(r.name));
-        reagants.back()->setPosition(pos);
-
-        pos.x += 96.f;
     }
-
-    // place arrow
-
-    pos.x += 96.f;
 
     product = item_library.shared(rxn.product);
     product->setPosition(pos);
@@ -42,6 +34,8 @@ Reaction_Panel::Reaction_Panel(Reaction& rxn, Item_Library& item_library, sf::Ve
     }
 
     unsetAvailable();
+
+    tooltip = std::make_shared<Tooltip>(rxn, reagants);
 }
 
 Reaction_Panel::~Reaction_Panel()
@@ -81,9 +75,6 @@ std::shared_ptr<Item> Reaction_Panel::getProduct()
 void Reaction_Panel::draw(sf::RenderTarget& target, sf::RenderStates states) const
 {
     target.draw(frame, states);
-    for (const auto& r : reagants) {
-        target.draw(*r, states);
-    }
     target.draw(*product, states);
 }
 
@@ -100,7 +91,7 @@ void Reaction_Interface::load(std::vector<Reaction> rxn, Player_Inventory& inven
 
     for (auto& r : reactions) {
         panels.push_back(Reaction_Panel(r, item_library, pos));
-        pos.y += 132.f;
+        pos.y += 74.f;
     }
     setScrollable(pos.y);
     check(inventory);
@@ -144,11 +135,27 @@ std::pair<Reaction*, std::shared_ptr<Item>> Reaction_Interface::click(sf::Vector
     assert(n == panels.size());
     for (size_t i = 0; i < n; i++) {
         if (panels[i].contains(mpos) && panels[i].isAvailable()) {
-            r = &reactions[i];
-            p = panels[i].getProduct();
+            //r = &reactions[i];
+            //p = panels[i].getProduct();
+            return std::make_pair(&reactions[i], panels[i].getProduct());
         }
     }
+    return std::make_pair(nullptr, nullptr);
+    return std::make_pair<Reaction*, std::shared_ptr<Item>>(nullptr, nullptr);
     return std::make_pair(r, p);
+}
+
+std::shared_ptr<Tooltip> Reaction_Interface::findTooltip(sf::Vector2f mpos)
+{
+
+    size_t n = reactions.size();
+    assert(n == panels.size());
+    for (size_t i = 0; i < n; i++) {
+        if (panels[i].contains(mpos)) {
+            return panels[i].tooltip;
+        }
+    }
+    return nullptr;
 }
 
 void Reaction_Interface::draw(sf::RenderTarget& target, sf::RenderStates states) const

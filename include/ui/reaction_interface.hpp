@@ -9,6 +9,7 @@
 #include <item/reaction.hpp>
 
 #include "scrollable.hpp"
+#include "tooltip.hpp"
 
 class Reaction_Panel : public sf::Drawable {
 public:
@@ -24,6 +25,8 @@ public:
     bool contains(sf::Vector2f mpos);
 
     std::shared_ptr<Item> getProduct();
+
+    std::shared_ptr<Tooltip> tooltip;
 
 private:
     bool available;
@@ -55,6 +58,8 @@ public:
     std::pair<Reaction*, std::shared_ptr<Item>> click(sf::Vector2f mpos);
 
     void checkInventory(Player_Inventory& inventory);
+
+    std::shared_ptr<Tooltip> findTooltip(sf::Vector2f mpos);
 
 private:
     std::vector<Reaction> reactions;
