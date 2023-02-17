@@ -8,6 +8,7 @@ enum class Item_Type {
     SEED,
     PLANT,
     BUILDING,
+    VEHICLE,
     NULL_TYPE
 };
 
@@ -32,6 +33,9 @@ inline Item_Type stringToItemType(std::string s)
         return Item_Type::PLANT;
     }
     else if (s == "BUILDING") {
+        return Item_Type::BUILDING;
+    }
+    else if (s == "VEHICLE") {
         return Item_Type::BUILDING;
     }
     else {

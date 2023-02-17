@@ -42,6 +42,9 @@ Item_Library::Item_Library()
             case 7:
                 texture = "LOOTABLE";
                 break;
+            case 10:
+                texture = "VEHICLE";
+                break;
             default:
                 texture = "ITEMS";
                 break;

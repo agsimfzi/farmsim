@@ -50,11 +50,6 @@ public:
 
     void loadDefaultReactions();
 
-    Minimap& getMinimap()
-    {
-        return minimap;
-    }
-
 private:
     sf::RenderWindow& window;
     Game& game;

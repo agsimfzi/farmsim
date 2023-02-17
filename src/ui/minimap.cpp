@@ -7,7 +7,31 @@ Minimap::Minimap()
     player_blip.setPointCount(4);
     player_blip.setFillColor(sf::Color(170,0,204));
 
+    mini_factor.x = mini_size.x / screen_size.x;
+    mini_factor.y = mini_size.y / screen_size.y;
+
+    full_factor.x = full_size.x / screen_size.x;
+    full_factor.y = full_size.y / screen_size.y;
+
+// close() MUST BE CALLED FOR INITIALIZATION
+// A SEGFAULT IS GUARANTEED OTHERWISE!
     close();
+
+    sf::Vector2f frame_offset(frame_border_size, frame_border_size);
+
+    mini_frame.setFillColor(sf::Color::White);
+    mini_frame.setOutlineColor(sf::Color::Black);
+    mini_frame.setOutlineThickness(frame_border_size);
+
+    mini_frame.setSize(mini_size - (2.f * frame_offset));
+    mini_frame.setPosition(screen_size.x - mini_size.x + frame_offset.x, frame_offset.y);
+
+    full_frame.setFillColor(sf::Color::White);
+    full_frame.setOutlineColor(sf::Color::Black);
+    full_frame.setOutlineThickness(frame_border_size);
+
+    full_frame.setSize(full_size - (2.f * frame_offset));
+    full_frame.setPosition(((screen_size - full_size) / 2.f) + frame_offset);
 }
 
 void Minimap::load(World& world)
@@ -79,35 +103,35 @@ void Minimap::update(sf::Vector2i player_coordinates)
 
 void Minimap::expand()
 {
-    sf::Vector2f size(1920.f, 1080.f);
-    sf::Vector2f factor;
-    factor.x = .8f;
-    factor.y = .8f;
-    view.setSize(size.x * factor.x, size.y * factor.y);
-    sf::Vector2f pos;
-    pos.x = (1.f - factor.x) / 2.f;
-    pos.y = (1.f - factor.y) / 2.f;
-    view.setViewport(sf::FloatRect(pos.x, pos.y, factor.x, factor.y));
+    view.setSize(full_size);
+    view.setCenter(player_coordinates.x, player_coordinates.y);
+    view.setViewport(sf::FloatRect((1.f - full_factor.x) / 2.f
+                                 , (1.f - full_factor.y) / 2.f
+                                 , full_factor.x
+                                 , full_factor.y));
 
     expanded = true;
-    dragging = false;
 
     float r = 12.f;
     player_blip.setRadius(r);
     player_blip.setOrigin(r, r);
+
+    float factor = 0.33f;
+    view.zoom(factor);
+    zoom_level = factor;
+
+    active_frame = &full_frame;
 }
 
 void Minimap::close()
 {
-    sf::Vector2f size(1920.f, 1080.f);
-    sf::Vector2f factor;
-    factor.x = 0.15f;
-    factor.y = (size.x * factor.x) / size.y;
-    view.setSize(size.x * factor.x, size.y * factor.y);
+    view.setSize(mini_size);
     view.setCenter(player_coordinates.x, player_coordinates.y);
-    view.setViewport(sf::FloatRect(1.f - factor.x, 0.f, factor.x, factor.y));
+    view.setViewport(sf::FloatRect(1.f - mini_factor.x, 0.f, mini_factor.x, mini_factor.y));
 
-    zoom_level = 1.f;
+    float factor = 0.67f;
+    view.zoom(factor);
+    zoom_level = factor;
 
     expanded = false;
     dragging = false;
@@ -115,6 +139,8 @@ void Minimap::close()
     float r = 4.f;
     player_blip.setRadius(r);
     player_blip.setOrigin(r, r);
+
+    active_frame = &mini_frame;
 }
 
 bool Minimap::isExpanded()
@@ -124,8 +150,10 @@ bool Minimap::isExpanded()
 
 void Minimap::startDrag()
 {
-    drag_pos = sf::Mouse::getPosition();
-    dragging = true;
+    if (expanded && !dragging) {
+        drag_pos = sf::Mouse::getPosition();
+        dragging = true;
+    }
 }
 
 void Minimap::endDrag()
@@ -160,6 +188,7 @@ void Minimap::zoom(float delta)
 
 void Minimap::draw(sf::RenderTarget& target, sf::RenderStates states) const
 {
+    target.draw(*active_frame, states);
     target.setView(view);
     target.draw(map, states);
     target.draw(player_blip, states);
