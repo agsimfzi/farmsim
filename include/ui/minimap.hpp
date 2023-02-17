@@ -23,7 +23,10 @@ public:
     void zoom(float delta);
 
 private:
-    sf::VertexArray map;
+    sf::Sprite map;
+    sf::Texture texture;
+
+
     sf::View view;
 
     sf::Vector2i player_coordinates;
