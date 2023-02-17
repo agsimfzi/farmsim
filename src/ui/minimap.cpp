@@ -64,10 +64,8 @@ void Minimap::load(World& world)
 
 void Minimap::update(sf::Vector2i player_coordinates)
 {
-    if (expanded) {
-        if (dragging) {
-            checkDrag();
-        }
+    if (expanded && dragging) {
+        checkDrag();
     }
     else if (this->player_coordinates != player_coordinates) {
         //sf::Vector2i diff = player_coordinates - this->player_coordinates;
@@ -94,7 +92,9 @@ void Minimap::expand()
     expanded = true;
     dragging = false;
 
-    player_blip.setRadius(16.f);
+    float r = 12.f;
+    player_blip.setRadius(r);
+    player_blip.setOrigin(r, r);
 }
 
 void Minimap::close()
@@ -107,10 +107,14 @@ void Minimap::close()
     view.setCenter(player_coordinates.x, player_coordinates.y);
     view.setViewport(sf::FloatRect(1.f - factor.x, 0.f, factor.x, factor.y));
 
+    zoom_level = 1.f;
+
     expanded = false;
     dragging = false;
 
-    player_blip.setRadius(4.f);
+    float r = 4.f;
+    player_blip.setRadius(r);
+    player_blip.setOrigin(r, r);
 }
 
 bool Minimap::isExpanded()
@@ -133,8 +137,9 @@ void Minimap::checkDrag()
 {
     if (dragging) {
         sf::Vector2i mpos = sf::Mouse::getPosition();
-        sf::Vector2i diff = drag_pos - mpos;
-        view.move(diff.x, diff.y);
+        sf::Vector2f diff(drag_pos - mpos);
+        diff *= zoom_level;
+        view.move(diff);
         drag_pos = mpos;
     }
 }
@@ -142,10 +147,14 @@ void Minimap::checkDrag()
 void Minimap::zoom(float delta)
 {
     if (delta < 0.f) {
-        view.zoom(1.1f);
+        float factor = 1.1f;
+        view.zoom(factor);
+        zoom_level *= factor;
     }
     else if (delta > 0.f) {
-        view.zoom(0.9f);
+        float factor = 0.9f;
+        view.zoom(factor);
+        zoom_level *= factor;
     }
 }
 

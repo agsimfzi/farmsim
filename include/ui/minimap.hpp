@@ -26,6 +26,7 @@ private:
     sf::Sprite map;
     sf::Texture texture;
 
+    float zoom_level = 1.f;
 
     sf::View view;
 
