@@ -45,16 +45,20 @@ public:
 
     sf::Vector2i* checkMouseTarget(sf::Vector2f mpos, sf::Vector2i playerCoords);
 
-    void useItem(Item* item);
+    bool useItem(Item* item);
 
     void useTool(Item* item);
     void hoe();
-    void water();
+    void water(Item* item);
     void axe(int factor);
     void pick(int factor);
     void hammer();
 
+    void useVehicle(Item* item);
+
     void plantCrop(Item* item);
+
+    void useBuilding(Item* item);
 
     void tick(sf::Vector2i player_coordinates);
 

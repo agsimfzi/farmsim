@@ -106,8 +106,9 @@ void Game::clickLeft()
 {
     std::shared_ptr<Item> equipped = player_inventory.equippedItem();
     if (equipped) {
-        world.useItem(equipped.get());
-        player_inventory.changed = true;
+        if (world.useItem(equipped.get())) {
+            player_inventory.changed = true;
+        }
     }
 }
 

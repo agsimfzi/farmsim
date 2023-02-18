@@ -80,22 +80,7 @@ void World::interact(Player_Inventory& player_inventory)
                 }
             } // END HARVEST
             else if (i) { // VALID ITEM
-                if (i->getType() == Item_Type::SEED && plantableTile(info)) { // SEED
-                    plantCrop(i.get());
-                }
-                if (f->detail == Detail_Type::WATER && i->getUID() == 1) { // watering can
-                    i->resetUses();
-                    player_inventory.changed = true;
-                }
-                else if (i->getType() == Item_Type::BUILDING && buildableTile(info)) { // PLACE BUILDING
-                    info.building = building_library(i->getUID());
-                    chunks.addBuilding(info.building.get(), t);
-                    player_inventory.takeEquipped();
-                    if (info.building->type == Building::MACHINE) {
-                        machines.push_back(std::dynamic_pointer_cast<Machine>(info.building));
-                    }
-                }
-                else if (info.building && info.building->type == Building::MACHINE) {
+                if (info.building && info.building->type == Building::MACHINE) {
                     auto m = std::dynamic_pointer_cast<Machine>(info.building);
                     m->addReagant(i);
                 }
@@ -416,20 +401,68 @@ std::vector<std::pair<Floor_Info, sf::FloatRect>> World::getLocalTiles(sf::Vecto
 
 }
 
-void World::useItem(Item* item)
+bool World::useItem(Item* item)
 {
-    switch (item->getType()) {
-        case Item_Type::TOOL:
-            useTool(item);
-            break;
+    bool used = true;
+    if (activeTile) {
+        switch (item->getType()) {
+            case Item_Type::TOOL:
+                useTool(item);
+                break;
+            case Item_Type::SEED:
+                plantCrop(item);
+                break;
+            case Item_Type::VEHICLE:
+                useVehicle(item);
+                break;
+            case Item_Type::BUILDING:
+                useBuilding(item);
+                break;
+            default:
+                used = false;
+                break;
+        }
+    }
+    return used;
+}
+
+void World::useBuilding(Item* item)
+{
+    sf::Vector2i t = *activeTile;
+    Floor_Info& info = tile_library[t.x][t.y];
+    if (buildableTile(info)) { // PLACE BUILDING
+        info.building = building_library(item->getUID());
+        chunks.addBuilding(info.building.get(), t);
+        item->take(1);
+        if (info.building->type == Building::MACHINE) {
+            machines.push_back(std::dynamic_pointer_cast<Machine>(info.building));
+        }
+    }
+}
+
+void World::useVehicle(Item* item)
+{
+    switch (item->getUID()) {
         default:
+            break;
+        case 10000: // boat
+            if (tile_library[activeTile->x][activeTile->y].detail == Detail_Type::WATER) {
+                vehicles.push_back(std::make_shared<Vehicle>(Vehicle::BOAT, chunks.floor(*activeTile)->getPosition()));
+                item->take(1);
+            }
+            break;
+        case 10001: // boat
+            if (emptyTile(*activeTile)) {
+                vehicles.push_back(std::make_shared<Vehicle>(Vehicle::BROOM, chunks.floor(*activeTile)->getPosition()));
+                item->take(1);
+            }
             break;
     }
 }
 
 void World::useTool(Item* item)
 {
-    if (activeTile && energy > 0) {
+    if (energy > 0) {
         energy_diff = item->useFactor();
         switch (item->getUID()) {
             default:
@@ -438,10 +471,7 @@ void World::useTool(Item* item)
                 hoe();
                 break;
             case 1: // watering can
-                if (item->usePercent() > 0) {
-                    water();
-                    item->reduceUses();
-                }
+                water(item);
                 break;
             case 2: // axe
                 axe(item->useFactor());
@@ -451,16 +481,6 @@ void World::useTool(Item* item)
                 break;
             case 4: // hammer
                 hammer();
-                break;
-            case 10000: // boat
-                if (emptyTile(*activeTile)) {
-                    vehicles.push_back(std::make_shared<Vehicle>(Vehicle::BOAT, chunks.floor(*activeTile)->getPosition()));
-                }
-                break;
-            case 10001: // boat
-                if (emptyTile(*activeTile)) {
-                    vehicles.push_back(std::make_shared<Vehicle>(Vehicle::BROOM, chunks.floor(*activeTile)->getPosition()));
-                }
                 break;
         }
     }
@@ -491,9 +511,15 @@ void World::hoe()
     }
 }
 
-void World::water()
+void World::water(Item* item)
 {
-    changeActiveTile(Floor_Type::TILLED, Floor_Type::WATERED);
+    if (tile_library[activeTile->x][activeTile->y].detail == Detail_Type::WATER) {
+        item->resetUses();
+    }
+    else if (item->usePercent() > 0) {
+        item->reduceUses();
+        changeActiveTile(Floor_Type::TILLED, Floor_Type::WATERED);
+    }
 }
 
 void World::axe(int factor)
@@ -589,7 +615,7 @@ void World::plantCrop(Item* item)
     // no need for a redundant check of activeTile, as that is handled in ::interact()
     sf::Vector2i t = *activeTile;
     Floor* f = chunks.floor(*activeTile);
-    if ((f->type == Floor_Type::TILLED
+    if (plantableTile(t) && (f->type == Floor_Type::TILLED
     || f->type == Floor_Type::WATERED)
     && !f->planted) {
         item->take(1);
@@ -602,6 +628,7 @@ void World::plantCrop(Item* item)
         }
         tileToLibrary(t);
     }
+
 }
 
 bool World::changeActiveTile(Floor_Type prereq, Floor_Type ntype)
