@@ -82,7 +82,7 @@ private:
     void checkTooltip(sf::RenderWindow& window);
 
     std::shared_ptr<Tooltip> active_tooltip;
-    sf::Vector2i tooltip_index;
+    sf::Vector2i tooltip_index{ -1, -1 };
     bool reaction_tooltip = false;
 
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;

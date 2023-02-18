@@ -39,18 +39,6 @@ void World::reset()
 
 void World::update(Player_Inventory& player_inventory, Player& player)
 {
-    if (tickClock.getElapsedTime().asSeconds() >= 0.1f) {
-        tickClock.restart();
-        tick();
-        chunks.check(player.getCoordinates(Tile::tileSize));
-        energy_add_index++;
-        if (energy_add_index >= energy_add_threshold
-         && player.energy < player.max_energy) {
-            energy_add_index = 0;
-            player.energy++;
-        }
-    }
-
     if (interacting) {
         interact(player_inventory);
     }
@@ -189,7 +177,7 @@ void World::makeBiomes()
             else {
                 info.floor = Floor_Type::DIRT;
 
-                if (prng::boolean(0.001f)) {
+                if (prng::boolean(0.003f)) {
                     info.rock = true;
                 }
                 else if (((info.biome == Biome::FOREST && prng::boolean(0.2f))
@@ -391,27 +379,41 @@ Map_Tile<Crop>& World::getCrops()
 
 std::vector<sf::FloatRect> World::getLocalImpassableTiles(sf::Vector2i p)
 {
-    std::vector<sf::FloatRect> tiles;
+    std::vector<sf::FloatRect> local_tiles;
 
     const static int depth = 1;
 
     for (int x = p.x - depth; x <= p.x + depth; ++x) {
         for (int y = p.y - depth; y <= p.y + depth; ++y) {
-            Tile* t = nullptr;// getWall(x, y);
-            if (t != nullptr) {
-                tiles.push_back(t->getGlobalBounds());
-            }
-            else {
-                sf::Vector2i c(x, y);
-                Floor* f = chunks.floor(c);
-                if (f && !passableTile(c)) {
-                    tiles.push_back(f->getGlobalBounds());
-                }
+            sf::Vector2i c(x, y);
+            Floor* f = chunks.floor(c);
+            if (f && !passableTile(c)) {
+                local_tiles.push_back(f->getGlobalBounds());
             }
         }
     }
 
-    return tiles;
+    return local_tiles;
+}
+
+std::vector<std::pair<Floor_Info, sf::FloatRect>> World::getLocalTiles(sf::Vector2i p)
+{
+    std::vector<std::pair<Floor_Info, sf::FloatRect>> local_tiles;
+
+    const static int depth = 1;
+
+    for (int x = p.x - depth; x <= p.x + depth; ++x) {
+        for (int y = p.y - depth; y <= p.y + depth; ++y) {
+            sf::Vector2i c(x, y);
+            Floor* f = chunks.floor(c);
+            if (f) {
+                local_tiles.push_back(std::make_pair(tile_library[x][y], f->getGlobalBounds()));
+            }
+        }
+    }
+
+    return local_tiles;
+
 }
 
 void World::useItem(Item* item)
@@ -449,6 +451,16 @@ void World::useTool(Item* item)
                 break;
             case 4: // hammer
                 hammer();
+                break;
+            case 10000: // boat
+                if (emptyTile(*activeTile)) {
+                    vehicles.push_back(std::make_shared<Vehicle>(Vehicle::BOAT, chunks.floor(*activeTile)->getPosition()));
+                }
+                break;
+            case 10001: // boat
+                if (emptyTile(*activeTile)) {
+                    vehicles.push_back(std::make_shared<Vehicle>(Vehicle::BROOM, chunks.floor(*activeTile)->getPosition()));
+                }
                 break;
         }
     }
@@ -531,28 +543,28 @@ void World::pick(int factor)
                     std::string key = "stone";
                     size_t count = prng::number(2, 4);
                     unsigned int ore_roll = prng::number(0u, 100u);
-                    if (ore_roll < 20) {
-                        key = "coal";
-                        count = prng::number(3, 7);
-                    }
-                    if (ore_roll < 12) {
+                    if (ore_roll < 15) {
                         key = "copper ore";
                         count = prng::number(3, 4);
                     }
-                    else if (ore_roll < 18) {
+                    else if (ore_roll < 27) {
                         key = "iron ore";
                         count = prng::number(2, 3);
                     }
-                    else if (ore_roll < 21) {
+                    else if (ore_roll < 36) {
                         key = "gold ore";
                         count = prng::number(1, 2);
                     }
                     std::shared_ptr<Item> item = std::make_shared<Item>(*item_library.item(key));
                     chunks.addItem(item, count, t);
+
+                    if (prng::boolean()) { // INDEPENDENT COAL-SPAWN CHANCE
+                        std::shared_ptr<Item> item = std::make_shared<Item>(*item_library.item("coal"));
+                        chunks.addItem(item, prng::number(3, 7), t);
+                    }
                 }
             }
         }
-        // check for rocks or whatever
     }
 }
 
@@ -608,7 +620,7 @@ bool World::changeActiveTile(Floor_Type prereq, Floor_Type ntype)
     return change;
 }
 
-void World::tick()
+void World::tick(sf::Vector2i player_coordinates)
 {
     for (auto& x : crops) {
         for (auto& y : x.second) {
@@ -626,6 +638,8 @@ void World::tick()
             m++;
         }
     }
+
+    chunks.check(player_coordinates);
 }
 
 void World::setInteracting(bool interacting)
@@ -778,5 +792,9 @@ void World::draw(sf::RenderTarget& target, sf::RenderStates states) const
         for (const auto& c : r.second) {
             target.draw(c.second, states);
         }
+    }
+
+    for (const auto& v : vehicles) {
+        target.draw(*v, states);
     }
 }

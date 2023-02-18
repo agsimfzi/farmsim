@@ -12,6 +12,8 @@ Game::Game(sf::View& nview)
     : view { nview }
 {
     player = Player(Database::getPlayerData(), Texture_Manager::get("PLAYER"));
+
+    giveItemToPlayer("boat");
 /*
     giveItemToPlayer("furnace");
     giveItemToPlayer("copper ore", 50);
@@ -46,9 +48,34 @@ void Game::giveItemToPlayer(size_t uid, size_t count)
 
 void Game::update(float deltaTime)
 {
+    if (tick_clock.getElapsedTime().asSeconds() >= 0.1f) {
+        tick_clock.restart();
+        tick();
+    }
 
     player.update();
-    view.move(player.move(world.getLocalImpassableTiles(player.getCoordinates(Tile::tileSize)), deltaTime));
+    std::vector<sf::FloatRect> local_blocks;
+    std::vector<std::pair<Floor_Info, sf::FloatRect>> local_tiles;
+    size_t n;
+    switch (player.vehicle) {
+        case Vehicle::NULL_VEHICLE:
+            local_blocks = world.getLocalImpassableTiles(player.getCoordinates(Tile::tileSize));
+            break;
+        case Vehicle::BOAT:
+            local_tiles = world.getLocalTiles(player.getCoordinates(Tile::tileSize));
+            n = local_tiles.size();
+            for (size_t i = 0; i < n; i++) {
+                if (local_tiles[i].first.detail == Detail_Type::WATER) {
+                    local_blocks.push_back(local_tiles[i].second);
+                }
+            }
+            break;
+        default:
+            // brooms can pass anything so nothing needs to be passed!
+            break;
+    }
+    view.move(player.move(local_blocks, deltaTime));
+    // view.move(player.move(world.getLocalTiles(player.getCoordinates(Tile::tileSize)), deltaTime));
 
     player_inventory.update();
     world.update(player_inventory, player);
@@ -147,6 +174,12 @@ int Game::playerEnergy()
 Item_Library& Game::getItemLibrary()
 {
     return item_library;
+}
+
+void Game::tick()
+{
+    player.tick();
+    world.tick(player.getCoordinates(Tile::tileSize));
 }
 
 void Game::draw(sf::RenderTarget& target, sf::RenderStates states) const

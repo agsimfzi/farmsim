@@ -24,6 +24,8 @@ Inventory_Cell::Inventory_Cell(std::shared_ptr<Item> i)
     deactivate();
     numberText.setFont(Font_Manager::get(Font::UI));
     numberText.setFillColor(sf::Color::Black);
+    numberText.setOutlineColor(sf::Color::White);
+    numberText.setOutlineThickness(2.f);
 
     use_bar.setFillColor(colorUseBar);
 }

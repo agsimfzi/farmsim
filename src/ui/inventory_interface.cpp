@@ -66,23 +66,24 @@ void Inventory_Interface::checkTooltip(sf::RenderWindow& window)
             if (t != active_tooltip) {
                 active_tooltip = t;
             }
-
+/*
             if (!active_tooltip && moused.x >= 0 && moused.y >= 0) {
                 std::shared_ptr<Item> item = cells[moused.x][moused.y].getItem();
                 if (item) {
                     active_tooltip = std::make_shared<Tooltip>(item);
                 }
-            }
+            }*/
         }
         else if (moused.x < 0 && moused.y < 0) {
             active_tooltip = reaction_interface.findTooltip(fMouse(window, reaction_interface.getView()));
         }
         else {
             if (tooltip_index != moused) {
+                active_tooltip.reset();
                 std::shared_ptr<Item> item = cells[moused.x][moused.y].getItem();
                 if (item) {
-                    active_tooltip.reset();
                     active_tooltip = std::make_shared<Tooltip>(item);
+                    tooltip_index = moused;
                 }
             }
         }
@@ -93,12 +94,14 @@ void Inventory_Interface::checkTooltip(sf::RenderWindow& window)
             std::shared_ptr<Item> item = cells[moused.x][moused.y].getItem();
             if (item) {
                 active_tooltip = std::make_shared<Tooltip>(item);
+                tooltip_index = moused;
             }
         }
         else {
             std::shared_ptr<Tooltip> t = reaction_interface.findTooltip(fMouse(window, reaction_interface.getView()));
             if (t) {
                 active_tooltip = t;
+                tooltip_index = moused;
             }
             // check reaction panels
         }
@@ -179,7 +182,7 @@ void Inventory_Interface::placeCells()
     pos.x = max_x + 256.f;
     pos.y -= 512.f;
 
-    sf::Vector2f size(86.f, 512.f);
+    sf::Vector2f size(416.f, 512.f);
 
     reaction_interface.setView(pos, size);
 }

@@ -8,7 +8,18 @@ Player::Player() { }
 
 Player::Player(Entity_Data e, sf::Texture& texture)
     : Entity(e, texture)
+{}
+
+void Player::tick()
 {
+    energy_add_index++;
+    if (energy_add_index >= energy_add_threshold) {
+        energy_add_index = 0;
+        energy += 100;
+        if (energy > max_energy) {
+            energy = max_energy;
+        }
+    }
 }
 
 void Player::update()

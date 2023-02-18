@@ -7,6 +7,7 @@
 #include <animation/animated_sprite.hpp>
 
 #include <world/direction.hpp>
+#include <world/vehicle.hpp>
 
 #include "entity_data.hpp"
 #include "entity_state.hpp"
@@ -48,6 +49,8 @@ public:
 
     const std::string& getName() const;
     const std::string& getDescription() const;
+
+    Vehicle::Type vehicle = Vehicle::NULL_VEHICLE;
 
 protected:
     Entity_State state = Entity_State::IDLE;

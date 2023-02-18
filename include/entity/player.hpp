@@ -32,6 +32,11 @@ public:
     int energy{ 1000 };
     int max_energy{ 1000 };
 
+    void tick();
+
 private:
     unsigned int equipped = 0;
+
+    size_t energy_add_threshold = 15;
+    size_t energy_add_index = 0;
 };

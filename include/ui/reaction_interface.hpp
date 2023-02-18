@@ -14,7 +14,7 @@
 class Reaction_Panel : public sf::Drawable {
 public:
     Reaction_Panel() = delete;
-    Reaction_Panel(Reaction& rxn, Item_Library& item_library, sf::Vector2f pos);
+    Reaction_Panel(Reaction& rxn, Item_Library& item_library, sf::Vector2f pos, float size_x);
 
     ~Reaction_Panel();
 
@@ -30,6 +30,8 @@ public:
 
 private:
     bool available;
+
+    sf::Text name;
 
     std::vector<std::shared_ptr<Item>> reagants;
     std::shared_ptr<Item> product;

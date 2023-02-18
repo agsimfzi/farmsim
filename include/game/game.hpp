@@ -57,6 +57,8 @@ public:
 
     Item_Library& getItemLibrary();
 
+    void tick();
+
 private:
     Item_Library item_library;
 
@@ -68,6 +70,8 @@ private:
     sf::View& view;
 
     Game_State state { Game_State::PEACE };
+
+    sf::Clock tick_clock;
 
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
 };

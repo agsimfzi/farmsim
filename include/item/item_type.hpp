@@ -36,7 +36,7 @@ inline Item_Type stringToItemType(std::string s)
         return Item_Type::BUILDING;
     }
     else if (s == "VEHICLE") {
-        return Item_Type::BUILDING;
+        return Item_Type::VEHICLE;
     }
     else {
         return Item_Type::NULL_TYPE;

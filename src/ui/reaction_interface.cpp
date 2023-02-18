@@ -10,21 +10,30 @@ const sf::Color Reaction_Panel::color_bg_available = sf::Color(230, 209, 135);
 const sf::Color Reaction_Panel::color_bg_unavailable = sf::Color(82, 82, 82);
 const float Reaction_Panel::outline_thickness = 1.f;
 
-Reaction_Panel::Reaction_Panel(Reaction& rxn, Item_Library& item_library, sf::Vector2f pos)
+Reaction_Panel::Reaction_Panel(Reaction& rxn, Item_Library& item_library, sf::Vector2f pos, float size_x)
 {
-    frame.setPosition(pos);
-    frame.setSize(sf::Vector2f(66.f, 66.f));
+    sf::Vector2f frame_size(size_x, 66.f);
+    frame.setSize(frame_size);
     frame.setOutlineThickness(outline_thickness);
     frame.setOutlineColor(sf::Color::Black);
+    frame.setPosition(pos);
 
-    pos += (frame.getSize() / 2.f);
+    product = item_library.shared(rxn.product);
+    sf::Vector2f product_pos(pos);
+    product_pos.x += size_x;
+    product_pos += sf::Vector2f(-33.f, 33.f);
+    product->setPosition(product_pos);
+
+    pos += sf::Vector2f(4.f, 4.f);
+    name.setPosition(pos);
+    name.setString(rxn.product);
+    name.setFont(Font_Manager::get(Font::UI));
+    name.setFillColor(sf::Color::Black);
+    name.setCharacterSize(32);
 
     for (auto& r : rxn.reagants) {
         reagants.push_back(item_library.shared(r.name));
     }
-
-    product = item_library.shared(rxn.product);
-    product->setPosition(pos);
 
     if (product) {
         std::cout << "\tloaded product from reaction " << rxn.name << ": " << product->getName() << "!\n";
@@ -75,6 +84,7 @@ std::shared_ptr<Item> Reaction_Panel::getProduct()
 void Reaction_Panel::draw(sf::RenderTarget& target, sf::RenderStates states) const
 {
     target.draw(frame, states);
+    target.draw(name, states);
     target.draw(*product, states);
 }
 
@@ -87,10 +97,13 @@ void Reaction_Interface::load(std::vector<Reaction> rxn, Player_Inventory& inven
 
     panels.clear();
 
+    float size_x = view.getSize().x - 20.f;
+    std::cout << "\n\nCOMPUTED VIEW X-SIZE OF REACTION INTERFACE IS " << size_x << "\n\n";
+
     sf::Vector2f pos(4.f, 4.f);
 
     for (auto& r : reactions) {
-        panels.push_back(Reaction_Panel(r, item_library, pos));
+        panels.push_back(Reaction_Panel(r, item_library, pos, size_x));
         pos.y += 74.f;
     }
     setScrollable(pos.y);

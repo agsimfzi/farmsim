@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string>
+
 enum class Floor_Type {
     DIRT = 0,
     TILLED,

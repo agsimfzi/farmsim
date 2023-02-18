@@ -21,6 +21,7 @@
 #include "chunk_loader.hpp"
 #include "tile.hpp"
 #include "tile_info.hpp"
+#include "vehicle.hpp"
 
 /////////////////////////////////////////////////////////////
 /// \brief
@@ -38,6 +39,7 @@ public:
     Map_Tile<Crop>& getCrops();
 
     std::vector<sf::FloatRect> getLocalImpassableTiles(sf::Vector2i p);
+    std::vector<std::pair<Floor_Info, sf::FloatRect>> getLocalTiles(sf::Vector2i p);
 
     void update(Player_Inventory& inventory, Player& player);
 
@@ -54,7 +56,7 @@ public:
 
     void plantCrop(Item* item);
 
-    void tick();
+    void tick(sf::Vector2i player_coordinates);
 
     void setInteracting(bool interacting);
 
@@ -110,18 +112,15 @@ private:
 
     bool inRange(sf::Vector2i c1, sf::Vector2i c2);
 
-    sf::Clock tickClock;
-
     std::unique_ptr<sf::Vector2i> activeTile;
 
     std::vector<std::shared_ptr<Machine>> machines;
 
+    std::vector<std::shared_ptr<Vehicle>> vehicles;
+
     sf::Vector2i start_coords;
 
     bool pickup_all = false;
-
-    size_t energy_add_threshold = 15;
-    size_t energy_add_index = 0;
 
     void autotile(sf::Vector2i start, sf::Vector2i end, Detail_Type type);
     int autotileX(sf::Vector2i i, Detail_Type type);

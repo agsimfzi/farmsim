@@ -2,7 +2,7 @@
 
 #include "item_type.hpp"
 
-    class Item_Data {
+class Item_Data {
 public:
     size_t uid;
     std::string name;
