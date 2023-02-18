@@ -15,6 +15,7 @@ Entity::Entity(Entity_Data& data, sf::Texture& texture)
     description = data.description;
 
     velocity = sf::Vector2f(0.f, 0.f);
+    base_speed = data.speed;
     speed_orthogonal = data.speed;
     speed_diagonal = speed_orthogonal * SQRT2_INV;
 
@@ -261,6 +262,37 @@ const std::string& Entity::getName() const
 const std::string& Entity::getDescription() const
 {
     return description;
+}
+
+Vehicle::Type Entity::getVehicle()
+{
+    return vehicle;
+}
+
+void Entity::setVehicle(Vehicle* v)
+{
+    if (!v) {
+        vehicle = Vehicle::NULL_VEHICLE;
+    }
+    else {
+     vehicle = v->type;
+    }
+    float speed_factor = 1.f;
+    switch (vehicle) {
+        case Vehicle::BOAT:
+            // will also need to modify the bounding box...
+            speed_factor = 1.5f;
+            setPosition(v->getPosition());
+            break;
+        case Vehicle::BROOM:
+            speed_factor = 2.f;
+            setPosition(v->getPosition());
+            break;
+        case Vehicle::NULL_VEHICLE:
+            break;
+    }
+    speed_orthogonal = base_speed * speed_factor;
+    speed_diagonal = speed_orthogonal * SQRT2_INV;
 }
 
 void Entity::placeBounds()

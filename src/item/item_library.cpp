@@ -28,18 +28,21 @@ Item_Library::Item_Library()
                 texture = "PLANTS";
                 break;
             case 3:
-                texture = "CONTAINER";
+                texture = "RAW_MATERIAL";
                 break;
             case 4:
-                texture = "CRAFTING";
+                texture = "CONTAINER";
                 break;
             case 5:
-                texture = "FURNITURE";
+                texture = "CRAFTING";
                 break;
             case 6:
-                texture = "MACHINE";
+                texture = "FURNITURE";
                 break;
             case 7:
+                texture = "MACHINE";
+                break;
+            case 8:
                 texture = "LOOTABLE";
                 break;
             case 10:

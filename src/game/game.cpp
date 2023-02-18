@@ -14,22 +14,7 @@ Game::Game(sf::View& nview)
     player = Player(Database::getPlayerData(), Texture_Manager::get("PLAYER"));
 
     giveItemToPlayer("boat");
-/*
-    giveItemToPlayer("furnace");
-    giveItemToPlayer("copper ore", 50);
-    giveItemToPlayer("iron ore", 50);
-    giveItemToPlayer("gold ore", 50);
-
-    giveItemToPlayer(100, 25);
-
-    giveItemToPlayer(5001);
-
-    giveItemToPlayer(("chest"));
-
-    giveItemToPlayer(121, 50);
-
-    giveItemToPlayer("crate");
-*/
+    giveItemToPlayer("broom");
 }
 
 void Game::giveItemToPlayer(std::string name, size_t count)
@@ -57,7 +42,7 @@ void Game::update(float deltaTime)
     std::vector<sf::FloatRect> local_blocks;
     std::vector<std::pair<Floor_Info, sf::FloatRect>> local_tiles;
     size_t n;
-    switch (player.vehicle) {
+    switch (player.getVehicle()) {
         case Vehicle::NULL_VEHICLE:
             local_blocks = world.getLocalImpassableTiles(player.getCoordinates(Tile::tileSize));
             break;
@@ -65,20 +50,32 @@ void Game::update(float deltaTime)
             local_tiles = world.getLocalTiles(player.getCoordinates(Tile::tileSize));
             n = local_tiles.size();
             for (size_t i = 0; i < n; i++) {
-                if (local_tiles[i].first.detail == Detail_Type::WATER) {
+                if (local_tiles[i].first.detail != Detail_Type::WATER) {
+                    local_blocks.push_back(local_tiles[i].second);
+                }
+            }
+            break;
+        case Vehicle::BROOM:
+            local_tiles = world.getLocalTiles(player.getCoordinates(Tile::tileSize));
+            n = local_tiles.size();
+            for (size_t i = 0; i < n; i++) {
+                if (local_tiles[i].first.biome == Biome::NULL_TYPE) {
                     local_blocks.push_back(local_tiles[i].second);
                 }
             }
             break;
         default:
-            // brooms can pass anything so nothing needs to be passed!
             break;
     }
-    view.move(player.move(local_blocks, deltaTime));
-    // view.move(player.move(world.getLocalTiles(player.getCoordinates(Tile::tileSize)), deltaTime));
+    sf::Vector2f offset = player.move(local_blocks, deltaTime);
+    if (active_vehicle) {
+        active_vehicle->move(offset);
+    }
 
     player_inventory.update();
     world.update(player_inventory, player);
+
+    view.setCenter(player.getPosition());
 }
 
 Player& Game::getPlayer()
@@ -106,7 +103,7 @@ void Game::clickLeft()
 {
     std::shared_ptr<Item> equipped = player_inventory.equippedItem();
     if (equipped) {
-        if (world.useItem(equipped.get())) {
+        if (world.useItem(equipped)) {
             player_inventory.changed = true;
         }
     }
@@ -119,12 +116,13 @@ void Game::releaseLeft()
 
 void Game::clickRight()
 {
-    world.setInteracting(true);
+    world.interact(player, player_inventory, active_vehicle);
+    // world.setInteracting(true);
 }
 
 void Game::releaseRight()
 {
-    world.setInteracting(false);
+    // world.setInteracting(false);
 }
 
 void Game::escape()

@@ -39,10 +39,6 @@ void World::reset()
 
 void World::update(Player_Inventory& player_inventory, Player& player)
 {
-    if (interacting) {
-        interact(player_inventory);
-    }
-
     checkPickup(player_inventory, player);
 
     player.energy -= energyDiff();
@@ -52,12 +48,38 @@ void World::update(Player_Inventory& player_inventory, Player& player)
     energy = player.energy;
 }
 
-void World::interact(Player_Inventory& player_inventory)
+void World::interact(Player& player, Player_Inventory& player_inventory, std::shared_ptr<Vehicle>& active_vehicle)
 {
     if (activeTile) {
         sf::Vector2i t = *activeTile;
         Floor* f = chunks.floor(*activeTile);
         Floor_Info& info = tile_library[t.x][t.y];
+        if (active_vehicle) { // CHECK FOR VEHICLE DISMOUNT
+            if (emptyTile(info) && emptyTile(player.getCoordinates(Tile::tileSize))) {
+                player.setVehicle(nullptr);
+                player.setPosition(f->getPosition());
+                vehicles.push_back(active_vehicle);
+                active_vehicle = nullptr;
+            }
+        }
+        else { // CHECK FOR VEHICLE MOUNT
+            for (auto v = vehicles.begin(); v != vehicles.end();) {
+                if ((*v) && f->getGlobalBounds().contains((*v)->getPosition())) {
+                    player.setVehicle((*v).get());
+                    active_vehicle = (*v);
+                    vehicles.erase(v);
+                    return;
+                }
+                else {
+                    v++;
+                }
+            }
+
+            // CHECK FOR MACHINE INTERACTION
+
+            // INHERIT "INTERACTABLE" FROM BOTH OBJECTS
+            // IMPLEMENT AN OPTIONAL CALLBACK
+        }
         if (f) {
             std::shared_ptr<Item> i = player_inventory.equippedItem();
             if (info.building && info.building->type == Building::MACHINE) { // PICKUP PRODUCTS
@@ -79,12 +101,6 @@ void World::interact(Player_Inventory& player_inventory)
                     f->planted = false;
                 }
             } // END HARVEST
-            else if (i) { // VALID ITEM
-                if (info.building && info.building->type == Building::MACHINE) {
-                    auto m = std::dynamic_pointer_cast<Machine>(info.building);
-                    m->addReagant(i);
-                }
-            } // END VALID ITEM
         }
     }
 }
@@ -339,7 +355,8 @@ int World::autotileX(bool n, bool w, bool s, bool e)
 
 bool World::adjacentDetailMatch(sf::Vector2i i, Detail_Type type)
 {
-    return (validLibraryTile(i.x, i.y) && tile_library[i.x][i.y].detail == type);
+    return (validLibraryTile(i.x, i.y)
+        && (tile_library[i.x][i.y].detail == type || tile_library[i.x][i.y].biome == Biome::NULL_TYPE));
 }
 
 bool World::adjacentBiomeMatch(sf::Vector2i i, Biome type)
@@ -401,7 +418,7 @@ std::vector<std::pair<Floor_Info, sf::FloatRect>> World::getLocalTiles(sf::Vecto
 
 }
 
-bool World::useItem(Item* item)
+bool World::useItem(std::shared_ptr<Item> item)
 {
     bool used = true;
     if (activeTile) {
@@ -418,6 +435,10 @@ bool World::useItem(Item* item)
             case Item_Type::BUILDING:
                 useBuilding(item);
                 break;
+            case Item_Type::RAW_MATERIAL:
+                useRawMaterial(item);
+                break;
+
             default:
                 used = false;
                 break;
@@ -426,7 +447,16 @@ bool World::useItem(Item* item)
     return used;
 }
 
-void World::useBuilding(Item* item)
+void World::useRawMaterial(std::shared_ptr<Item> item)
+{
+    Floor_Info& info = tile_library[activeTile->x][activeTile->y];
+    if (info.building && info.building->type == Building::MACHINE) {
+        auto m = std::dynamic_pointer_cast<Machine>(info.building);
+        m->addReagant(item);
+    }
+}
+
+void World::useBuilding(std::shared_ptr<Item> item)
 {
     sf::Vector2i t = *activeTile;
     Floor_Info& info = tile_library[t.x][t.y];
@@ -440,7 +470,7 @@ void World::useBuilding(Item* item)
     }
 }
 
-void World::useVehicle(Item* item)
+void World::useVehicle(std::shared_ptr<Item> item)
 {
     switch (item->getUID()) {
         default:
@@ -460,7 +490,7 @@ void World::useVehicle(Item* item)
     }
 }
 
-void World::useTool(Item* item)
+void World::useTool(std::shared_ptr<Item> item)
 {
     if (energy > 0) {
         energy_diff = item->useFactor();
@@ -511,7 +541,7 @@ void World::hoe()
     }
 }
 
-void World::water(Item* item)
+void World::water(std::shared_ptr<Item> item)
 {
     if (tile_library[activeTile->x][activeTile->y].detail == Detail_Type::WATER) {
         item->resetUses();
@@ -610,7 +640,7 @@ void World::hammer()
     }
 }
 
-void World::plantCrop(Item* item)
+void World::plantCrop(std::shared_ptr<Item> item)
 {
     // no need for a redundant check of activeTile, as that is handled in ::interact()
     sf::Vector2i t = *activeTile;
@@ -778,7 +808,8 @@ bool World::emptyTile(Floor_Info& info)
             && !info.rock
             && !info.building
             && info.detail != Detail_Type::WATER
-            && info.detail != Detail_Type::LAVA);
+            && info.detail != Detail_Type::LAVA
+            && info.biome != Biome::NULL_TYPE);
 }
 
 bool World::buildableTile(sf::Vector2i i)

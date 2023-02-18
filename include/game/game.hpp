@@ -73,5 +73,7 @@ private:
 
     sf::Clock tick_clock;
 
+    std::shared_ptr<Vehicle> active_vehicle{ nullptr };
+
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
 };

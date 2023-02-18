@@ -50,7 +50,8 @@ public:
     const std::string& getName() const;
     const std::string& getDescription() const;
 
-    Vehicle::Type vehicle = Vehicle::NULL_VEHICLE;
+    Vehicle::Type getVehicle();
+    void setVehicle(Vehicle* v);
 
 protected:
     Entity_State state = Entity_State::IDLE;
@@ -88,4 +89,8 @@ protected:
          down = false,
          left = false,
          right = false;
+
+    Vehicle::Type vehicle = Vehicle::NULL_VEHICLE;
+
+    float base_speed;
 };

@@ -45,26 +45,28 @@ public:
 
     sf::Vector2i* checkMouseTarget(sf::Vector2f mpos, sf::Vector2i playerCoords);
 
-    bool useItem(Item* item);
+    bool useItem(std::shared_ptr<Item> item);
 
-    void useTool(Item* item);
+    void useTool(std::shared_ptr<Item> item);
     void hoe();
-    void water(Item* item);
+    void water(std::shared_ptr<Item> item);
     void axe(int factor);
     void pick(int factor);
     void hammer();
 
-    void useVehicle(Item* item);
+    void useVehicle(std::shared_ptr<Item> item);
 
-    void plantCrop(Item* item);
+    void plantCrop(std::shared_ptr<Item> item);
 
-    void useBuilding(Item* item);
+    void useBuilding(std::shared_ptr<Item> item);
+
+    void useRawMaterial(std::shared_ptr<Item> item);
 
     void tick(sf::Vector2i player_coordinates);
 
     void setInteracting(bool interacting);
 
-    void interact(Player_Inventory& inventory);
+    void interact(Player& player, Player_Inventory& inventory, std::shared_ptr<Vehicle>& active_vehicle);
 
     sf::Vector2i posToCoords(sf::Vector2f pos);
 
