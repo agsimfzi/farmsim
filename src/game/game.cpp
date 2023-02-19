@@ -184,5 +184,8 @@ void Game::tick()
 void Game::draw(sf::RenderTarget& target, sf::RenderStates states) const
 {
     target.draw(world, states);
+    if (active_vehicle) {
+        target.draw(*active_vehicle, states);
+    }
     target.draw(player, states);
 }

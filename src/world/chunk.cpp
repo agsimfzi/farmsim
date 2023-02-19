@@ -2,6 +2,7 @@
 
 #include <resources/Texture_Manager.hpp>
 
+#include <util/primordial.hpp>
 #include <util/vector2_stream.hpp>
 
 Chunk::Chunk(sf::Vector2i start, sf::Vector2i size, Map_Tile<Floor_Info>& info)
@@ -11,6 +12,10 @@ Chunk::Chunk(sf::Vector2i start, sf::Vector2i size, Map_Tile<Floor_Info>& info)
         for (int y = 0; y < size.y; y++) {
             sf::Vector2i c(x, y);
             c += start;
+            if (info[c.x][c.y].floor == Floor_Type::NULL_TYPE) {
+                info[c.x][c.y].texture_pos = sf::Vector2i(0, (static_cast<int>(info[x][y].floor)) * roundFloat(Tile::tileSize));
+                info[c.x][c.y].detail_pos = sf::Vector2i(0, 0);
+            }
             std::string tkey = "FLOOR";
             Floor_Info& i = info[c.x][c.y];
             auto& f = floor[c.x][c.y];

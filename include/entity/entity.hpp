@@ -43,7 +43,7 @@ public:
     void unmoveX();
     void unmoveY();
 
-    Animated_Sprite& getSprite();
+    Animated_Sprite<Entity_State>& getSprite();
 
     Entity_State getState();
 
@@ -57,7 +57,7 @@ protected:
     Entity_State state = Entity_State::IDLE;
     Entity_State lastState = Entity_State::IDLE;
 
-    Animated_Sprite sprite;
+    Animated_Sprite<Entity_State> sprite;
 
     std::string name;
     std::string description;

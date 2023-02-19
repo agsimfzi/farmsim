@@ -10,8 +10,8 @@
 struct Floor_Info {
     sf::Vector2i coordinates;
     bool planted = false;
-    Biome biome;
-    Floor_Type floor;
+    Biome biome{ Biome::NULL_TYPE };
+    Floor_Type floor{ Floor_Type::NULL_TYPE };
     Detail_Type detail{ Detail_Type::NULL_TYPE };
     sf::Vector2i texture_pos;
     sf::Vector2i detail_pos;

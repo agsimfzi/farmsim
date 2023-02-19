@@ -170,6 +170,10 @@ void World::makeBiomes()
             }
             else if (info.biome == Biome::BEACH) {
                 info.floor = Floor_Type::SAND;
+
+                if (prng::boolean(0.0005f)) {
+                    info.rock = true;
+                }
             }
             else if (info.biome == Biome::VOLCANO) {
                 info.floor = Floor_Type::BASALT;
@@ -177,11 +181,15 @@ void World::makeBiomes()
             else if (info.biome == Biome::CALDERA) {
                 info.floor = Floor_Type::BASALT;
                 info.detail = Detail_Type::LAVA;
+
+                if (prng::boolean(0.004f)) {
+                    info.rock = true;
+                }
             }
             else {
                 info.floor = Floor_Type::DIRT;
 
-                if (prng::boolean(0.003f)) {
+                if (prng::boolean(0.002f)) {
                     info.rock = true;
                 }
                 else if (((info.biome == Biome::FOREST && prng::boolean(0.2f))

@@ -121,7 +121,7 @@ void Entity::move(sf::Vector2f v)
     sprite.move(v);
 }
 
-Animated_Sprite& Entity::getSprite()
+Animated_Sprite<Entity_State>& Entity::getSprite()
 {
     return sprite;
 }
@@ -230,7 +230,7 @@ void Entity::setVelocity()
     if (velocity.x == 0.f && velocity.y == 0.f) {
         setState(Entity_State::IDLE);
     }
-    else if (sprite.getAnimationState() != Entity_State::MOVING
+    else if (sprite.getState() != Entity_State::MOVING
         && (velocity.x != 0.f || velocity.y != 0.f)) {
         setState(Entity_State::MOVING);
         setSpriteDirection();
