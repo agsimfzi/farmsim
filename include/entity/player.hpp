@@ -34,9 +34,22 @@ public:
 
     void tick();
 
+    void resetItemUseIndex();
+
 private:
     unsigned int equipped = 0;
 
-    size_t energy_add_threshold = 15;
     size_t energy_add_index = 0;
+    size_t energy_add_threshold = 15;
+    size_t energy_threshold_factor = 1;
+    size_t energy_restore = 5;
+    size_t energy_restore_factor = 1;
+
+    size_t item_use_index = 0;
+    size_t item_use_threshold = 4;
+
+    sf::Clock still_timer;
+    float still_timer_threshold = 3.f;
+
+    void checkEnergyFactor();
 };

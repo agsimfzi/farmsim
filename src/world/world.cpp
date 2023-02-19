@@ -41,11 +41,14 @@ void World::update(Player_Inventory& player_inventory, Player& player)
 {
     checkPickup(player_inventory, player);
 
-    player.energy -= energyDiff();
-    if (player.energy < 0) {
-        player.energy = 0;
+    if (energy_diff != 0) {
+        player.energy -= energyDiff();
+        player.resetItemUseIndex();
+        if (player.energy < 0) {
+            player.energy = 0;
+        }
+        energy = player.energy;
     }
-    energy = player.energy;
 }
 
 void World::interact(Player& player, Player_Inventory& player_inventory, std::shared_ptr<Vehicle>& active_vehicle)

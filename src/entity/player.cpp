@@ -1,6 +1,6 @@
 #include <entity/player.hpp>
 
-#include <item/item_library.hpp>
+//#include <item/item_library.hpp>
 
 //////////////////////////////////////////////////////////////
 
@@ -15,9 +15,13 @@ void Player::tick()
     energy_add_index++;
     if (energy_add_index >= energy_add_threshold) {
         energy_add_index = 0;
-        energy += 100;
-        if (energy > max_energy) {
-            energy = max_energy;
+        item_use_index++;
+        if (item_use_index >= item_use_threshold) {
+            item_use_index = item_use_threshold;
+            energy += energy_restore * energy_restore_factor;
+            if (energy > max_energy) {
+                energy = max_energy;
+            }
         }
     }
 }
@@ -25,6 +29,20 @@ void Player::tick()
 void Player::update()
 {
     Entity::update();
+    checkEnergyFactor();
+}
+
+void Player::checkEnergyFactor()
+{
+    if (vehicle == Vehicle::BOAT) {
+        energy_restore_factor = 4;
+    }
+    else if (!up && !down && !left && !right && still_timer.getElapsedTime().asSeconds() >= still_timer_threshold) {
+        energy_restore_factor = 2;
+    }
+    else {
+        energy_restore_factor = 1;
+    }
 }
 
 void Player::upStart()
@@ -32,6 +50,7 @@ void Player::upStart()
     if (!up) {
         up = true;
         setVelocity();
+        still_timer.restart();
     }
 }
 
@@ -48,6 +67,7 @@ void Player::downStart()
     if (!down) {
         down = true;
         setVelocity();
+        still_timer.restart();
     }
 }
 
@@ -64,6 +84,7 @@ void Player::leftStart()
     if (!left) {
         left = true;
         setVelocity();
+        still_timer.restart();
     }
 }
 
@@ -80,6 +101,7 @@ void Player::rightStart()
     if (!right) {
         right = true;
         setVelocity();
+        still_timer.restart();
     }
 }
 
@@ -89,4 +111,9 @@ void Player::rightEnd()
         right = false;
         setVelocity();
     }
+}
+
+void Player::resetItemUseIndex()
+{
+    item_use_index = 0;
 }
