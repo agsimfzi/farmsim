@@ -108,7 +108,7 @@ void Inventory_Interface::checkTooltip(sf::RenderWindow& window)
     }
 
     if (active_tooltip) {
-        active_tooltip->setPosition(fMouse());
+        active_tooltip->setPosition(fMouse(), sf::Vector2f(window.getSize()));
     }
 }
 

@@ -19,7 +19,8 @@ public:
 
     Tooltip(Reaction& reaction, std::vector<std::shared_ptr<Item>> reagants);
 
-    void setPosition(sf::Vector2f pos);
+    void setPosition(sf::Vector2f pos, sf::Vector2f window_size);
+    void move(sf::Vector2f offset);
 
 private:
     sf::RectangleShape frame;

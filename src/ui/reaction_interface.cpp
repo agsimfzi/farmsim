@@ -92,13 +92,11 @@ void Reaction_Panel::draw(sf::RenderTarget& target, sf::RenderStates states) con
 
 void Reaction_Interface::load(std::vector<Reaction> rxn, Player_Inventory& inventory, Item_Library& item_library)
 {
-    std::cout << "LOADING REACTION INTERFACE...\n";
     reactions = rxn;
 
     panels.clear();
 
     float size_x = view.getSize().x - 20.f;
-    std::cout << "\n\nCOMPUTED VIEW X-SIZE OF REACTION INTERFACE IS " << size_x << "\n\n";
 
     sf::Vector2f pos(4.f, 4.f);
 
