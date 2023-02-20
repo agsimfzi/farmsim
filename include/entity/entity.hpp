@@ -2,6 +2,7 @@
 
 #include <SFML/Graphics.hpp>
 
+#include <memory>
 #include <vector>
 
 #include <animation/animated_sprite.hpp>
@@ -50,8 +51,9 @@ public:
     const std::string& getName() const;
     const std::string& getDescription() const;
 
-    Vehicle::Type getVehicle();
-    void setVehicle(Vehicle* v);
+    std::shared_ptr<Vehicle> getVehicle();
+    Vehicle::Type getVehicleType();
+    void setVehicle(std::shared_ptr<Vehicle> v);
 
 protected:
     Entity_State state = Entity_State::IDLE;
@@ -90,7 +92,9 @@ protected:
          left = false,
          right = false;
 
-    Vehicle::Type vehicle = Vehicle::NULL_VEHICLE;
+    std::shared_ptr<Vehicle> vehicle;
 
     float base_speed;
+
+    bool movingVehicle();
 };

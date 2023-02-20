@@ -19,14 +19,14 @@ Minimap::Minimap()
 
     sf::Vector2f frame_offset(frame_border_size, frame_border_size);
 
-    mini_frame.setFillColor(sf::Color::White);
+    mini_frame.setFillColor(sf::Color::Transparent);
     mini_frame.setOutlineColor(sf::Color::Black);
     mini_frame.setOutlineThickness(frame_border_size);
 
     mini_frame.setSize(mini_size - (2.f * frame_offset));
     mini_frame.setPosition(screen_size.x - mini_size.x + frame_offset.x, frame_offset.y);
 
-    full_frame.setFillColor(sf::Color::White);
+    full_frame.setFillColor(sf::Color::Transparent);
     full_frame.setOutlineColor(sf::Color::Black);
     full_frame.setOutlineThickness(frame_border_size);
 

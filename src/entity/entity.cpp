@@ -37,11 +37,14 @@ sf::Vector2f Entity::getPosition()
 void Entity::update()
 {
     sprite.update();
+    if (vehicle) {
+        vehicle->update();
+    }
 }
 
 void Entity::move()
 {
-    if (state == Entity_State::MOVING) {
+    if (state == Entity_State::MOVING || movingVehicle()) {
         move(velocity);
     }
 }
@@ -55,14 +58,14 @@ sf::Vector2f Entity::move(std::vector<sf::FloatRect> walls, float deltaTime)
 
     sf::Vector2f v = velocity * deltaTime;
 
-    if (state == Entity_State::MOVING) {
+    if (state == Entity_State::MOVING || movingVehicle()) {
         bool good = true;
         sprite.move(v.x, 0.f);
         placeBounds();
         for (const auto& wall : walls) {
             if (wall.intersects(bounds)) {
                 sprite.move(-v.x, 0.f);
-            placeBounds();
+                placeBounds();
                 good = false;
             }
         }
@@ -85,6 +88,10 @@ sf::Vector2f Entity::move(std::vector<sf::FloatRect> walls, float deltaTime)
         }
         if (good) {
             offset.y = v.y;
+        }
+
+        if (vehicle) {
+            vehicle->move(offset);
         }
     }
 
@@ -198,6 +205,9 @@ void Entity::setSpriteDirection()
     }
 
     sprite.setDirection(d);
+    if (vehicle) {
+        vehicle->setDirection(d);
+    }
 }
 
 void Entity::setVelocity()
@@ -230,7 +240,7 @@ void Entity::setVelocity()
     if (velocity.x == 0.f && velocity.y == 0.f) {
         setState(Entity_State::IDLE);
     }
-    else if (sprite.getState() != Entity_State::MOVING
+    else if ((sprite.getState() != Entity_State::MOVING || movingVehicle())
         && (velocity.x != 0.f || velocity.y != 0.f)) {
         setState(Entity_State::MOVING);
         setSpriteDirection();
@@ -242,7 +252,14 @@ void Entity::setVelocity()
 
 void Entity::setState(Entity_State nstate)
 {
-    if (state != nstate) {
+    if (vehicle) {
+        Vehicle_State v = Vehicle_State::IDLE;
+        if (nstate == Entity_State::MOVING) {
+            v = Vehicle_State::MOVING;
+        }
+        vehicle->setAnimationState(v);
+    }
+    else if (state != nstate) {
         lastState = state;
         state = nstate;
         sprite.setAnimationState(state);
@@ -264,32 +281,35 @@ const std::string& Entity::getDescription() const
     return description;
 }
 
-Vehicle::Type Entity::getVehicle()
+std::shared_ptr<Vehicle> Entity::getVehicle()
 {
     return vehicle;
 }
 
-void Entity::setVehicle(Vehicle* v)
+Vehicle::Type Entity::getVehicleType()
 {
-    if (!v) {
-        vehicle = Vehicle::NULL_VEHICLE;
+    if (!vehicle) {
+        return Vehicle::NULL_TYPE;
     }
-    else {
-     vehicle = v->type;
-    }
+    return vehicle->type;
+}
+
+void Entity::setVehicle(std::shared_ptr<Vehicle> v)
+{
+    vehicle = v;
     float speed_factor = 1.f;
-    switch (vehicle) {
-        case Vehicle::BOAT:
-            // will also need to modify the bounding box...
-            speed_factor = 1.5f;
-            setPosition(v->getPosition());
-            break;
-        case Vehicle::BROOM:
-            speed_factor = 2.f;
-            setPosition(v->getPosition());
-            break;
-        case Vehicle::NULL_VEHICLE:
-            break;
+    if (vehicle) {
+        speed_factor = vehicle->speed_factor;
+                setPosition(v->getPosition());
+        switch (vehicle->type) {
+            // will also need to modify the bounding box, and probably other little stuff.
+            default:
+                break;
+            case Vehicle::BOAT:
+                break;
+            case Vehicle::BROOM:
+                break;
+        }
     }
     speed_orthogonal = base_speed * speed_factor;
     speed_diagonal = speed_orthogonal * SQRT2_INV;
@@ -306,7 +326,15 @@ void Entity::placeBounds()
     bounds.top = pos.y;
 }
 
+bool Entity::movingVehicle()
+{
+    return (vehicle && vehicle->getState() == Vehicle_State::MOVING);
+}
+
 void Entity::draw(sf::RenderTarget& target, sf::RenderStates states) const
 {
+    if (vehicle) {
+        target.draw(*vehicle, states);
+    }
     target.draw(sprite, states);
 }

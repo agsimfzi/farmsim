@@ -32,6 +32,7 @@ public:
         direction = Direction::N;
         setAnimationState(static_cast<K>(0));
         setOrigin(sf::Vector2f(size) / 2.f);
+        updateFrame();
     }
 
     void setAnimationState(K nstate)

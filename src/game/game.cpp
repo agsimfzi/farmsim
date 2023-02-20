@@ -42,12 +42,17 @@ void Game::update(float deltaTime)
     std::vector<sf::FloatRect> local_blocks;
     std::vector<std::pair<Floor_Info, sf::FloatRect>> local_tiles;
     size_t n;
-    switch (player.getVehicle()) {
-        case Vehicle::NULL_VEHICLE:
-            local_blocks = world.getLocalImpassableTiles(player.getCoordinates(Tile::tileSize));
+    Vehicle::Type v = Vehicle::NULL_TYPE;
+    if (player.getVehicle()) {
+        v = player.getVehicle()->type;
+    }
+    sf::Vector2i c = player.getCoordinates(Tile::tileSize);
+    switch (v) {
+        case Vehicle::NULL_TYPE:
+            local_blocks = world.getLocalImpassableTiles(c);
             break;
         case Vehicle::BOAT:
-            local_tiles = world.getLocalTiles(player.getCoordinates(Tile::tileSize));
+            local_tiles = world.getLocalTiles(c);
             n = local_tiles.size();
             for (size_t i = 0; i < n; i++) {
                 if (local_tiles[i].first.detail != Detail_Type::WATER) {
@@ -56,7 +61,7 @@ void Game::update(float deltaTime)
             }
             break;
         case Vehicle::BROOM:
-            local_tiles = world.getLocalTiles(player.getCoordinates(Tile::tileSize));
+            local_tiles = world.getLocalTiles(c);
             n = local_tiles.size();
             for (size_t i = 0; i < n; i++) {
                 if (local_tiles[i].first.biome == Biome::NULL_TYPE) {
@@ -67,10 +72,7 @@ void Game::update(float deltaTime)
         default:
             break;
     }
-    sf::Vector2f offset = player.move(local_blocks, deltaTime);
-    if (active_vehicle) {
-        active_vehicle->move(offset);
-    }
+    view.move(player.move(local_blocks, deltaTime));
 
     player_inventory.update();
     world.update(player_inventory, player);
@@ -116,7 +118,7 @@ void Game::releaseLeft()
 
 void Game::clickRight()
 {
-    world.interact(player, player_inventory, active_vehicle);
+    world.interact(player, player_inventory);
     // world.setInteracting(true);
 }
 
@@ -184,8 +186,5 @@ void Game::tick()
 void Game::draw(sf::RenderTarget& target, sf::RenderStates states) const
 {
     target.draw(world, states);
-    if (active_vehicle) {
-        target.draw(*active_vehicle, states);
-    }
     target.draw(player, states);
 }

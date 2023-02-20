@@ -30,6 +30,7 @@
 #include <world/machine.hpp>
 #include <world/crop_data.hpp>
 #include <world/tile.hpp>
+#include <world/vehicle_data.hpp>
 
 #include "settings_package.hpp"
 
@@ -45,7 +46,7 @@ public:
 
     static void getTextures(std::map<std::string, sf::Texture>& t);
 
-    static std::map<Entity_State, Animation> getAnimations();
+    static std::vector<Vehicle_Data> getVehicles();
 
     static Entity_Data getPlayerData();
 

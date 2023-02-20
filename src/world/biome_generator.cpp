@@ -201,15 +201,15 @@ Map_Tile<Biome>& Biome_Generator::generate()
         }
     }
 
-    runRivers();
+    //runRivers();
 
     for (int x = world_min.x; x <= world_max.x; x++) {
         for (int y = world_min.y; y <= world_max.y; y++) {
-            if (lake[x][y]) {
-                biomes[x][y] = Biome::LAKE;
-            }
-            else if(empty[x][y]) {
+            if (empty[x][y]) {
                 biomes[x][y] = Biome::NULL_TYPE;
+            }
+            else if (lake[x][y]) {
+                biomes[x][y] = Biome::LAKE;
             }
             else if (ocean[x][y]) {
                 biomes[x][y] = Biome::OCEAN;

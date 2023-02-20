@@ -49,27 +49,34 @@ void World::update(Player_Inventory& player_inventory, Player& player)
         }
         energy = player.energy;
     }
+    for (auto& m : machines) {
+        //m->update();
+    }
+    for (auto& v : vehicles) {
+        v->update();
+    }
 }
 
-void World::interact(Player& player, Player_Inventory& player_inventory, std::shared_ptr<Vehicle>& active_vehicle)
+void World::interact(Player& player, Player_Inventory& player_inventory)
 {
     if (activeTile) {
         sf::Vector2i t = *activeTile;
         Floor* f = chunks.floor(*activeTile);
         Floor_Info& info = tile_library[t.x][t.y];
-        if (active_vehicle) { // CHECK FOR VEHICLE DISMOUNT
-            if (emptyTile(info) && emptyTile(player.getCoordinates(Tile::tileSize))) {
+        std::shared_ptr<Vehicle> pv = player.getVehicle();
+        if (pv) { // CHECK FOR VEHICLE DISMOUNT
+            if (emptyTile(info)
+            && (emptyTile(player.getCoordinates(Tile::tileSize)) || pv->type == Vehicle::BOAT)) {
                 player.setVehicle(nullptr);
                 player.setPosition(f->getPosition());
-                vehicles.push_back(active_vehicle);
-                active_vehicle = nullptr;
+                vehicles.push_back(pv);
+                pv = nullptr;
             }
         }
         else { // CHECK FOR VEHICLE MOUNT
             for (auto v = vehicles.begin(); v != vehicles.end();) {
                 if ((*v) && f->getGlobalBounds().contains((*v)->getPosition())) {
-                    player.setVehicle((*v).get());
-                    active_vehicle = (*v);
+                    player.setVehicle((*v));
                     vehicles.erase(v);
                     return;
                 }
@@ -177,14 +184,14 @@ void World::makeBiomes()
             }
             else if (info.biome == Biome::VOLCANO) {
                 info.floor = Floor_Type::BASALT;
-            }
-            else if (info.biome == Biome::CALDERA) {
-                info.floor = Floor_Type::BASALT;
-                info.detail = Detail_Type::LAVA;
 
                 if (prng::boolean(0.004f)) {
                     info.rock = true;
                 }
+            }
+            else if (info.biome == Biome::CALDERA) {
+                info.floor = Floor_Type::BASALT;
+                info.detail = Detail_Type::LAVA;
             }
             else {
                 info.floor = Floor_Type::DIRT;
@@ -488,13 +495,13 @@ void World::useVehicle(std::shared_ptr<Item> item)
             break;
         case 10000: // boat
             if (tile_library[activeTile->x][activeTile->y].detail == Detail_Type::WATER) {
-                vehicles.push_back(std::make_shared<Vehicle>(Vehicle::BOAT, chunks.floor(*activeTile)->getPosition()));
+                vehicles.push_back(std::make_shared<Vehicle>(chunks.floor(*activeTile)->getPosition(), vehicle_library(Vehicle::BOAT)));
                 item->take(1);
             }
             break;
         case 10001: // boat
             if (emptyTile(*activeTile)) {
-                vehicles.push_back(std::make_shared<Vehicle>(Vehicle::BROOM, chunks.floor(*activeTile)->getPosition()));
+                vehicles.push_back(std::make_shared<Vehicle>(chunks.floor(*activeTile)->getPosition(), vehicle_library(Vehicle::BROOM)));
                 item->take(1);
             }
             break;

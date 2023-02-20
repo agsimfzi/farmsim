@@ -1,18 +1,24 @@
 #pragma once
 
-#include "world/tile_type.hpp"
-
 #include <SFML/Graphics/Sprite.hpp>
 
-struct Vehicle : public sf::Sprite {
+#include <animation/animated_sprite.hpp>
+
+#include "tile_type.hpp"
+#include "vehicle_data.hpp"
+
+struct Vehicle : public Animated_Sprite<Vehicle_State> {
     enum Type{
         BOAT,
         BROOM,
-        NULL_VEHICLE
+        NULL_TYPE
     };
 
     Vehicle() = default;
-    Vehicle(Vehicle::Type type, sf::Vector2f pos);
+    Vehicle(sf::Vector2f pos, Vehicle_Data d);
+
+    static Vehicle::Type stringToType(std::string s);
 
     Type type;
+    float speed_factor;
 };

@@ -21,7 +21,7 @@
 #include "chunk_loader.hpp"
 #include "tile.hpp"
 #include "tile_info.hpp"
-#include "vehicle.hpp"
+#include "vehicle_library.hpp"
 
 /////////////////////////////////////////////////////////////
 /// \brief
@@ -33,7 +33,6 @@ public:
     void reset();
     void makeBiomes();
     void makeGrass();
-    void initialAutotile();
     void finalize();
 
     Map_Tile<Crop>& getCrops();
@@ -66,7 +65,7 @@ public:
 
     void setInteracting(bool interacting);
 
-    void interact(Player& player, Player_Inventory& inventory, std::shared_ptr<Vehicle>& active_vehicle);
+    void interact(Player& player, Player_Inventory& inventory);
 
     sf::Vector2i posToCoords(sf::Vector2f pos);
 
@@ -105,6 +104,7 @@ private:
     Item_Library& item_library;
     Building_Library building_library;
     Crop_Library crop_library;
+    Vehicle_Library vehicle_library;
 
     Map_Tile<Floor_Info> tile_library;
     Chunk_Loader chunks { tile_library };

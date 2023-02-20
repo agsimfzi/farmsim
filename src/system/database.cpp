@@ -8,8 +8,6 @@
 
 #include <audio/sound_context.hpp>
 
-#include <iostream>
-
 //////////////////////////////////////////////////////////////
 
 sqlite3* Database::db = nullptr;
@@ -116,15 +114,53 @@ void Database::getTextures(std::map<std::string, sf::Texture>& t)
     close();
 }
 
-std::map<Entity_State, Animation> Database::getAnimations()
+std::vector<Vehicle_Data> Database::getVehicles()
 {
+    std::vector<Vehicle_Data> data;
+
     open();
 
-    std::string sql = "SELECT * FROM 'ANIMATIONS';";
+    std::string sql = "SELECT * FROM 'VEHICLES';";
 
-    close();
+    //execute(sql);
 
-    return std::map<Entity_State, Animation>();
+    sqlite3_stmt* statement;
+
+    rc = sqlite3_prepare_v2(db, sql.c_str(), sql.length(), &statement, NULL);
+
+    while ((rc = sqlite3_step(statement)) == SQLITE_ROW) {
+        Vehicle_Data d;
+        int column = 0;
+
+        //base data
+        //name text
+        //speed double
+        d.name = reinterpret_cast<const char*>(sqlite3_column_text(statement, column++));
+        d.speed_factor = sqlite3_column_double(statement, column++);
+
+        //size data
+        //size_x int
+        //size_y int
+        int x = sqlite3_column_int(statement, column++);
+        int y = sqlite3_column_int(statement, column++);
+        d.size = sf::Vector2i(x, y);
+
+        //animation counts
+        //idle_count int
+        //moving_count int
+        d.counts[Vehicle_State::IDLE] = static_cast<unsigned int>(sqlite3_column_int(statement, column++));
+        d.counts[Vehicle_State::MOVING] = static_cast<unsigned int>(sqlite3_column_int(statement, column++));
+
+        //animation thresholds
+        //idle_threshold int
+        //moving_threshold int
+        d.thresholds[Vehicle_State::IDLE] = sqlite3_column_int(statement, column++);
+        d.thresholds[Vehicle_State::MOVING] = sqlite3_column_int(statement, column++);
+
+        data.push_back(d);
+    }
+
+    return data;
 }
 
 Entity_Data Database::getPlayerData()

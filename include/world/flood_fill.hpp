@@ -87,25 +87,7 @@ inline void floodCheck(Map_Tile<bool>& to_flood)
 */
     to_flood = flooding;
 }
-/*
-inline void drainFill(int x, int y, Map_Tile<bool>& to_drain)
-{
-    to_drain[x][y] = false;
 
-    if (to_drain[x - 1][y]) {
-        drainFill(x - 1, y, to_drain);
-    }
-    if (to_drain[x + 1][y]) {
-        drainFill(x + 1, y, to_drain);
-    }
-    if (to_drain[x][y - 1]) {
-        drainFill(x, y - 1, to_drain);
-    }
-    if (to_drain[x][y + 1]) {
-        drainFill(x, y + 1, to_drain);
-    }
-}
-*/
 inline void drainFill(int x, int y, Map_Tile<bool>& draining)
 {
     std::queue<sf::Vector2i> q;

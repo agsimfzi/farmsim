@@ -2,8 +2,6 @@
 
 #include <resources/font_manager.hpp>
 
-#include <iostream>
-
 const sf::Vector2f Inventory_Cell::frameSize = sf::Vector2f(64.f, 64.f);
 const float Inventory_Cell::frameOutlineSize = 2.f;
 

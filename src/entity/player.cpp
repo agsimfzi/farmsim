@@ -34,7 +34,8 @@ void Player::update()
 
 void Player::checkEnergyFactor()
 {
-    if (vehicle == Vehicle::BOAT) {
+    energy_restore_factor = 1;
+    if (vehicle && vehicle->type == Vehicle::BOAT) {
         energy_restore_factor = 4;
     }
     else if (!up && !down && !left && !right && still_timer.getElapsedTime().asSeconds() >= still_timer_threshold) {
