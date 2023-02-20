@@ -2,6 +2,8 @@
 
 #include <SFML/Graphics.hpp>
 
+#include <memory>
+
 #include <game/game.hpp>
 
 #include "ui_elements.hpp"
@@ -50,20 +52,23 @@ public:
 
     void loadDefaultReactions();
 
+    void loadInterface(Building* b);
+    void closeInterface();
+
 private:
     sf::RenderWindow& window;
     Game& game;
     sf::Font& font;
 
-    //sf::View& view;
-
     Entity_Mouseover entityInfo;
+
+    sf::View& view;
 
     sf::Text player_pos;
 
     sf::RectangleShape overlay;
 
-    Inventory_Interface inventory_interface;
+    std::unique_ptr<Inventory_Interface> inventory_interface;
 
     Player_Target player_target;
 

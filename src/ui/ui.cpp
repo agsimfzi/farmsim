@@ -12,8 +12,9 @@ UI::UI(sf::RenderWindow& window, Game& game, sf::View& view)
     , game { game }
     , font { Font_Manager::get(Font::UI) }
     , entityInfo { Font_Manager::get(Font::UI) }
-    , inventory_interface { Inventory_Interface(game.getInventory(), view) }
+    , view{ view }
 {
+    inventory_interface = std::make_unique<Inventory_Interface>(Inventory_Interface(game.getInventory(), view));
     overlay.setPosition(sf::Vector2f(0.f, 0.f));
     overlay.setSize(sf::Vector2f(1920.f, 1080.f));
     overlay.setFillColor(sf::Color(50, 50, 50, 120));
@@ -32,10 +33,9 @@ void UI::init()
 
 void UI::update()
 {
-    if (inventory_interface.open) {
-        inventory_interface.update(window);
+    if (inventory_interface) {
+        inventory_interface->update(window);
     }
-    inventory_interface.pollChanges();
 
     std::string p = std::to_string(game.getPlayer().getCoordinates(Tile::tileSize).x)
                   + ','
@@ -69,25 +69,25 @@ void UI::setMouseover(Entity* entity)
 
 void UI::scroll(float delta)
 {
-    if (overlay_active && inventory_interface.open) {
-        // parse "reverse inventory_interface scroll" setting
+    if (overlay_active && inventory_interface->open) {
     }
     if (overlay_active && minimap.isExpanded()) {
         minimap.zoom(delta);
     }
     else {
-        if (inventory_interface.scroll(delta, window)) {
-            game.getInventory().setEquipped(inventory_interface.getEquippedIndex());
+        // parse "reverse inventory_interface scroll" setting (invert delta's sign)
+        if (inventory_interface->scroll(delta, window)) {
+            game.getInventory().setEquipped(inventory_interface->getEquippedIndex());
         }
     }
 }
 
 void UI::numRelease(int num)
 {
-    if (!overlay_active && !inventory_interface.open) {
-        inventory_interface.setEquippedIndex(num);
+    if (!overlay_active && !inventory_interface->open) {
+        inventory_interface->setEquippedIndex(num);
 
-        game.getInventory().setEquipped(inventory_interface.getEquippedIndex());
+        game.getInventory().setEquipped(inventory_interface->getEquippedIndex());
     }
 }
 
@@ -114,20 +114,21 @@ void UI::resize(sf::Vector2u windowSize)
 
 void UI::loadDefaultReactions()
 {
-    if (inventory_interface.open) {
-        inventory_interface.loadBuilding(game.getWorld().getBuildingLibrary()("null_crafting").get(), game.getItemLibrary());
-    }
+    inventory_interface->loadReactions(game.getWorld().getBuildingLibrary()("null_crafting").get()->reactions, game.getItemLibrary());
 }
 
 void UI::toggleInventory()
 {
-    if (inventory_interface.open) {
-        inventory_interface.close();
+    if (inventory_interface->open) {
+        inventory_interface->close();
         overlay_active = false;
         game.getWorld().closeActiveBuilding();
     }
     else if (!overlay_active) {
-        inventory_interface.open = true;
+        inventory_interface->open = true;
+        inventory_interface = std::make_unique<Inventory_Interface>(Inventory_Interface(game.getInventory(), view));
+        loadDefaultReactions();
+        inventory_interface->open = true;
         overlay_active = true;
     }
 }
@@ -147,8 +148,9 @@ void UI::toggleMap()
 void UI::closeOverlay()
 {
     overlay_active = false;
-    if (inventory_interface.open) {
-        inventory_interface.close();
+    if (inventory_interface->open) {
+        inventory_interface->close();
+        inventory_interface = std::make_unique<Inventory_Interface>(*inventory_interface);
     }
     else if(minimap.isExpanded()) {
         minimap.close();
@@ -165,13 +167,13 @@ bool UI::clickLeft()
     bool parsed = overlay_active;
 
     if (parsed) {
-        if (inventory_interface.open) {
-            if (inventory_interface.dragging) {
+        if (inventory_interface->open) {
+            if (inventory_interface->dragging) {
                 auto drop = [&](std::shared_ptr<Item> i) { game.getWorld().getChunks().addItem(i, i->count(), game.getPlayer().getCoordinates(Tile::tileSize)); };
-                inventory_interface.endDrag(drop);
+                inventory_interface->endDrag(drop);
             }
             else {
-                inventory_interface.clickLeft(window);
+                inventory_interface->clickLeft(window);
             }
         }
         else if(minimap.isExpanded()) {
@@ -199,9 +201,9 @@ bool UI::clickRight()
 {
     bool parsed = overlay_active;
     if (parsed) {
-        if (inventory_interface.open) {
-            if (inventory_interface.dragging) {
-                inventory_interface.cancelDrag();
+        if (inventory_interface->open) {
+            if (inventory_interface->dragging) {
+                inventory_interface->cancelDrag();
             }
             else {
                 closeOverlay();
@@ -227,13 +229,43 @@ void UI::checkBuilding()
         game.getWorld().setActiveBuilding();
         Building* b = game.getWorld().activeBuilding();
         if (b) {
-            toggleInventory();
-            inventory_interface.loadBuilding(b, game.getItemLibrary());
+            switch(b->type) {
+                default:
+                    break;
+                case Building::CONTAINER:
+                    inventory_interface = std::make_unique<Container_Interface>(game.getInventory(), view, dynamic_cast<Container*>(b));
+                    inventory_interface->open = true;
+                    loadDefaultReactions();
+                    break;
+                case Building::CRAFTING:
+                    inventory_interface = std::make_unique<Inventory_Interface>(Inventory_Interface(game.getInventory(), view));
+                    inventory_interface->loadReactions(b->reactions, game.getItemLibrary());
+                    inventory_interface->open = true;
+                    break;
+                case Building::MACHINE:
+                    inventory_interface = std::make_unique<Machine_Interface>(game.getInventory(), view, dynamic_cast<Machine*>(b));
+                    inventory_interface->loadReactions(b->reactions, game.getItemLibrary());
+                    inventory_interface->open = true;
+                    break;
+            }
         }
+        else {
+            inventory_interface = std::make_unique<Inventory_Interface>(Inventory_Interface(game.getInventory(), view));
+        }
+        inventory_interface->open = true;
+        overlay_active = true;
     }
     else {
         closeOverlay();
+        inventory_interface->close();
+        overlay_active = false;
+        game.getWorld().closeActiveBuilding();
     }
+}
+
+void UI::loadInterface(Building* b)
+{
+
 }
 
 void UI::draw(sf::RenderTarget& target, sf::RenderStates states) const
@@ -247,7 +279,7 @@ void UI::draw(sf::RenderTarget& target, sf::RenderStates states) const
         target.draw(player_target, states);
     }
 
-    target.draw(inventory_interface, states);
+    target.draw(*inventory_interface, states);
 
     target.draw(player_pos, states);
 

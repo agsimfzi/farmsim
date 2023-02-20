@@ -96,7 +96,7 @@ public:
 private:
     bool changeActiveTile(Floor_Type prereq, Floor_Type ntype);
 
-    int energy_diff = 0;
+    int energy_diff = -1;
     int energy;
 
     Building* active_building{ nullptr };

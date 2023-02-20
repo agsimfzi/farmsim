@@ -16,7 +16,9 @@ class Inventory_Interface : public sf::Drawable {
 public:
     Inventory_Interface(Player_Inventory& inventory, sf::View& view);
 
-    void update(sf::RenderWindow& window);
+    virtual ~Inventory_Interface(){}
+
+    virtual void update(sf::RenderWindow& window);
 
     std::vector<std::vector<Inventory_Cell>> cells;
 
@@ -34,8 +36,8 @@ public:
 
     void pollChanges();
 
-    void clickLeft(sf::RenderWindow& window);
-    void clickRight();
+    virtual void clickLeft(sf::RenderWindow& window);
+    virtual void clickRight();
 
     bool open = false;
     bool dragging = false;
@@ -43,18 +45,22 @@ public:
 
     void close();
 
-    void startDrag();
+    virtual void startDrag();
     void checkDrag();
     void endDrag(std::function<void(std::shared_ptr<Item>)> drop);
-    void cancelDrag();
+    virtual void cancelDrag();
 
     std::shared_ptr<Item> dragItem;
     sf::Text dragCountText;
 
     void loadBuilding(Building* b, Item_Library& item_library);
 
-private:
+    virtual void loadReactions(std::vector<Reaction> reactions, Item_Library& item_library);
+
+protected:
     Player_Inventory& inventory;
+
+    sf::Vector2i moused_index;
 
     sf::View& view;
 
@@ -62,21 +68,18 @@ private:
 
     const static float cell_padding;
     sf::Vector2i dragStartIndex;
-    Machine* machine = nullptr;
     Container* container = nullptr;
     Crafting* crafting = nullptr;
     size_t equippedIndex = 0;
 
     sf::RectangleShape progress_bar;
 
-    void placeMergeSwap(sf::Vector2i i);
-    void swap(sf::Vector2i i);
+    virtual void placeMergeSwap();
+    virtual void swap();
     void resize();
     void placeCells();
-    sf::Vector2i mousedIndex(const sf::Vector2i& mpos);
-    void setProgressBarSize();
+    void mousedIndex();
     void clearProgressBar();
-    void checkReaction();
     void readBuilding();
 
     void checkTooltip(sf::RenderWindow& window);
@@ -84,6 +87,9 @@ private:
     std::shared_ptr<Tooltip> active_tooltip;
     sf::Vector2i tooltip_index{ -1, -1 };
     bool reaction_tooltip = false;
+
+    virtual void readExtension();
+    virtual void writeExtension();
 
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
 };
