@@ -8,5 +8,4 @@
 
 #include "inventory_interface.hpp"
 #include "container_interface.hpp"
-#include "crafting_interface.hpp"
 #include "machine_interface.hpp"

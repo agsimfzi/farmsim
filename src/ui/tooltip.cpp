@@ -95,6 +95,8 @@ void Tooltip::setPosition(sf::Vector2f pos, sf::Vector2f window_size)
 
     sf::Vector2f label_offset(36.f, -8.f);
 
+    pos_compute.x += padding / 2.f;
+
     for (auto& ls : labeled_sprites) {
         pos_compute.y += 34.f;
         ls.first.setPosition(pos_compute);

@@ -27,6 +27,8 @@ Inventory_Interface::Inventory_Interface(Player_Inventory& inventory, sf::View& 
 
     dragCountText.setFont(Font_Manager::get(Font::UI));
     dragCountText.setFillColor(sf::Color::Black);
+    dragCountText.setOutlineColor(sf::Color::White);
+    dragCountText   .setOutlineThickness(2.f);
 
     progress_bar.setFillColor(sf::Color::White);
     progress_bar.setSize(sf::Vector2f(Tile::tileSize, 0.f));
@@ -228,18 +230,10 @@ void Inventory_Interface::close()
     reaction_interface.close();
 
     active_tooltip.reset();
-
-    while (cells.size() > 1) {
-        cells.pop_back();
-    }
 }
 
 void Inventory_Interface::clickLeft(sf::RenderWindow& window)
 {
-    if (dragging) {
-        writeExtension();
-        return;
-    }
     std::cout << "parsing click in inventory_interface!\n";
     sf::Vector2f mpos = fMouse(window, reaction_interface.getView());
     if (reaction_interface.contains(mpos)) {
@@ -276,7 +270,6 @@ void Inventory_Interface::clickLeft(sf::RenderWindow& window)
     }
 
     startDrag();
-    writeExtension();
 }
 
 void Inventory_Interface::clickRight()
@@ -304,6 +297,9 @@ void Inventory_Interface::startDrag()
                 moused_index.x -= inventory.rowCount;
                 container->clearItem(moused_index);
             }
+            if (i.x >= inventory.rowCount) {
+                writeExtension();
+            }
         }
     }
 }
@@ -327,6 +323,9 @@ void Inventory_Interface::endDrag(std::function<void(std::shared_ptr<Item>)> dro
     }
 
     if (moused_index.x >= 0 || moused_index.y >= 0) {
+        if (moused_index.x == (int)inventory.rowCount) {
+            writeExtension();
+        }
         placeMergeSwap();
     }
     else {
@@ -357,19 +356,19 @@ void Inventory_Interface::placeMergeSwap()
         //if (dsi.x < (int)inventory.rowCount) {
             if (si) {
                 if (si->getUID() == dragItem->getUID()) {
-                    si->add(dragItem->count());
-                    cells[moused_index.x][moused_index.y].setItem(si);
-                    inventory.placeItem(moused_index.x, moused_index.y, si);
-                    dragItem.reset();
-                }
-                else {
-                    if (container) {
-                        swap();
+                    size_t remainder = si->add(dragItem->count());
+                    cells[moused_index.x][moused_index.y].updateCount();
+                    if (remainder == 0) {
+                        dragItem = nullptr;
                     }
                     else {
-                        dragging = true;
-                        return;
+                        dragItem->setCount(remainder);
                     }
+                    inventory.clearItem(moused_index.x, moused_index.y);
+                    inventory.placeItem(moused_index.x, moused_index.y, si);
+                }
+                else {
+                    swap();
                 }
             }
             else {

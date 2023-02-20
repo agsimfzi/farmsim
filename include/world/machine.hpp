@@ -44,6 +44,7 @@ public:
     void clearProduct();
 
     size_t addReagant(std::shared_ptr<Item> i);
+    void setReagant(std::shared_ptr<Item> item, size_t i);
     void setProduct(std::shared_ptr<Item> item);
 
     std::vector<std::shared_ptr<Item>> activeReagants();

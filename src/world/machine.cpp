@@ -102,7 +102,6 @@ void Machine::tick(Item_Library& item_library)
 
 float Machine::reactionProgress()
 {
-    std::cout << "checking progress of rxn " << current_reaction << ": " << reactions[current_reaction].name << ", length " << reactions[current_reaction].length << '\n';
     return (static_cast<float>(reaction_tick) / static_cast<float>(reactions[current_reaction].length));
 }
 
@@ -166,6 +165,14 @@ size_t Machine::addReagant(std::shared_ptr<Item> item)
         }
     }
     return remainder;
+}
+
+void Machine::setReagant(std::shared_ptr<Item> item, size_t i)
+{
+    if (item && validReagant(item->getName(), current_reaction)) {
+        inventory.front()[i].reset();
+        inventory.front()[i] = item;
+    }
 }
 
 void Machine::setProduct(std::shared_ptr<Item> item)

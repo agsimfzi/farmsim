@@ -58,6 +58,7 @@ void Machine_Interface::placeMergeSwap()
             }
             else if (dragItem->getUID() == si->getUID()) {
                 size_t remainder = si->add(dragItem->count());
+                cells[moused_index.x][moused_index.y].updateCount();
                 if (remainder == 0) {
                     dragItem = nullptr;
                 }
@@ -71,6 +72,9 @@ void Machine_Interface::placeMergeSwap()
             writeExtension();
         }
     }
+    else if (moused_index.x == rows + 1) {
+        cancelDrag();
+    }
     else if (moused_index.x < rows) {
         Inventory_Interface::placeMergeSwap();
     }
@@ -78,6 +82,13 @@ void Machine_Interface::placeMergeSwap()
 
 void Machine_Interface::readExtension()
 {
+    std::vector<std::shared_ptr<Item>> reagants = machine->getInventory().front();
+    for (size_t i = 0; i < reagants.size(); i++) {
+        cells[inventory.rowCount][i].setItem(reagants[i]);
+    }
+
+    cells.back().front().clearItem();
+    cells.back().front().setItem(machine->getInventory().back().front());
 }
 
 void Machine_Interface::writeExtension()
@@ -85,12 +96,16 @@ void Machine_Interface::writeExtension()
     size_t r = inventory.rowCount;
     size_t n = cells[r].size();
     for (size_t i = 0; i < n; i++) {
-        machine->clearReagant(i);
-        machine->addReagant(cells[r][i].getItem());
+        std::shared_ptr<Item> item = cells[r][i].getItem();
+        if (item) {
+            machine->setReagant(item, i);
+        }
+        else {
+            machine->clearReagant(i);
+        }
     }
-
-    machine->clearProduct();
     machine->setProduct(cells.back().front().getItem());
+    machine->checkReaction();
 }
 
 void Machine_Interface::swap()
@@ -101,8 +116,8 @@ void Machine_Interface::swap()
 
     if (dragStartIndex.x == rows || moused_index.x == rows) {
         machine->clearReagant(dragStartIndex.y);
-        machine->addReagant(cells[dragStartIndex.x][dragStartIndex.y].getItem());
-        inventory.placeItem(dragStartIndex.x, dragStartIndex.y, cells[dragStartIndex.x][dragStartIndex.y].getItem());
+        machine->setReagant(cells[dragStartIndex.x][dragStartIndex.y].getItem(), moused_index.y);
+        writeExtension();
     }
 }
 

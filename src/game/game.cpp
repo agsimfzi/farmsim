@@ -13,7 +13,8 @@ Game::Game(sf::View& nview)
 {
     player = Player(Database::getPlayerData(), Texture_Manager::get("PLAYER"));
 
-    giveItemToPlayer("broom");
+    giveItemToPlayer("axe");
+    giveItemToPlayer("pickaxe");
     giveItemToPlayer("furnace");
     giveItemToPlayer("iron bar", 50);
     giveItemToPlayer("copper bar", 50);
@@ -23,7 +24,9 @@ Game::Game(sf::View& nview)
     giveItemToPlayer("copper ore", 100);
     giveItemToPlayer("gold ore", 100);
     giveItemToPlayer("wood", 100);
-    giveItemToPlayer("planks", 100);
+    giveItemToPlayer("plank", 100);
+
+    giveItemToPlayer("broom");
 }
 
 void Game::giveItemToPlayer(std::string name, size_t count)

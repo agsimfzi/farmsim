@@ -123,6 +123,7 @@ void UI::toggleInventory()
         inventory_interface->close();
         overlay_active = false;
         game.getWorld().closeActiveBuilding();
+        inventory_interface = std::make_unique<Inventory_Interface>(Inventory_Interface(game.getInventory(), view));
     }
     else if (!overlay_active) {
         inventory_interface->open = true;
@@ -248,12 +249,9 @@ void UI::checkBuilding()
                     inventory_interface->open = true;
                     break;
             }
+            inventory_interface->open = true;
+            overlay_active = true;
         }
-        else {
-            inventory_interface = std::make_unique<Inventory_Interface>(Inventory_Interface(game.getInventory(), view));
-        }
-        inventory_interface->open = true;
-        overlay_active = true;
     }
     else {
         closeOverlay();
