@@ -205,12 +205,16 @@ bool UI::clickRight()
     bool parsed = overlay_active;
     if (parsed) {
         if (inventory_interface->open) {
+            auto drop = [&](std::shared_ptr<Item> i) { i->can_pickup = false; game.getWorld().getChunks().addItem(i, game.getPlayer().getCoordinates(Tile::tileSize)); };
+            inventory_interface->clickRight(drop);
+            /*
             if (inventory_interface->dragging) {
                 inventory_interface->cancelDrag();
             }
             else {
                 closeOverlay();
             }
+            */
         }
         else if (minimap.isExpanded()) {
             closeOverlay();

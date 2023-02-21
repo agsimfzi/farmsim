@@ -55,6 +55,18 @@ void Inventory_Interface::readInventory()
     }
 }
 
+void Inventory_Interface::writeInventory()
+{
+    size_t nr = inventory.rowCount;
+    size_t nc = inventory.rowWidth;
+
+    for (size_t r = 0; r < nr; r++) {
+        for (size_t c = 0; c < nc; c++) {
+            inventory.placeItem(r, c, cells[r][c].getItem());
+        }
+    }
+}
+
 void Inventory_Interface::update(sf::RenderWindow& window)
 {
     mousedIndex();
@@ -288,8 +300,74 @@ void Inventory_Interface::clickLeft(sf::RenderWindow& window)
     }
 }
 
-void Inventory_Interface::clickRight()
-{}
+void Inventory_Interface::clickRight(std::function<void(std::shared_ptr<Item>)> drop)
+{
+    if (dragging) {
+        if (moused_index.x < 0) {
+            std::shared_ptr<Item> dropping = std::make_shared<Item>(*dragItem);
+            dropping->setCount(1);
+            dragItem->take(1);
+            if (dragItem->count() == 0) {
+                dragItem = nullptr;
+                dragging = false;
+            }
+            drop(dropping);
+        }
+        else {
+            std::shared_ptr<Item> i = cells[moused_index.x][moused_index.y].getItem();
+            if (i) {
+                if (i->getUID() == dragItem->getUID()) {
+                    if ((int)(i->count() + dragItem->count()) > i->stackSize()) {
+                        size_t diff = i->stackSize() - i->count();
+                        dragItem->take(diff);
+                        i->add(diff);
+                        checkDrag();
+                    }
+                    else {
+                        i->add(dragItem->count());
+                        dragItem.reset();
+                    }
+                    if (moused_index.x >= (int)inventory.rowCount) {
+                        writeExtension();
+                    }
+                    else {
+                        writeInventory();
+                    }
+                }
+            }
+            else {
+                std::shared_ptr<Item> placing = std::make_shared<Item>(*dragItem);
+                i->setCount(1);
+                dragItem->take(1);
+                if (dragItem->count() == 0) {
+                    dragItem = nullptr;
+                    dragging = false;
+                }
+                cells[moused_index.x][moused_index.y].setItem(placing);
+                dragItem.reset();
+                dragging = false;
+                if (moused_index.x >= (int)inventory.rowCount) {
+                    writeExtension();
+                }
+                else {
+                    writeInventory();
+                }
+            }
+        }
+    }
+    else {
+        std::shared_ptr<Item> i = cells[moused_index.x][moused_index.y].getItem();
+        if (i) {
+            dragging = true;
+            dragItem = std::make_shared<Item>(*i);
+            size_t diff = i->count() / 2;
+            i->take(diff);
+            dragItem->setCount(diff);
+            checkDrag();
+            writeInventory();
+        }
+    }
+}
 
 void Inventory_Interface::startDrag()
 {

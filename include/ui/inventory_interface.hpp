@@ -23,6 +23,7 @@ public:
     std::vector<std::vector<Inventory_Cell>> cells;
 
     void readInventory();
+    void writeInventory();
 
     void setEquippedIndex(size_t active);
     size_t getEquippedIndex();
@@ -37,7 +38,7 @@ public:
     void pollChanges();
 
     virtual void clickLeft(sf::RenderWindow& window);
-    virtual void clickRight();
+    virtual void clickRight(std::function<void(std::shared_ptr<Item>)> drop);
 
     bool open = false;
     bool dragging = false;
