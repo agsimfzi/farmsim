@@ -211,14 +211,23 @@ Entity_Data Database::readEntity(sqlite3_stmt* statement)
     //animation counts
     //idle_count int
     //moving_count int
+    // boat count int
+    // broom count int
     d.aCount[Entity_State::IDLE] = static_cast<unsigned int>(sqlite3_column_int(statement, column++));
     d.aCount[Entity_State::MOVING] = static_cast<unsigned int>(sqlite3_column_int(statement, column++));
+    d.aCount[Entity_State::BOATING] = static_cast<unsigned int>(sqlite3_column_int(statement, column++));
+    d.aCount[Entity_State::BROOMING] = static_cast<unsigned int>(sqlite3_column_int(statement, column++));
+
 
     //animation thresholds
     //idle_threshold int
     //moving_threshold int
+    // boat threshold int
+    // broom threshold int
     d.aThreshold[Entity_State::IDLE] = sqlite3_column_int(statement, column++);
     d.aThreshold[Entity_State::MOVING] = sqlite3_column_int(statement, column++);
+    d.aThreshold[Entity_State::BOATING] = sqlite3_column_int(statement, column++);
+    d.aThreshold[Entity_State::BROOMING] = sqlite3_column_int(statement, column++);
 
     //bounds y offset
     //bounds x size

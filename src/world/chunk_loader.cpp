@@ -2,8 +2,6 @@
 
 #include <util/primordial.hpp>
 
-#include <util/vector2_stream.hpp>
-
 Chunk_Loader::Chunk_Loader(Map_Tile<Floor_Info>& info)
     : info { info }
 {}
@@ -46,8 +44,6 @@ void Chunk_Loader::check(sf::Vector2i player_coordinates)
         }
 
         current = new_current;
-
-        std::cout << "changing current_index from " << current << " to " << new_current << "!\n";
 
         load();
     }

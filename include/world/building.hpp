@@ -17,7 +17,7 @@ public:
     size_t uid;
     int value;
 
-    //bool active = false;
+    bool destructible = true;
 
     enum Type {
         CONTAINER,

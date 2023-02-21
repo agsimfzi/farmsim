@@ -296,21 +296,26 @@ Vehicle::Type Entity::getVehicleType()
 
 void Entity::setVehicle(std::shared_ptr<Vehicle> v)
 {
-    vehicle = v;
     float speed_factor = 1.f;
-    if (vehicle) {
-        speed_factor = vehicle->speed_factor;
+    if (v) {
+        speed_factor = v->speed_factor;
                 setPosition(v->getPosition());
-        switch (vehicle->type) {
+        switch (v->type) {
             // will also need to modify the bounding box, and probably other little stuff.
             default:
                 break;
             case Vehicle::BOAT:
+                setState(Entity_State::BOATING);
                 break;
             case Vehicle::BROOM:
+                setState(Entity_State::BROOMING);
                 break;
         }
     }
+    else {
+        setState(Entity_State::IDLE);
+    }
+    vehicle = v;
     speed_orthogonal = base_speed * speed_factor;
     speed_diagonal = speed_orthogonal * SQRT2_INV;
 }

@@ -660,7 +660,7 @@ void World::hammer()
         sf::Vector2i t = *activeTile;
         Building* b = tile_library[t.x][t.y].building.get();
         if (b) {
-            if (b->type == Building::CONTAINER && !b->empty()) {
+            if (!b->destructible  && !b->empty()) {
                 return;
             }
             chunks.addItem(std::make_shared<Item>(*item_library(b->uid)), t);
