@@ -2,6 +2,8 @@
 
 #include <util/primordial.hpp>
 
+#include <util/vector2_stream.hpp>
+
 Player_Inventory::Player_Inventory()
 {
     resize(rowCount, rowWidth);
@@ -60,24 +62,46 @@ size_t Player_Inventory::countItem(std::string name)
     return count;
 }
 
-void Player_Inventory::addItem(std::shared_ptr<Item> item, size_t count)
+void Player_Inventory::addItem(std::shared_ptr<Item>& item)
 {
     if (item) {
+        size_t count = item->count();
+        std::cout << "\nadding " << count << " " << item->getName();
+        sf::Vector2i first_empty_index(-1, -1);
         item->can_pickup = true;
-        for (auto& i : items) {
-            for (auto& j : i) {
-                if (j && item->getUID() == j->getUID()) {
-                    j->add(count);
+        for (size_t r = 0; r < rowCount; r++) {
+            for (size_t c = 0; c < rowWidth; c++) {
+                if (items[r][c] && item->getUID() == items[r][c]->getUID()) {
                     changed = true;
-                    return;
+                    int stack = count + items[r][c]->count();
+                    if (stack < item->stackSize()) {
+                        std::cout << " merged with " << sf::Vector2i(r, c);
+                        items[r][c]->add(count);
+                        item = nullptr;
+                        std::cout << "...done...";
+                        return;
+                    }
+                    else {
+                        size_t diff = item->stackSize() - items[r][c]->count();
+                        item->take(diff);
+                        items[r][c]->add(diff);
+                    }
                 }
-                else if (j == nullptr) {
-                    j = std::make_shared<Item>(*item);
-                    j->setCount(count);
-                    changed = true;
-                    return;
+                else if (!items[r][c] && first_empty_index == sf::Vector2i(-1, -1)) {
+                    first_empty_index = sf::Vector2i(r, c);
                 }
             }
+        }
+        if (first_empty_index != sf::Vector2i(-1, -1) && item) {
+            std::cout << "added to " << first_empty_index;
+            items[first_empty_index.x][first_empty_index.y] = item;
+            //placeItem(first_empty_index.x, first_empty_index.y, item);
+            item = nullptr;
+            changed = true;
+            std::cout << "...done...";
+        }
+        if (item) {
+            std::cout << item->count() << " remaining!\n";
         }
     }
 }
@@ -139,6 +163,36 @@ void Player_Inventory::takeEquipped(int count)
         }
         takeItem(equippedRow, equippedIndex, count);
     }
+}
+
+std::shared_ptr<Item> Player_Inventory::findItem(std::string name)
+{
+    std::shared_ptr<Item> item = nullptr;
+    for (auto& r : items) {
+        for (auto& i : r) {
+            if (i && equalStrings(name, i->getName())) {
+                if (!item) {
+                    item = i;
+                    i = nullptr;
+                }
+                else {
+                    size_t max = i->stackSize();
+                    size_t c = i->count();
+                    if (c + item->count() < max) {
+                        item->add(c);
+                        i = nullptr;
+                    }
+                    else {
+                        size_t diff = max - item->count();
+                        i->take(diff);
+                        item->add(diff);
+                        return item;
+                    }
+                }
+            }
+        }
+    }
+    return item;
 }
 
 void Player_Inventory::setEquipped(size_t index)

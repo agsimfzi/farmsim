@@ -174,12 +174,11 @@ void Chunk::addBuilding(Building* building, sf::Vector2i c)
     buildings[c.x][c.y] = std::make_shared<sf::Sprite>(sprite);
 }
 
-void Chunk::addItem(std::shared_ptr<Item> item, size_t count, sf::Vector2f pos)
+void Chunk::addItem(std::shared_ptr<Item> item, sf::Vector2f pos)
 {
-    if (item && count > 0) {
+    if (item) {
         std::cout << "adding " << item->count() << " " << item->getName() << " to " << pos << '\n';
-        items.push_back(item);
-        items.back()->setCount(count);
+        items.push_back(std::move(item));
         items.back()->setPosition(pos);
     }
 }

@@ -49,9 +49,13 @@ void World::update(Player_Inventory& player_inventory, Player& player)
         }
         energy = player.energy;
     }
+
+    /*
     for (auto& m : machines) {
         //m->update();
     }
+    */
+
     for (auto& v : vehicles) {
         v->update();
     }
@@ -96,8 +100,8 @@ void World::interact(Player& player, Player_Inventory& player_inventory)
                 auto m = std::dynamic_pointer_cast<Machine>(info.building);
                 std::shared_ptr<Item> p = m->activeProduct();
                 if (p) {
-                    player_inventory.addItem(p, p->count());
-                    m->clearProduct();
+                    player_inventory.addItem(p);
+                    m->setProduct(p);
                 }
             } // END PICKUP PRODUCTS
             else if (f->planted) { // HARVEST
@@ -105,7 +109,12 @@ void World::interact(Player& player, Player_Inventory& player_inventory)
                     std::cout << "FAILED TO FIND CROP AT TILE " << t << '\n';
                 }
                 else if (crops[t.x][t.y].fullyGrown()) {
-                    player_inventory.addItem(std::make_shared<Item>(*item_library.item(crops[t.x][t.y].harvestUID())));
+                    std::shared_ptr<Item> i = std::make_shared<Item>(*item_library.item(crops[t.x][t.y].harvestUID()));
+                    player_inventory.addItem(i);
+                    if (i) {
+                        chunks.addItem(i, player.getCoordinates(Tile::tileSize));
+                    }
+
                     crops[t.x].erase(t.y);
                     f->setType(Floor_Type::TILLED);
                     f->planted = false;
@@ -279,7 +288,7 @@ void World::placeWreckage()
 
     int distance = 1;
     sf::Vector2i axe_coords = randomNearbyEmptyTile(start_coords, distance);
-    chunks.addItem(axe, 1, axe_coords);
+    chunks.addItem(axe, axe_coords);
 
     std::vector<std::shared_ptr<Item>> items;
     items.push_back(item_library.shared("pickaxe"));
@@ -583,9 +592,10 @@ void World::axe(int factor)
             info.tree = false;
             chunks.eraseTree(t);
             Item* i = item_library.item("wood");
-            std::shared_ptr<Item> item = std::make_shared<Item>(*i);
             size_t count = prng::number(7, 13);
-            chunks.addItem(item, count, t);
+            std::shared_ptr<Item> item = std::make_shared<Item>(*i);
+            item->setCount(count);
+            chunks.addItem(item, t);
         }
     }
     else if (info.building) {
@@ -594,7 +604,7 @@ void World::axe(int factor)
             b->health -= factor;
             if (b->health <= 0) {
                 for (auto& i : b->getInventory().front()) {
-                    chunks.addItem(i, i->count(), t);
+                    chunks.addItem(i, t);
                 }
                 info.building.reset();
                 chunks.eraseBuilding(t);
@@ -630,11 +640,13 @@ void World::pick(int factor)
                         count = prng::number(1, 2);
                     }
                     std::shared_ptr<Item> item = std::make_shared<Item>(*item_library.item(key));
-                    chunks.addItem(item, count, t);
+                    item->setCount(count);
+                    chunks.addItem(item, t);
 
                     if (prng::boolean()) { // INDEPENDENT COAL-SPAWN CHANCE
                         std::shared_ptr<Item> item = std::make_shared<Item>(*item_library.item("coal"));
-                        chunks.addItem(item, prng::number(3, 7), t);
+                        item->setCount(prng::number(3, 7));
+                        chunks.addItem(item, t);
                     }
                 }
             }
@@ -651,7 +663,7 @@ void World::hammer()
             if (b->type == Building::CONTAINER && !b->empty()) {
                 return;
             }
-            chunks.addItem(std::make_shared<Item>(*item_library(b->uid)), 1, t);
+            chunks.addItem(std::make_shared<Item>(*item_library(b->uid)), t);
             tile_library[t.x][t.y].building = nullptr;
             chunks.eraseBuilding(t);
         }

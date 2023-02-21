@@ -16,7 +16,7 @@ public:
 
     void resize(const size_t rows, const size_t cols);
 
-    void addItem(std::shared_ptr<Item> item, size_t count = 1);
+    void addItem(std::shared_ptr<Item>& item);
     size_t takeItem(size_t x, size_t y, size_t count);
     void clearItem(size_t x, size_t y);
     void placeItem(size_t x, size_t y, std::shared_ptr<Item> item);
@@ -33,6 +33,8 @@ public:
     void removeItem(std::string name, size_t count);
 
     size_t countItem(std::string name);
+
+    std::shared_ptr<Item> findItem(std::string name);
 
 private:
     std::vector<std::vector<std::shared_ptr<Item>>> items;

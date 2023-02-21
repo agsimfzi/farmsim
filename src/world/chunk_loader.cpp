@@ -167,12 +167,12 @@ void Chunk_Loader::addBuilding(Building* b, sf::Vector2i coords)
     }
 }
 
-void Chunk_Loader::addItem(std::shared_ptr<Item> item, size_t count, sf::Vector2i coords)
+void Chunk_Loader::addItem(std::shared_ptr<Item> item, sf::Vector2i coords)
 {
     sf::Vector2i ci = findChunk(coords);
     if (chunks.contains(ci.x) && chunks[ci.x].contains(ci.y)) {
         sf::Vector2f pos = chunks[ci.x][ci.y]->getFloor(coords)->getPosition();
-        chunks[ci.x][ci.y]->addItem(item, count, pos);
+        chunks[ci.x][ci.y]->addItem(item, pos);
     }
 }
 
@@ -206,8 +206,10 @@ void Chunk_Loader::checkPickup(Player_Inventory& inventory, sf::Vector2f player_
                     }
 
                     if ((*i)->getSprite().getGlobalBounds().contains(player_pos)) {
-                        inventory.addItem((*i), (*i)->count());
-                        chunks[ci.x][ci.y]->getItems().erase(i);
+                        inventory.addItem((*i));
+                        if (!(*i)) {
+                            chunks[ci.x][ci.y]->getItems().erase(i);
+                        }
                     }
                     else {
                         sf::Vector2i nc = findChunk((*i)->getPosition());
@@ -228,7 +230,7 @@ void Chunk_Loader::checkPickup(Player_Inventory& inventory, sf::Vector2f player_
     }
 
     for (auto& p : to_move) {
-        chunks[p.first.x][p.first.y]->addItem(p.second, p.second->count(), p.second->getSprite().getPosition());
+        chunks[p.first.x][p.first.y]->addItem(p.second, p.second->getSprite().getPosition());
     }
 }
 

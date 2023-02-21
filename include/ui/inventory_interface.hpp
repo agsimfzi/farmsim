@@ -43,7 +43,7 @@ public:
     bool dragging = false;
     bool expanded = false;
 
-    void close();
+    void close(std::function<void(std::shared_ptr<Item>)> drop);
 
     virtual void startDrag();
     void checkDrag();
@@ -71,6 +71,8 @@ protected:
     Container* container = nullptr;
     Crafting* crafting = nullptr;
     size_t equippedIndex = 0;
+
+    sf::RectangleShape frame;
 
     sf::RectangleShape progress_bar;
 

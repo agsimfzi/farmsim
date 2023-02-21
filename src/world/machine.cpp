@@ -102,6 +102,9 @@ void Machine::tick(Item_Library& item_library)
 
 float Machine::reactionProgress()
 {
+    if (current_reaction < 0) {
+        return 0.f;
+    }
     return (static_cast<float>(reaction_tick) / static_cast<float>(reactions[current_reaction].length));
 }
 
@@ -178,12 +181,7 @@ void Machine::setReagant(std::shared_ptr<Item> item, size_t i)
 void Machine::setProduct(std::shared_ptr<Item> item)
 {
     if (item) {
-        if (inventory.back().front()) {
-            inventory.back().front()->add(item->count());
-        }
-        else {
-            inventory.back().front() = std::make_shared<Item>(*item);
-        }
+        inventory.back().front() = std::make_shared<Item>(*item);
     }
     else if (inventory.back().front()) {
         inventory.back().front().reset();

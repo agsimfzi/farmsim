@@ -120,7 +120,8 @@ void UI::loadDefaultReactions()
 void UI::toggleInventory()
 {
     if (inventory_interface->open) {
-        inventory_interface->close();
+        auto drop = [&](std::shared_ptr<Item> i) { i->can_pickup = false; game.getWorld().getChunks().addItem(i, game.getPlayer().getCoordinates(Tile::tileSize)); };
+        inventory_interface->close(drop);
         overlay_active = false;
         game.getWorld().closeActiveBuilding();
         inventory_interface = std::make_unique<Inventory_Interface>(Inventory_Interface(game.getInventory(), view));
@@ -150,7 +151,8 @@ void UI::closeOverlay()
 {
     overlay_active = false;
     if (inventory_interface->open) {
-        inventory_interface->close();
+        auto drop = [&](std::shared_ptr<Item> i) { i->can_pickup = false; game.getWorld().getChunks().addItem(i, game.getPlayer().getCoordinates(Tile::tileSize)); };
+        inventory_interface->close(drop);
         inventory_interface = std::make_unique<Inventory_Interface>(*inventory_interface);
     }
     else if(minimap.isExpanded()) {
@@ -170,7 +172,7 @@ bool UI::clickLeft()
     if (parsed) {
         if (inventory_interface->open) {
             if (inventory_interface->dragging) {
-                auto drop = [&](std::shared_ptr<Item> i) { game.getWorld().getChunks().addItem(i, i->count(), game.getPlayer().getCoordinates(Tile::tileSize)); };
+        auto drop = [&](std::shared_ptr<Item> i) { i->can_pickup = false; game.getWorld().getChunks().addItem(i, game.getPlayer().getCoordinates(Tile::tileSize)); };
                 inventory_interface->endDrag(drop);
             }
             else {
@@ -255,7 +257,8 @@ void UI::checkBuilding()
     }
     else {
         closeOverlay();
-        inventory_interface->close();
+        auto drop = [&](std::shared_ptr<Item> i) { i->can_pickup = false; game.getWorld().getChunks().addItem(i, game.getPlayer().getCoordinates(Tile::tileSize)); };
+        inventory_interface->close(drop);
         overlay_active = false;
         game.getWorld().closeActiveBuilding();
     }

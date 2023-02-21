@@ -17,7 +17,7 @@ Game::Game(sf::View& nview)
     giveItemToPlayer("pickaxe");
     giveItemToPlayer("furnace");
     giveItemToPlayer("iron bar", 50);
-    giveItemToPlayer("copper bar", 50);
+    giveItemToPlayer("copper bar", 10000);
     giveItemToPlayer("gold bar", 50);
     giveItemToPlayer("coal", 500);
     giveItemToPlayer("iron ore", 100);
@@ -32,15 +32,21 @@ Game::Game(sf::View& nview)
 
 void Game::giveItemToPlayer(std::string name, size_t count)
 {
-    Item i = *item_library(name);
-    player_inventory.addItem(std::make_shared<Item>(i), count);
+    Item* i = item_library(name);
+    if (i) {
+        std::shared_ptr<Item> it = std::make_shared<Item>(*i);
+        it->setCount(count);
+        player_inventory.addItem(it);
+    }
 }
 
 void Game::giveItemToPlayer(size_t uid, size_t count)
 {
     Item* i = item_library(uid);
     if (i) {
-        player_inventory.addItem(std::make_shared<Item>(*i), count);
+        std::shared_ptr<Item> it = std::make_shared<Item>(*i);
+        it->setCount(count);
+        player_inventory.addItem(it);
     }
 }
 

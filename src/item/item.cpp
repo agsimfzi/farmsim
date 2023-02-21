@@ -101,6 +101,9 @@ size_t Item::count()
 
 void Item::setCount(size_t n_count)
 {
+    if ((int)n_count > stack_size) {
+        n_count = stack_size;
+    }
     m_count = n_count;
 }
 

@@ -8,9 +8,7 @@ Machine_Interface::Machine_Interface(Player_Inventory& inventory, sf::View& view
     : Inventory_Interface(inventory, view)
     , machine{ machine }
 {
-    if (machine->current_reaction >= 0) {
-        setProgressBarSize();
-    }
+    setProgressBarSize();
 
     std::vector<std::vector<std::shared_ptr<Item>>>& building_inventory = machine->getInventory();
 
@@ -18,7 +16,8 @@ Machine_Interface::Machine_Interface(Player_Inventory& inventory, sf::View& view
     pos.x += (Inventory_Cell::size * 2.f);
     float sx = pos.x;
     sf::Vector2f progress_pos = pos;
-    progress_pos.y += (Inventory_Cell::size);
+    progress_pos.x += ((building_inventory.front().size() - 1) * Inventory_Cell::size) / 2.f;
+    progress_pos.y += Inventory_Cell::size;
     progress_bar.setPosition(progress_pos);
     for (const auto& row : building_inventory) {
         pos.x = sx;
@@ -32,6 +31,9 @@ Machine_Interface::Machine_Interface(Player_Inventory& inventory, sf::View& view
 
         pos.y += Inventory_Cell::size * 2.f;
     }
+    progress_pos.y += Inventory_Cell::size;
+
+    cells.back().back().setPosition(progress_pos);
 
     pos = cells[inventory.rowCount].back().getPosition();
     pos.x += Inventory_Cell::size;
@@ -40,6 +42,17 @@ Machine_Interface::Machine_Interface(Player_Inventory& inventory, sf::View& view
 
     sf::Vector2f size(320.f, 512.f);
     reaction_interface.setView(pos, size);
+
+    pos = cells[inventory.rowCount].front().getPosition();
+    pos.x -= Inventory_Cell::size;
+    pos.y -= Inventory_Cell::size;
+
+    size.x = cells[inventory.rowCount].back().getPosition().x + Inventory_Cell::size;
+    size.y = cells.back().back().getPosition().y + Inventory_Cell::size;
+    size -= pos;
+
+    frame.setPosition(pos);
+    frame.setSize(size);
 }
 
 void Machine_Interface::update(sf::RenderWindow& window)
@@ -77,12 +90,16 @@ void Machine_Interface::placeMergeSwap()
             }
             writeExtension();
         }
+        else {
+            dragging = true;
+        }
     }
     else if (moused_index.x == rows + 1) {
         cancelDrag();
     }
     else if (moused_index.x < rows) {
         Inventory_Interface::placeMergeSwap();
+        writeExtension();
     }
 }
 
@@ -90,11 +107,13 @@ void Machine_Interface::readExtension()
 {
     std::vector<std::shared_ptr<Item>> reagants = machine->getInventory().front();
     for (size_t i = 0; i < reagants.size(); i++) {
+        cells[inventory.rowCount][i].clearItem();
         cells[inventory.rowCount][i].setItem(reagants[i]);
     }
 
     cells.back().front().clearItem();
     cells.back().front().setItem(machine->getInventory().back().front());
+    reaction_interface.check(inventory);
 }
 
 void Machine_Interface::writeExtension()
@@ -112,6 +131,7 @@ void Machine_Interface::writeExtension()
     }
     machine->setProduct(cells.back().front().getItem());
     machine->checkReaction();
+    reaction_interface.check(inventory);
 }
 
 void Machine_Interface::swap()
@@ -132,6 +152,8 @@ void Machine_Interface::startDrag()
     Inventory_Interface::startDrag();
     if (moused_index.x == (int)inventory.rowCount) {
         machine->clearReagant(moused_index.y);
+        machine->checkReaction();
+        setProgressBarSize();
     }
     else if (moused_index.x == (int)inventory.rowCount + 1) {
         machine->clearProduct();
@@ -162,12 +184,40 @@ void Machine_Interface::clickLeft(sf::RenderWindow& window)
     if (reaction_interface.contains(mpos)) {
         std::pair<Reaction*, std::shared_ptr<Item>> rxn = reaction_interface.click(fMouse(window, reaction_interface.getView()));
         Reaction* reaction = rxn.first;
-        // move reagants in machine to inventory
-        // move new reagants to machine
-        // re-read the interface
+
+        if (reaction) {
+            // move reagants in machine to inventory
+            for (auto& c : cells[inventory.rowCount]) {
+                std::shared_ptr<Item> i = c.getItem();
+                if (i) {
+                    inventory.addItem(i);
+                    if (i) {
+                        // ends the process if there's no remaining inventory space
+                        return;
+                    }
+                    else {
+                        c.clearItem();
+                    }
+                }
+            }
+            writeExtension();
+
+            // move new reagants to machine
+            for (auto& r : reaction->reagants) {
+                std::shared_ptr<Item> i = inventory.findItem(r.name);
+                if (i) {
+                    machine->addReagant(i);
+                }
+            }
+            // re-read the interface
+            readInventory();
+            readExtension();
+            reaction_interface.check(inventory);
+        }
     }
     else {
         Inventory_Interface::clickLeft(window);
+        reaction_interface.check(inventory);
     }
 }
 

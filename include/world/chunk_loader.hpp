@@ -40,7 +40,7 @@ public:
     void eraseBuilding(sf::Vector2i i);
 
     void addBuilding(Building* b, sf::Vector2i coords);
-    void addItem(std::shared_ptr<Item> item, size_t count, sf::Vector2i coords);
+    void addItem(std::shared_ptr<Item> item, sf::Vector2i coords);
 
     void checkPickup(Player_Inventory& inventory, sf::Vector2f player_pos, bool pickup_all);
 

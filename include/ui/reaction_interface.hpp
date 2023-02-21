@@ -59,8 +59,6 @@ public:
 
     std::pair<Reaction*, std::shared_ptr<Item>> click(sf::Vector2f mpos);
 
-    void checkInventory(Player_Inventory& inventory);
-
     std::shared_ptr<Tooltip> findTooltip(sf::Vector2f mpos);
 
 private:

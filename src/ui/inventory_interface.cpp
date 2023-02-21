@@ -35,6 +35,11 @@ Inventory_Interface::Inventory_Interface(Player_Inventory& inventory, sf::View& 
     progress_bar.setFillColor(Palette::white);
     progress_bar.setSize(sf::Vector2f(Inventory_Cell::size, 0.f));
     progress_bar.setOrigin(sf::Vector2f(Inventory_Cell::size / 2.f, Inventory_Cell::size / 2.f));
+
+    frame.setFillColor(Palette::inventory_bg);
+    frame.setOutlineThickness(1.f);
+    frame.setOutlineColor(Palette::inventory_outline);
+    frame.setSize(sf::Vector2f(0.f, 0.f));
 }
 
 void Inventory_Interface::readInventory()
@@ -191,14 +196,17 @@ size_t Inventory_Interface::getEquippedIndex()
 
 bool Inventory_Interface::scroll(float delta, sf::RenderWindow& window)
 {
-    if (open && reaction_interface.scroll(delta, fMouse(window, reaction_interface.getView()))) {
+    if (open) {
+        reaction_interface.scroll(delta, fMouse(window, reaction_interface.getView()));
         return false;
     }
-    else if (delta > 0.f) {
-        scrollLeft();
-    }
-    else if (delta < 0.f) {
-        scrollRight();
+    else {
+        if (delta > 0.f) {
+            scrollLeft();
+        }
+        else if (delta < 0.f) {
+            scrollRight();
+        }
     }
     return true;
 }
@@ -218,10 +226,16 @@ void Inventory_Interface::scrollRight()
     setEquippedIndex(equippedIndex + 1);
 }
 
-void Inventory_Interface::close()
+void Inventory_Interface::close(std::function<void(std::shared_ptr<Item>)> drop)
 {
     if (dragging) {
-        cancelDrag();
+        if (dragStartIndex.x >= 0 && dragStartIndex.y >= 0) {
+            cancelDrag();
+        }
+        else {
+            drop(dragItem);
+            dragItem.reset();
+        }
     }
     open = false;
     expanded = false;
@@ -241,13 +255,13 @@ void Inventory_Interface::clickLeft(sf::RenderWindow& window)
         std::cout << "\treaction_interface click detected!\n";
         std::pair<Reaction*, std::shared_ptr<Item>> rxn = reaction_interface.click(fMouse(window, reaction_interface.getView()));
         Reaction* reaction = rxn.first;
-        if (reaction && rxn.second) {
+        if (reaction) {
             Item product = *rxn.second;
             std::cout << "\tvalid reaction and product returned!\n";
             auto remove = [&]()
                 {
                     for (const auto& r : reaction->reagants) {
-                    inventory.removeItem(r.name, r.count);
+                        inventory.removeItem(r.name, r.count);
                     }
                     readInventory();
                 };
@@ -265,12 +279,13 @@ void Inventory_Interface::clickLeft(sf::RenderWindow& window)
                 checkDrag();
                 remove();
                 reaction_interface.check(inventory);
+                dragStartIndex = sf::Vector2i(-1, -1);
             }
-            return;
         }
     }
-
-    startDrag();
+    else {
+        startDrag();
+    }
 }
 
 void Inventory_Interface::clickRight()
@@ -326,10 +341,10 @@ void Inventory_Interface::endDrag(std::function<void(std::shared_ptr<Item>)> dro
     }
 
     if (moused_index.x >= 0 || moused_index.y >= 0) {
-        if (moused_index.x == (int)inventory.rowCount) {
+        placeMergeSwap();
+        if (moused_index.x >= (int)inventory.rowCount) {
             writeExtension();
         }
-        placeMergeSwap();
     }
     else {
         dragItem->can_pickup = false;
@@ -358,7 +373,7 @@ void Inventory_Interface::placeMergeSwap()
     else { // INVENTORY PLACEMENT
         //if (dsi.x < (int)inventory.rowCount) {
             if (si) {
-                if (si->getUID() == dragItem->getUID()) {
+                if (si->getUID() == dragItem->getUID()) { // merge
                     size_t remainder = si->add(dragItem->count());
                     cells[moused_index.x][moused_index.y].updateCount();
                     if (remainder == 0) {
@@ -366,11 +381,17 @@ void Inventory_Interface::placeMergeSwap()
                     }
                     else {
                         dragItem->setCount(remainder);
+                        dragging = true;
+                        return;
                     }
                     inventory.clearItem(moused_index.x, moused_index.y);
                     inventory.placeItem(moused_index.x, moused_index.y, si);
-                }
+                } // end merge
                 else {
+                    if (dragStartIndex.x < 0 && dragStartIndex.y < 0) {
+                        dragging = true;
+                        return;
+                    }
                     swap();
                 }
             }
@@ -473,6 +494,12 @@ void Inventory_Interface::readBuilding()
 void Inventory_Interface::cancelDrag()
 {
     cells[dragStartIndex.x][dragStartIndex.y].setItem(dragItem);
+    if (dragStartIndex.x < (int)inventory.rowCount) {
+        inventory.placeItem(dragStartIndex.x, dragStartIndex.y, dragItem);
+    }
+    else {
+        writeExtension();
+    }
     dragging = false;
     dragItem.reset();
 }
@@ -549,6 +576,15 @@ void Inventory_Interface::writeExtension()
 
 void Inventory_Interface::draw(sf::RenderTarget& target, sf::RenderStates states) const
 {
+    if (open) {
+        target.draw(frame, states);
+
+        target.draw(reaction_interface, states);
+        target.setView(view);
+
+        target.draw(progress_bar, states);
+    }
+
     size_t nr = cells.size();
     size_t nc;
     for (size_t r = 0; r < nr; r++) {
@@ -561,11 +597,6 @@ void Inventory_Interface::draw(sf::RenderTarget& target, sf::RenderStates states
     }
 
     if (open) {
-        target.draw(reaction_interface, states);
-        target.setView(view);
-
-        target.draw(progress_bar, states);
-
         if (active_tooltip) {
             target.draw(*active_tooltip, states);
         }
