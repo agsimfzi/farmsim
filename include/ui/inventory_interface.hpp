@@ -67,6 +67,8 @@ protected:
 
     Reaction_Interface reaction_interface;
 
+    void updateDragText();
+
     const static float cell_padding;
     sf::Vector2i dragStartIndex;
     Container* container = nullptr;
@@ -93,6 +95,8 @@ protected:
 
     virtual void readExtension();
     virtual void writeExtension();
+
+    void writeDecision();
 
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
 };

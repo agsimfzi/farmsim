@@ -23,7 +23,7 @@ Game::Game(sf::View& nview)
     giveItemToPlayer("iron ore", 100);
     giveItemToPlayer("copper ore", 100);
     giveItemToPlayer("gold ore", 100);
-    giveItemToPlayer("wood", 100);
+    giveItemToPlayer("wood", 9990);
     giveItemToPlayer("plank", 100);
     giveItemToPlayer("stone", 100);
 
