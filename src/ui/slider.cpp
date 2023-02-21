@@ -19,7 +19,7 @@ Slider::Slider(std::string ntitle)
     container.setOutlineThickness(1);
 
     fill.setSize(sf::Vector2f(0.f, container.getSize().y - (offset * 2.f)));
-    fill.setFillColor(palette::orange);
+    fill.setFillColor(Palette::orange);
 
     setFill(100.f);
 
@@ -51,10 +51,10 @@ void Slider::set(sf::Vector2f pos, sf::Font& font)
     pos.y += (fill.getSize().y - (label.getLocalBounds().height + label.getLocalBounds().top)) / 2.f - offset;
     label.setPosition(pos);
 
-    title.setFillColor(palette::white);
-    label.setFillColor(palette::white);
+    title.setFillColor(Palette::white);
+    label.setFillColor(Palette::white);
 
-    container.setOutlineColor(palette::white);
+    container.setOutlineColor(Palette::white);
 }
 
 void Slider::setFill(float f)

@@ -13,9 +13,6 @@ public:
     const static sf::Vector2f frameSize;
     const static float frameOutlineSize;
 
-    const static sf::Color colorActive;
-    const static sf::Color colorInactive;
-    const static sf::Color colorOutline;
     const static sf::Color colorUseBar;
 
     void activate();

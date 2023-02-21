@@ -1,10 +1,12 @@
 #include <ui/energy_bar.hpp>
 
+#include <resources/palette.hpp>
+
 Energy_Bar::Energy_Bar()
 {
-    frame.setFillColor(sf::Color(230, 209, 135));
+    frame.setFillColor(Palette::inventory_bg);
     frame.setOutlineThickness(outline_thickness);
-    frame.setOutlineColor(sf::Color::Black);
+    frame.setOutlineColor(Palette::inventory_outline);
     frame.setSize(sf::Vector2f(max_size, height));
 }
 
@@ -22,6 +24,7 @@ void Energy_Bar::setPosition(sf::Vector2f pos)
 
 sf::Color Energy_Bar::calculateFillColor(float energy)
 {
+    // todo
     return sf::Color::Green;
 }
 

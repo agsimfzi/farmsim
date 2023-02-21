@@ -1,6 +1,7 @@
 #include <ui/tooltip.hpp>
 
 #include <resources/font_manager.hpp>
+#include <resources/palette.hpp>
 
 #include <util/primordial.hpp>
 
@@ -10,12 +11,12 @@ Tooltip::Tooltip(std::shared_ptr<Item> item)
 {
     name.setString(item->getName());
     name.setFont(Font_Manager::get(Font::UI));
-    name.setFillColor(sf::Color::Black);
+    name.setFillColor(Palette::black);
     name.setCharacterSize(32);
 
     description.setString(item->getDescription());
     description.setFont(Font_Manager::get(Font::UI));
-    description.setFillColor(sf::Color::Black);
+    description.setFillColor(Palette::black);
     description.setCharacterSize(24);
 
     int v = item->getValue();
@@ -29,23 +30,16 @@ Tooltip::Tooltip(std::shared_ptr<Item> item)
 
     value.setString(vstring);
     value.setFont(Font_Manager::get(Font::UI));
-    value.setFillColor(sf::Color::Black);
+    value.setFillColor(Palette::black);
     value.setCharacterSize(24);
 
-    frame.setFillColor(sf::Color::White);
-    frame.setOutlineColor(sf::Color::Black);
+    frame.setFillColor(Palette::inventory_bg);
+    frame.setOutlineColor(Palette::inventory_outline);
     frame.setOutlineThickness(1.f);
 }
 
 Tooltip::Tooltip(Reaction& reaction, std::vector<std::shared_ptr<Item>> reagants)
 {
-    /*
-    name.setString(reaction.product);
-    name.setFont(Font_Manager::get(Font::UI));
-    name.setFillColor(sf::Color::Black);
-    name.setCharacterSize(32);
-    */
-
     for (auto& i : reagants) {
         sf::Sprite sprite = i->getSprite();
         std::string lstr = "x";
@@ -58,7 +52,7 @@ Tooltip::Tooltip(Reaction& reaction, std::vector<std::shared_ptr<Item>> reagants
         sf::Text label;
         label.setString(lstr);
         label.setFont(Font_Manager::get(Font::UI));
-        label.setFillColor(sf::Color::Black);
+        label.setFillColor(Palette::black);
         label.setCharacterSize(20);
 
         labeled_sprites.push_back(std::make_pair(sprite, label));

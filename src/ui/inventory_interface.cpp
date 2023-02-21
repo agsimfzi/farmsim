@@ -3,6 +3,7 @@
 #include <SFML/Window/Mouse.hpp>
 
 #include <resources/font_manager.hpp>
+#include <resources/palette.hpp>
 
 #include <util/fmouse.hpp>
 
@@ -26,11 +27,11 @@ Inventory_Interface::Inventory_Interface(Player_Inventory& inventory, sf::View& 
     setEquippedIndex(0);
 
     dragCountText.setFont(Font_Manager::get(Font::UI));
-    dragCountText.setFillColor(sf::Color::Black);
-    dragCountText.setOutlineColor(sf::Color::White);
-    dragCountText   .setOutlineThickness(2.f);
+    dragCountText.setFillColor(Palette::black);
+    dragCountText.setOutlineColor(Palette::white);
+    dragCountText.setOutlineThickness(2.f);
 
-    progress_bar.setFillColor(sf::Color::White);
+    progress_bar.setFillColor(Palette::white);
     progress_bar.setSize(sf::Vector2f(Tile::tileSize, 0.f));
     progress_bar.setOrigin(sf::Vector2f(Tile::tileSize / 2.f, Tile::tileSize / 2.f));
 }

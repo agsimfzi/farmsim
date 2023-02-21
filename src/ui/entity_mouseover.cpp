@@ -33,20 +33,20 @@ void Entity_Mouseover::set(sf::Vector2f framePos, sf::Vector2f size)
     frame.setSize(size);
 
     frame.setPosition(framePos);
-    frame.setFillColor(palette::black);
+    frame.setFillColor(Palette::black);
     frame.setOutlineThickness(outlineThickness);
-    frame.setOutlineColor(palette::white);
+    frame.setOutlineColor(Palette::white);
 
     spritePos = framePos + sf::Vector2f(64.f, 64.f);
     sprite.setPosition(spritePos);
 
     sf::Vector2f namePos = framePos + sf::Vector2f(128.f + 16.f, 32.f);
     nameText.setPosition(namePos);
-    nameText.setFillColor(palette::white);
+    nameText.setFillColor(Palette::white);
 
     sf::Vector2f descriptionPos = framePos + sf::Vector2f(16.f, 128.f + 32.f);
     descriptionText.setPosition(descriptionPos);
-    descriptionText.setFillColor(palette::white);
+    descriptionText.setFillColor(Palette::white);
     descriptionText.setCharacterSize(22);
 }
 

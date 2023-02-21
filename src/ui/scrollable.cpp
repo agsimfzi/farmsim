@@ -1,6 +1,6 @@
 #include <ui/scrollable.hpp>
 
-#include <util/vector2_stream.hpp>
+#include <resources/palette.hpp>
 
 void Scrollable::setView(sf::Vector2f pos, sf::Vector2f size, sf::Vector2u window_size)
 {
@@ -31,7 +31,7 @@ void Scrollable::reset()
 
 void Scrollable::setScrollable(float max_height)
 {
-    scrollbar.setFillColor(sf::Color::Black);
+    scrollbar.setFillColor(Palette::black);
     scrollbar.setSize(sf::Vector2f(12.f, 12.f));
 
     scroll_x_pos = view.getSize().x - scrollbar.getSize().x;

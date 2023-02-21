@@ -3,11 +3,11 @@
 #include <cassert>
 
 #include <resources/font_manager.hpp>
+#include <resources/palette.hpp>
+
 
 #include <iostream>
 
-const sf::Color Reaction_Panel::color_bg_available = sf::Color(230, 209, 135);
-const sf::Color Reaction_Panel::color_bg_unavailable = sf::Color(82, 82, 82);
 const float Reaction_Panel::outline_thickness = 1.f;
 
 Reaction_Panel::Reaction_Panel(Reaction& rxn, Item_Library& item_library, sf::Vector2f pos, float size_x)
@@ -15,7 +15,7 @@ Reaction_Panel::Reaction_Panel(Reaction& rxn, Item_Library& item_library, sf::Ve
     sf::Vector2f frame_size(size_x, 66.f);
     frame.setSize(frame_size);
     frame.setOutlineThickness(outline_thickness);
-    frame.setOutlineColor(sf::Color::Black);
+    frame.setOutlineColor(Palette::inventory_outline);
     frame.setPosition(pos);
 
     product = item_library.shared(rxn.product);
@@ -28,7 +28,7 @@ Reaction_Panel::Reaction_Panel(Reaction& rxn, Item_Library& item_library, sf::Ve
     name.setPosition(pos);
     name.setString(rxn.product);
     name.setFont(Font_Manager::get(Font::UI));
-    name.setFillColor(sf::Color::Black);
+    name.setFillColor(Palette::black);
     name.setCharacterSize(32);
 
     for (auto& r : rxn.reagants) {
@@ -62,13 +62,13 @@ bool Reaction_Panel::isAvailable()
 void Reaction_Panel::setAvailable()
 {
     available = true;
-    frame.setFillColor(color_bg_available);
+    frame.setFillColor(Palette::inventory_bg);
 }
 
 void Reaction_Panel::unsetAvailable()
 {
     available = false;
-    frame.setFillColor(color_bg_unavailable);
+    frame.setFillColor(Palette::inventory_bg_unavailable);
 }
 
 bool Reaction_Panel::contains(sf::Vector2f mpos)

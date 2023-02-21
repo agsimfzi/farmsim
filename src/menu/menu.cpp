@@ -50,7 +50,7 @@ Menu::Menu()
 
     version_text =  sf::Text(version, font, 36);
     version_text.setPosition(sf::Vector2f(1500.f, 24.f));
-    version_text.setFillColor(sf::Color(200, 200, 200));
+    version_text.setFillColor(Palette::white);
 }
 
 void Menu::clickLeft()

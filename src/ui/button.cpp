@@ -46,15 +46,15 @@ bool Button::isHighlighted()
 void Button::highlight()
 {
     highlighted = true;
-    container.setFillColor(palette::orange);
-    label.setFillColor(palette::purple);
+    container.setFillColor(Palette::orange);
+    label.setFillColor(Palette::purple);
 }
 
 void Button::unhighlight()
 {
     highlighted = false;
-    label.setFillColor(palette::orange);
-    container.setFillColor(palette::purple);
+    label.setFillColor(Palette::orange);
+    container.setFillColor(Palette::purple);
 }
 
 void Button::setPosition(sf::Vector2f pos)

@@ -4,17 +4,18 @@
 #include <functional>
 
 #include <resources/font_manager.hpp>
+#include <resources/palette.hpp>
 
 //////////////////////////////////////////////////////////////
 
 Loading_Screen::Loading_Screen()
 {
     text.setFont(Font_Manager::get(Font::MENU));
-    text.setFillColor(sf::Color::White);
+    text.setFillColor(Palette::white);
     text.setPosition(sf::Vector2f(128.f, 128.f));
     text.setCharacterSize(48);
 
-    backdrop.setFillColor(sf::Color::Black);
+    backdrop.setFillColor(Palette::black);
     backdrop.setSize(sf::Vector2f(1920.f, 1080.f));
 }
 

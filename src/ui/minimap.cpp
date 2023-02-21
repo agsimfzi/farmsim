@@ -2,6 +2,8 @@
 
 #include <SFML/Window/Mouse.hpp>
 
+#include <resources/palette.hpp>
+
 Minimap::Minimap()
 {
     player_blip.setPointCount(4);
@@ -19,15 +21,15 @@ Minimap::Minimap()
 
     sf::Vector2f frame_offset(frame_border_size, frame_border_size);
 
-    mini_frame.setFillColor(sf::Color::Transparent);
-    mini_frame.setOutlineColor(sf::Color::Black);
+    mini_frame.setFillColor(Palette::inventory_bg);
+    mini_frame.setOutlineColor(Palette::inventory_outline);
     mini_frame.setOutlineThickness(frame_border_size);
 
     mini_frame.setSize(mini_size - (2.f * frame_offset));
     mini_frame.setPosition(screen_size.x - mini_size.x + frame_offset.x, frame_offset.y);
 
-    full_frame.setFillColor(sf::Color::Transparent);
-    full_frame.setOutlineColor(sf::Color::Black);
+    full_frame.setFillColor(Palette::inventory_bg);
+    full_frame.setOutlineColor(Palette::inventory_outline);
     full_frame.setOutlineThickness(frame_border_size);
 
     full_frame.setSize(full_size - (2.f * frame_offset));
