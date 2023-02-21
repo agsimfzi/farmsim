@@ -1,6 +1,7 @@
 #include <world/machine.hpp>
 
 #include <util/primordial.hpp> // for equalStrings
+#include <util/prng.hpp>
 
 Machine::Machine()
 {
@@ -72,14 +73,19 @@ void Machine::tick(Item_Library& item_library)
     if (current_reaction >= 0) {
         if (!active_product
         || equalStrings(active_product->getName(), reactions[current_reaction].product)) {
+            size_t count = 1;
+            if (machine_type == Machine_Type::SEED_SIFTER) {
+                count += prng::boolean(0.5);
+                count += prng::boolean(0.25);
+            }
             reaction_tick++;
             if (reaction_tick >= reactions[current_reaction].length) {
                 if (!active_product) {
                     active_product = std::make_shared<Item>(*item_library(reactions[current_reaction].product));
-                    active_product->setCount(1);
+                    active_product->setCount(count);
                 }
                 else {
-                    active_product->setCount(active_product->count() + 1);
+                    active_product->setCount(active_product->count() + count);
                 }
 
                 for (auto& active_reagant : inventory.front()) {

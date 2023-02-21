@@ -74,7 +74,7 @@ protected:
     sf::Vector2i dragStartIndex;
     Container* container = nullptr;
     Crafting* crafting = nullptr;
-    size_t equippedIndex = 0;
+    static size_t equippedIndex;
 
     sf::RectangleShape frame;
 

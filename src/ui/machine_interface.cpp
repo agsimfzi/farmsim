@@ -53,16 +53,15 @@ Machine_Interface::Machine_Interface(Player_Inventory& inventory, sf::View& view
 
     frame.setPosition(pos);
     frame.setSize(size);
+
+    readExtension();
 }
 
 void Machine_Interface::update(sf::RenderWindow& window)
 {
     Inventory_Interface::update(window);
 
-    if (machine->current_reaction >= 0) {
-        setProgressBarSize();
-        checkReaction();
-    }
+    checkReaction();
 }
 
 void Machine_Interface::placeMergeSwap()
@@ -229,13 +228,14 @@ void Machine_Interface::checkReaction()
     for (size_t i = 0; i < n; i++) {
         cells[r][i].updateCount();
     }
-    r++;
+    r++; // shift to product row
     if (!cells[r].front().getItem()) {
         cells[r].front().setItem(machine->activeProduct());
     }
     else {
         cells[inventory.rowCount + 1].front().updateCount();
     }
+    setProgressBarSize();
 }
 
 void Machine_Interface::setProgressBarSize()

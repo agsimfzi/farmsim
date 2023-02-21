@@ -672,12 +672,11 @@ void World::hammer()
 
 void World::plantCrop(std::shared_ptr<Item> item)
 {
+    std::cout << "attempting to plant crop...\n";
     // no need for a redundant check of activeTile, as that is handled in ::interact()
     sf::Vector2i t = *activeTile;
     Floor* f = chunks.floor(*activeTile);
-    if (plantableTile(t) && (f->type == Floor_Type::TILLED
-    || f->type == Floor_Type::WATERED)
-    && !f->planted) {
+    if (plantableTile(t)) {
         item->take(1);
         f->planted = true;
 
@@ -859,7 +858,7 @@ bool World::plantableTile(sf::Vector2i i)
 
 bool World::plantableTile(Floor_Info& info)
 {
-    return (info.floor == Floor_Type::TILLED || info.floor == Floor_Type::TILLED);
+    return (!info.planted && (info.floor == Floor_Type::TILLED || info.floor == Floor_Type::WATERED));
 }
 
 bool World::passableTile(sf::Vector2i i)

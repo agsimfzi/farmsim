@@ -13,8 +13,6 @@ Game::Game(sf::View& nview)
 {
     player = Player(Database::getPlayerData(), Texture_Manager::get("PLAYER"));
 
-    giveItemToPlayer("axe");
-    giveItemToPlayer("pickaxe");
     giveItemToPlayer("furnace");
     giveItemToPlayer("iron bar", 50);
     giveItemToPlayer("copper bar", 10000);

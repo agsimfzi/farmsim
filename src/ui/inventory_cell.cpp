@@ -111,6 +111,9 @@ void Inventory_Cell::updateCount()
         if (item->count() == 1) {
             numberText.setString("");
         }
+        else if (item->count() == 0) {
+            clearItem();
+        }
         else {
             numberText.setString(std::to_string(item->count()));
         }

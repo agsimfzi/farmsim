@@ -33,6 +33,7 @@ Building_Library::Building_Library()
                     derived_subtype = item.subtype.substr(item.subtype.find(':') + 1);
                     m->reactions = reactions[stringToMachineType(derived_subtype)];
                     m->countReagants();
+                    m->machine_type = stringToMachineType(derived_subtype);
                     item.subtype = derived_subtype;
                     b = m;
                     break;

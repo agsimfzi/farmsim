@@ -15,7 +15,7 @@
 // please don't tell anyone how i live
 
 std::function<void(std::shared_ptr<Item>)> Inventory_Interface::drop = [](std::shared_ptr<Item>){};
-
+size_t Inventory_Interface::equippedIndex = 0;
 
 const float Inventory_Interface::cell_padding = Inventory_Cell::frameOutlineSize;
 
@@ -27,8 +27,6 @@ Inventory_Interface::Inventory_Interface(Player_Inventory& inventory, sf::View& 
     cells.push_back(std::vector<Inventory_Cell>());
     resize();
     readInventory();
-
-    setEquippedIndex(0);
 
     dragCountText.setFont(Font_Manager::get(Font::UI));
     dragCountText.setFillColor(Palette::black);
@@ -49,6 +47,8 @@ Inventory_Interface::Inventory_Interface(Player_Inventory& inventory, sf::View& 
     frame.setOutlineThickness(1.f);
     frame.setOutlineColor(Palette::inventory_outline);
     frame.setSize(sf::Vector2f(0.f, 0.f));
+
+    setEquippedIndex(equippedIndex);
 }
 
 void Inventory_Interface::loadDrop(std::function<void(std::shared_ptr<Item>)> drop)
