@@ -32,8 +32,8 @@ Inventory_Interface::Inventory_Interface(Player_Inventory& inventory, sf::View& 
     dragCountText.setOutlineThickness(2.f);
 
     progress_bar.setFillColor(Palette::white);
-    progress_bar.setSize(sf::Vector2f(Tile::tileSize, 0.f));
-    progress_bar.setOrigin(sf::Vector2f(Tile::tileSize / 2.f, Tile::tileSize / 2.f));
+    progress_bar.setSize(sf::Vector2f(Inventory_Cell::size, 0.f));
+    progress_bar.setOrigin(sf::Vector2f(Inventory_Cell::size / 2.f, Inventory_Cell::size / 2.f));
 }
 
 void Inventory_Interface::readInventory()
@@ -139,17 +139,17 @@ void Inventory_Interface::placeCells()
         nc = cells[r].size();
         for (size_t c = 0; c < nc; c++) {
             cells[r][c].setPosition(pos);
-            pos.x += Inventory_Cell::frameSize.x + cell_padding;
+            pos.x += Inventory_Cell::size + cell_padding;
         }
         if (pos.x > max_x) {
             max_x = pos.x;
         }
         pos.x = x;
         if (r == 0) {
-            pos.y -= Inventory_Cell::frameSize.y * 5.f;
+            pos.y -= Inventory_Cell::size * 5.f;
         }
         else {
-            pos.y += Inventory_Cell::frameSize.y + cell_padding;
+            pos.y += Inventory_Cell::size + cell_padding;
         }
     }
 
@@ -311,7 +311,7 @@ void Inventory_Interface::checkDrag()
         sf::Vector2f pos(sf::Mouse::getPosition());
         dragItem->setPosition(pos);
 
-        pos.x -= Inventory_Cell::frameSize.x * .4f;
+        pos.x -= Inventory_Cell::size * .4f;
         dragCountText.setPosition(pos);
     }
 }
@@ -520,10 +520,10 @@ void Inventory_Interface::loadBuilding(Building* b, Item_Library& item_library)
         std::vector<std::vector<std::shared_ptr<Item>>>& inventory = b->getInventory();
 
         sf::Vector2f pos = cells[1].back().getPosition();
-        pos.x += (Tile::tileSize * 2.f);
+        pos.x += (Inventory_Cell::size * 2.f);
         float sx = pos.x;
         sf::Vector2f progress_pos = pos;
-        progress_pos.y += (Tile::tileSize);
+        progress_pos.y += (Inventory_Cell::size);
         progress_bar.setPosition(progress_pos);
         for (const auto& row : inventory) {
             pos.x = sx;
@@ -531,10 +531,10 @@ void Inventory_Interface::loadBuilding(Building* b, Item_Library& item_library)
             for (const auto& item : row) {
                 cells.back().push_back(Inventory_Cell(item));
                 cells.back().back().setPosition(pos);
-                pos.x += Tile::tileSize;
+                pos.x += Inventory_Cell::size;
             }
 
-            pos.y += Tile::tileSize;
+            pos.y += Inventory_Cell::size;
         }
     }
 }

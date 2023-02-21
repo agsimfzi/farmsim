@@ -2,8 +2,6 @@
 
 #include <util/fmouse.hpp>
 
-#include <world/tile.hpp> // for tileSize... make an inventory_cell_size ffs
-
 #include <util/vector2_stream.hpp>
 
 Machine_Interface::Machine_Interface(Player_Inventory& inventory, sf::View& view, Machine* machine)
@@ -17,10 +15,10 @@ Machine_Interface::Machine_Interface(Player_Inventory& inventory, sf::View& view
     std::vector<std::vector<std::shared_ptr<Item>>>& building_inventory = machine->getInventory();
 
     sf::Vector2f pos = cells[1].back().getPosition();
-    pos.x += (Tile::tileSize * 2.f);
+    pos.x += (Inventory_Cell::size * 2.f);
     float sx = pos.x;
     sf::Vector2f progress_pos = pos;
-    progress_pos.y += (Tile::tileSize);
+    progress_pos.y += (Inventory_Cell::size);
     progress_bar.setPosition(progress_pos);
     for (const auto& row : building_inventory) {
         pos.x = sx;
@@ -29,10 +27,10 @@ Machine_Interface::Machine_Interface(Player_Inventory& inventory, sf::View& view
             std::cout << "placing cell at " << pos << '\n';
             cells.back().push_back(Inventory_Cell(item));
             cells.back().back().setPosition(pos);
-            pos.x += Tile::tileSize;
+            pos.x += Inventory_Cell::size;
         }
 
-        pos.y += Tile::tileSize * 2.f;
+        pos.y += Inventory_Cell::size * 2.f;
     }
 }
 
@@ -185,7 +183,7 @@ void Machine_Interface::checkReaction()
 void Machine_Interface::setProgressBarSize()
 {
     sf::Vector2f size;
-    size.x = Tile::tileSize;
-    size.y = (Tile::tileSize * machine->reactionProgress());
+    size.x = Inventory_Cell::size;
+    size.y = (Inventory_Cell::size * machine->reactionProgress());
     progress_bar.setSize(size);
 }

@@ -10,7 +10,7 @@ public:
 
     void setPosition(sf::Vector2f pos);
 
-    const static sf::Vector2f frameSize;
+    const static float size;
     const static float frameOutlineSize;
 
     const static sf::Color colorUseBar;

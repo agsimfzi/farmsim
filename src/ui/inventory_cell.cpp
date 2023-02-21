@@ -3,7 +3,7 @@
 #include <resources/font_manager.hpp>
 #include <resources/palette.hpp>
 
-const sf::Vector2f Inventory_Cell::frameSize = sf::Vector2f(64.f, 64.f);
+const float Inventory_Cell::size = 64.f;
 const float Inventory_Cell::frameOutlineSize = 2.f;
 const sf::Color Inventory_Cell::colorUseBar = sf::Color(40, 250, 60);
 
@@ -14,8 +14,8 @@ Inventory_Cell::Inventory_Cell(std::shared_ptr<Item> i)
     setItem(i);
     frame.setOutlineColor(Palette::inventory_outline);
     frame.setOutlineThickness(frameOutlineSize);
-    frame.setSize(frameSize);
-    frame.setOrigin(frameSize / 2.f);
+    frame.setSize(sf::Vector2f(size, size));
+    frame.setOrigin(size / 2.f, size / 2.f);
     deactivate();
     numberText.setFont(Font_Manager::get(Font::UI));
     numberText.setFillColor(Palette::black);
@@ -35,7 +35,7 @@ void Inventory_Cell::setPosition(sf::Vector2f pos)
     numberText.setPosition(pos);
 
     pos = frame.getPosition() - frame.getOrigin();
-    pos.y += frameSize.y - use_bar_size.y;
+    pos.y += size - use_bar_size.y;
     use_bar.setPosition(pos);
 }
 
@@ -86,9 +86,9 @@ void Inventory_Cell::setItem(std::shared_ptr<Item> i)
 
 void Inventory_Cell::calculateUseBarSize(int percent)
 {
-    sf::Vector2f size = use_bar_size;
-    size.x *= (percent / 100.f);
-    use_bar.setSize(size);
+    sf::Vector2f bsize = use_bar_size;
+    bsize.x *= (percent / 100.f);
+    use_bar.setSize(bsize);
 }
 
 void Inventory_Cell::clearItem()
