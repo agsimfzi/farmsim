@@ -79,6 +79,7 @@ protected:
     sf::RectangleShape frame;
 
     sf::RectangleShape progress_bar;
+    sf::RectangleShape progress_arrow;
 
     virtual void placeMergeSwap();
     virtual void swap();

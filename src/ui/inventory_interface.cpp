@@ -4,6 +4,7 @@
 
 #include <resources/font_manager.hpp>
 #include <resources/palette.hpp>
+#include <resources/texture_manager.hpp>
 
 #include <util/fmouse.hpp>
 
@@ -38,6 +39,11 @@ Inventory_Interface::Inventory_Interface(Player_Inventory& inventory, sf::View& 
     progress_bar.setFillColor(Palette::white);
     progress_bar.setSize(sf::Vector2f(Inventory_Cell::size, 0.f));
     progress_bar.setOrigin(sf::Vector2f(Inventory_Cell::size / 2.f, Inventory_Cell::size / 2.f));
+
+    progress_arrow.setSize(sf::Vector2f(0.f, 0.f));
+    progress_arrow.setFillColor(Palette::inventory_bg);
+    progress_arrow.setTexture(&Texture_Manager::get("UI"));
+    progress_arrow.setTextureRect(sf::IntRect(64, 0, 64, 64));
 
     frame.setFillColor(Palette::inventory_bg);
     frame.setOutlineThickness(1.f);
@@ -669,6 +675,7 @@ void Inventory_Interface::loadBuilding(Building* b, Item_Library& item_library)
         sf::Vector2f progress_pos = pos;
         progress_pos.y += (Inventory_Cell::size);
         progress_bar.setPosition(progress_pos);
+        progress_arrow.setPosition(progress_pos);
         for (const auto& row : inventory) {
             pos.x = sx;
             cells.push_back(std::vector<Inventory_Cell>());
@@ -698,6 +705,7 @@ void Inventory_Interface::draw(sf::RenderTarget& target, sf::RenderStates states
         target.setView(view);
 
         target.draw(progress_bar, states);
+        target.draw(progress_arrow, states);
     }
 
     size_t nr = cells.size();

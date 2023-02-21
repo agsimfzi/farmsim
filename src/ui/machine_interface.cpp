@@ -17,6 +17,9 @@ Machine_Interface::Machine_Interface(Player_Inventory& inventory, sf::View& view
     progress_pos.x += ((building_inventory.front().size() - 1) * Inventory_Cell::size) / 2.f;
     progress_pos.y += Inventory_Cell::size;
     progress_bar.setPosition(progress_pos);
+    progress_arrow.setPosition(progress_pos);
+    progress_arrow.setSize(sf::Vector2f(Inventory_Cell::size, Inventory_Cell::size));
+    progress_arrow.setOrigin(Inventory_Cell::size / 2.f, Inventory_Cell::size / 2.f);
     for (const auto& row : building_inventory) {
         pos.x = sx;
         cells.push_back(std::vector<Inventory_Cell>());
