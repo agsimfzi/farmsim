@@ -6,8 +6,6 @@
 
 #include "tile.hpp"
 
-#include <iostream>
-
 inline void floodFill(int x, int y, Map_Tile<bool>& to_flood, Map_Tile<bool>& flooding)
 {
     // BE *VERY* CAREFUL ABOUT USING THIS RECURSIVE FLOOD FILL
@@ -131,5 +129,4 @@ inline void drainFill(int x, int y, Map_Tile<bool>& draining)
 
     floodFill(x, y, to_flood, flooding);
 */
-std::cout << "\tdrained!\n";
 }

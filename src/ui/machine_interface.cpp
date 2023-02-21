@@ -2,8 +2,6 @@
 
 #include <util/fmouse.hpp>
 
-#include <util/vector2_stream.hpp>
-
 Machine_Interface::Machine_Interface(Player_Inventory& inventory, sf::View& view, Machine* machine)
     : Inventory_Interface(inventory, view)
     , machine{ machine }
@@ -23,7 +21,6 @@ Machine_Interface::Machine_Interface(Player_Inventory& inventory, sf::View& view
         pos.x = sx;
         cells.push_back(std::vector<Inventory_Cell>());
         for (const auto& item : row) {
-            std::cout << "placing cell at " << pos << '\n';
             cells.back().push_back(Inventory_Cell(item));
             cells.back().back().setPosition(pos);
             pos.x += Inventory_Cell::size;

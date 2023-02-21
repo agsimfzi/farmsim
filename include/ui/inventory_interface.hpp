@@ -15,6 +15,7 @@
 class Inventory_Interface : public sf::Drawable {
 public:
     Inventory_Interface(Player_Inventory& inventory, sf::View& view);
+    void loadDrop(std::function<void(std::shared_ptr<Item>)> drop);
 
     virtual ~Inventory_Interface(){}
 
@@ -38,17 +39,17 @@ public:
     void pollChanges();
 
     virtual void clickLeft(sf::RenderWindow& window);
-    virtual void clickRight(std::function<void(std::shared_ptr<Item>)> drop);
+    virtual void clickRight();
 
     bool open = false;
     bool dragging = false;
     bool expanded = false;
 
-    void close(std::function<void(std::shared_ptr<Item>)> drop);
+    void close();
 
     virtual void startDrag();
     void checkDrag();
-    void endDrag(std::function<void(std::shared_ptr<Item>)> drop);
+    void endDrag();
     virtual void cancelDrag();
 
     std::shared_ptr<Item> dragItem;
@@ -97,6 +98,10 @@ protected:
     virtual void writeExtension();
 
     void writeDecision();
+
+    bool checkReactionInterface(sf::RenderWindow& window);
+
+    static std::function<void(std::shared_ptr<Item>)> drop;
 
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
 };

@@ -2,8 +2,6 @@
 
 #include <util/primordial.hpp> // for equalStrings
 
-#include <iostream>
-
 Machine::Machine()
 {
     interface = true;
@@ -143,7 +141,6 @@ size_t Machine::addReagant(std::shared_ptr<Item> item)
 {
     size_t remainder = item->count();
     if (item && validReagant(item->getName(), current_reaction)) {
-        std::cout << "adding reagant... ";
         int first_empty_index = -1;
         size_t n = inventory.front().size();
         for (size_t i = 0; i < n; i++) {
@@ -152,7 +149,6 @@ size_t Machine::addReagant(std::shared_ptr<Item> item)
                     inventory.front()[i]->add(item->count());
                     remainder = 0;
                     checkReaction();
-                    std::cout << "merged into cell " << i << "!\n";
                     break;
                 }
             }
@@ -164,7 +160,6 @@ size_t Machine::addReagant(std::shared_ptr<Item> item)
             inventory.front()[first_empty_index] = std::make_shared<Item>(*item);
             remainder = 0;
             checkReaction();
-            std::cout << "placed in cell " << first_empty_index << "!\n";
         }
     }
     return remainder;

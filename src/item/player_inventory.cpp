@@ -2,8 +2,6 @@
 
 #include <util/primordial.hpp>
 
-#include <util/vector2_stream.hpp>
-
 Player_Inventory::Player_Inventory()
 {
     resize(rowCount, rowWidth);
@@ -66,7 +64,6 @@ void Player_Inventory::addItem(std::shared_ptr<Item>& item)
 {
     if (item) {
         size_t count = item->count();
-        std::cout << "\nadding " << count << " " << item->getName();
         sf::Vector2i first_empty_index(-1, -1);
         item->can_pickup = true;
         for (size_t r = 0; r < rowCount; r++) {
@@ -75,10 +72,8 @@ void Player_Inventory::addItem(std::shared_ptr<Item>& item)
                     changed = true;
                     int stack = count + items[r][c]->count();
                     if (stack < item->stackSize()) {
-                        std::cout << " merged with " << sf::Vector2i(r, c);
                         items[r][c]->add(count);
                         item = nullptr;
-                        std::cout << "...done...";
                         return;
                     }
                     else {
@@ -93,15 +88,9 @@ void Player_Inventory::addItem(std::shared_ptr<Item>& item)
             }
         }
         if (first_empty_index != sf::Vector2i(-1, -1) && item) {
-            std::cout << "added to " << first_empty_index;
             items[first_empty_index.x][first_empty_index.y] = item;
-            //placeItem(first_empty_index.x, first_empty_index.y, item);
             item = nullptr;
             changed = true;
-            std::cout << "...done...";
-        }
-        if (item) {
-            std::cout << item->count() << " remaining!\n";
         }
     }
 }

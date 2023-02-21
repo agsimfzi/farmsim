@@ -4,8 +4,6 @@
 
 #include "vehicle.hpp"
 
-#include <iostream>
-
 class Vehicle_Library {
 public:
     Vehicle_Library();
@@ -16,7 +14,6 @@ private:
 public:
     Vehicle_Data operator() (Vehicle::Type t)
     {
-        std::cout << "returning vehicle " << t << '\n';
         return v[t];
     }
 };

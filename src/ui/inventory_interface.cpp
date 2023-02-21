@@ -13,6 +13,9 @@
 
 // please don't tell anyone how i live
 
+std::function<void(std::shared_ptr<Item>)> Inventory_Interface::drop = [](std::shared_ptr<Item>){};
+
+
 const float Inventory_Interface::cell_padding = Inventory_Cell::frameOutlineSize;
 
 Inventory_Interface::Inventory_Interface(Player_Inventory& inventory, sf::View& view)
@@ -41,6 +44,12 @@ Inventory_Interface::Inventory_Interface(Player_Inventory& inventory, sf::View& 
     frame.setOutlineColor(Palette::inventory_outline);
     frame.setSize(sf::Vector2f(0.f, 0.f));
 }
+
+void Inventory_Interface::loadDrop(std::function<void(std::shared_ptr<Item>)> drop)
+{
+    this->drop = drop;
+}
+
 
 void Inventory_Interface::readInventory()
 {
@@ -239,7 +248,7 @@ void Inventory_Interface::scrollRight()
     setEquippedIndex(equippedIndex + 1);
 }
 
-void Inventory_Interface::close(std::function<void(std::shared_ptr<Item>)> drop)
+void Inventory_Interface::close()
 {
     if (dragging) {
         if (dragStartIndex.x >= 0 && dragStartIndex.y >= 0) {
@@ -263,8 +272,21 @@ void Inventory_Interface::close(std::function<void(std::shared_ptr<Item>)> drop)
 void Inventory_Interface::clickLeft(sf::RenderWindow& window)
 {
     std::cout << "parsing click in inventory_interface!\n";
+    if (!checkReactionInterface(window)) {
+        if (!dragging) {
+            startDrag();
+        }
+        else {
+            endDrag();
+        }
+    }
+}
+
+bool Inventory_Interface::checkReactionInterface(sf::RenderWindow& window)
+{
     sf::Vector2f mpos = fMouse(window, reaction_interface.getView());
-    if (reaction_interface.contains(mpos)) {
+    bool parsed = reaction_interface.contains(mpos);
+    if (parsed) {
         std::cout << "\treaction_interface click detected!\n";
         std::pair<Reaction*, std::shared_ptr<Item>> rxn = reaction_interface.click(fMouse(window, reaction_interface.getView()));
         Reaction* reaction = rxn.first;
@@ -279,12 +301,11 @@ void Inventory_Interface::clickLeft(sf::RenderWindow& window)
                     readInventory();
                 };
 
-            if (dragItem) {
-                if (dragItem->getUID() == product.getUID()) {
-                    dragItem->add(product.count());
-                    remove();
-                    reaction_interface.check(inventory);
-                }
+            if (dragItem && dragItem->getUID() == product.getUID()) {
+                dragItem->add(product.count());
+                remove();
+                reaction_interface.check(inventory);
+                updateDragText();
             }
             else {
                 dragItem = std::make_shared<Item>(product);
@@ -293,15 +314,14 @@ void Inventory_Interface::clickLeft(sf::RenderWindow& window)
                 remove();
                 reaction_interface.check(inventory);
                 dragStartIndex = sf::Vector2i(-1, -1);
+                updateDragText();
             }
         }
     }
-    else {
-        startDrag();
-    }
+    return parsed;
 }
 
-void Inventory_Interface::clickRight(std::function<void(std::shared_ptr<Item>)> drop)
+void Inventory_Interface::clickRight()
 {
     if (dragging) {
         if (moused_index.x < 0) {
@@ -427,7 +447,7 @@ void Inventory_Interface::checkDrag()
     }
 }
 
-void Inventory_Interface::endDrag(std::function<void(std::shared_ptr<Item>)> drop)
+void Inventory_Interface::endDrag()
 {
     dragging = false;
     if (!dragItem) {

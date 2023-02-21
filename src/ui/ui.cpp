@@ -15,6 +15,14 @@ UI::UI(sf::RenderWindow& window, Game& game, sf::View& view)
     , view{ view }
 {
     inventory_interface = std::make_unique<Inventory_Interface>(Inventory_Interface(game.getInventory(), view));
+    auto drop = [&](std::shared_ptr<Item> i)
+        {
+            i->can_pickup = false;
+            game.getWorld().getChunks().addItem(i, game.getPlayer().getCoordinates(Tile::tileSize));
+        };
+
+    inventory_interface->loadDrop(drop);
+
     overlay.setPosition(sf::Vector2f(0.f, 0.f));
     overlay.setSize(sf::Vector2f(1920.f, 1080.f));
     overlay.setFillColor(sf::Color(50, 50, 50, 120));
@@ -120,8 +128,7 @@ void UI::loadDefaultReactions()
 void UI::toggleInventory()
 {
     if (inventory_interface->open) {
-        auto drop = [&](std::shared_ptr<Item> i) { i->can_pickup = false; game.getWorld().getChunks().addItem(i, game.getPlayer().getCoordinates(Tile::tileSize)); };
-        inventory_interface->close(drop);
+        inventory_interface->close();
         overlay_active = false;
         game.getWorld().closeActiveBuilding();
         inventory_interface = std::make_unique<Inventory_Interface>(Inventory_Interface(game.getInventory(), view));
@@ -151,8 +158,7 @@ void UI::closeOverlay()
 {
     overlay_active = false;
     if (inventory_interface->open) {
-        auto drop = [&](std::shared_ptr<Item> i) { i->can_pickup = false; game.getWorld().getChunks().addItem(i, game.getPlayer().getCoordinates(Tile::tileSize)); };
-        inventory_interface->close(drop);
+        inventory_interface->close();
         inventory_interface = std::make_unique<Inventory_Interface>(*inventory_interface);
     }
     else if(minimap.isExpanded()) {
@@ -171,13 +177,7 @@ bool UI::clickLeft()
 
     if (parsed) {
         if (inventory_interface->open) {
-            if (inventory_interface->dragging) {
-        auto drop = [&](std::shared_ptr<Item> i) { i->can_pickup = false; game.getWorld().getChunks().addItem(i, game.getPlayer().getCoordinates(Tile::tileSize)); };
-                inventory_interface->endDrag(drop);
-            }
-            else {
                 inventory_interface->clickLeft(window);
-            }
         }
         else if(minimap.isExpanded()) {
             minimap.startDrag();
@@ -205,16 +205,7 @@ bool UI::clickRight()
     bool parsed = overlay_active;
     if (parsed) {
         if (inventory_interface->open) {
-            auto drop = [&](std::shared_ptr<Item> i) { i->can_pickup = false; game.getWorld().getChunks().addItem(i, game.getPlayer().getCoordinates(Tile::tileSize)); };
-            inventory_interface->clickRight(drop);
-            /*
-            if (inventory_interface->dragging) {
-                inventory_interface->cancelDrag();
-            }
-            else {
-                closeOverlay();
-            }
-            */
+            inventory_interface->clickRight();
         }
         else if (minimap.isExpanded()) {
             closeOverlay();
@@ -261,8 +252,7 @@ void UI::checkBuilding()
     }
     else {
         closeOverlay();
-        auto drop = [&](std::shared_ptr<Item> i) { i->can_pickup = false; game.getWorld().getChunks().addItem(i, game.getPlayer().getCoordinates(Tile::tileSize)); };
-        inventory_interface->close(drop);
+        inventory_interface->close();
         overlay_active = false;
         game.getWorld().closeActiveBuilding();
     }
