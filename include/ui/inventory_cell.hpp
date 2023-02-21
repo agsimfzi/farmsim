@@ -33,6 +33,8 @@ public:
 
     sf::Vector2f getPosition();
 
+    const static unsigned int character_size = 8;
+
 private:
     sf::RectangleShape frame;
     std::shared_ptr<Item> item = nullptr;

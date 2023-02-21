@@ -30,6 +30,7 @@ Inventory_Interface::Inventory_Interface(Player_Inventory& inventory, sf::View& 
     dragCountText.setFillColor(Palette::black);
     dragCountText.setOutlineColor(Palette::white);
     dragCountText.setOutlineThickness(2.f);
+    dragCountText.setCharacterSize(Inventory_Cell::character_size);
 
     progress_bar.setFillColor(Palette::white);
     progress_bar.setSize(sf::Vector2f(Inventory_Cell::size, 0.f));
@@ -153,11 +154,10 @@ void Inventory_Interface::placeCells()
         }
     }
 
-    pos.x = max_x + 256.f;
+    pos.x = max_x + 64.f;
     pos.y -= 512.f;
 
-    sf::Vector2f size(416.f, 512.f);
-
+    sf::Vector2f size(320.f, 512.f);
     reaction_interface.setView(pos, size);
 }
 
@@ -191,7 +191,7 @@ size_t Inventory_Interface::getEquippedIndex()
 
 bool Inventory_Interface::scroll(float delta, sf::RenderWindow& window)
 {
-    if (reaction_interface.scroll(delta, fMouse(window, reaction_interface.getView()))) {
+    if (open && reaction_interface.scroll(delta, fMouse(window, reaction_interface.getView()))) {
         return false;
     }
     else if (delta > 0.f) {
@@ -311,7 +311,9 @@ void Inventory_Interface::checkDrag()
         sf::Vector2f pos(sf::Mouse::getPosition());
         dragItem->setPosition(pos);
 
-        pos.x -= Inventory_Cell::size * .4f;
+        pos.x -= Inventory_Cell::size * .45f;
+        pos.y += Inventory_Cell::size * .45f;
+        pos.y -= (Inventory_Cell::character_size + 2);
         dragCountText.setPosition(pos);
     }
 }

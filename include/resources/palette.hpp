@@ -18,7 +18,7 @@ const sf::Color orange = sf::Color(241, 126, 30);
 
 const sf::Color inventory_bg = sf::Color(230, 209, 135);
 const sf::Color inventory_bg_active = sf::Color(252, 244, 212);
-const sf::Color inventory_bg_unavailable = sf::Color();
+const sf::Color inventory_bg_unavailable = sf::Color(82, 82, 82);
 
 const sf::Color inventory_outline = sf::Color(25, 25, 25);
 }

@@ -32,6 +32,14 @@ Machine_Interface::Machine_Interface(Player_Inventory& inventory, sf::View& view
 
         pos.y += Inventory_Cell::size * 2.f;
     }
+
+    pos = cells[inventory.rowCount].back().getPosition();
+    pos.x += Inventory_Cell::size;
+    pos.y -= Inventory_Cell::size;
+    pos.y -= 256.f;
+
+    sf::Vector2f size(320.f, 512.f);
+    reaction_interface.setView(pos, size);
 }
 
 void Machine_Interface::update(sf::RenderWindow& window)

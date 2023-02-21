@@ -12,12 +12,12 @@ Tooltip::Tooltip(std::shared_ptr<Item> item)
     name.setString(item->getName());
     name.setFont(Font_Manager::get(Font::UI));
     name.setFillColor(Palette::black);
-    name.setCharacterSize(32);
+    name.setCharacterSize(16);
 
     description.setString(item->getDescription());
     description.setFont(Font_Manager::get(Font::UI));
     description.setFillColor(Palette::black);
-    description.setCharacterSize(24);
+    description.setCharacterSize(14);
 
     int v = item->getValue();
     std::string vstring = "Value: ";
@@ -31,7 +31,7 @@ Tooltip::Tooltip(std::shared_ptr<Item> item)
     value.setString(vstring);
     value.setFont(Font_Manager::get(Font::UI));
     value.setFillColor(Palette::black);
-    value.setCharacterSize(24);
+    value.setCharacterSize(12);
 
     frame.setFillColor(Palette::inventory_bg);
     frame.setOutlineColor(Palette::inventory_outline);
@@ -53,10 +53,14 @@ Tooltip::Tooltip(Reaction& reaction, std::vector<std::shared_ptr<Item>> reagants
         label.setString(lstr);
         label.setFont(Font_Manager::get(Font::UI));
         label.setFillColor(Palette::black);
-        label.setCharacterSize(20);
+        label.setCharacterSize(12);
 
         labeled_sprites.push_back(std::make_pair(sprite, label));
     }
+
+    frame.setFillColor(Palette::inventory_bg);
+    frame.setOutlineColor(Palette::inventory_outline);
+    frame.setOutlineThickness(1.f);
 }
 
 void Tooltip::setPosition(sf::Vector2f pos, sf::Vector2f window_size)
@@ -87,17 +91,19 @@ void Tooltip::setPosition(sf::Vector2f pos, sf::Vector2f window_size)
         size_x = sxh;
     }
 
-    sf::Vector2f label_offset(36.f, -8.f);
 
     pos_compute.x += padding / 2.f;
 
     for (auto& ls : labeled_sprites) {
         pos_compute.y += 34.f;
         ls.first.setPosition(pos_compute);
-        ls.second.setPosition(pos_compute + label_offset);
+        sf::Vector2f pos_offset(pos_compute);
+        pos_offset.x += 34.f;
+        pos_offset.y -= (ls.second.getLocalBounds().top + ls.second.getLocalBounds().height) / 2.f;
+        ls.second.setPosition(pos_offset);
         pos_compute.y += 34.f;
 
-        sxh = pos_compute.x - frame.getPosition().x + label_offset.x
+        sxh = pos_offset.x - frame.getPosition().x
             + ls.second.getLocalBounds().left + ls.second.getLocalBounds().width;
         if (sxh > size_x) {
             size_x = sxh;

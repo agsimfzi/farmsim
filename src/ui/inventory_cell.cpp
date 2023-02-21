@@ -21,6 +21,7 @@ Inventory_Cell::Inventory_Cell(std::shared_ptr<Item> i)
     numberText.setFillColor(Palette::black);
     numberText.setOutlineColor(Palette::white);
     numberText.setOutlineThickness(2.f);
+    numberText.setCharacterSize(character_size);
 
     use_bar.setFillColor(colorUseBar);
 }
@@ -31,7 +32,9 @@ void Inventory_Cell::setPosition(sf::Vector2f pos)
     if (item) {
         item->setPosition(pos);
     }
-    pos.x -= frame.getSize().x * .4f;
+    pos.x -= frame.getSize().x * .45f;
+    pos.y += frame.getSize().y / 2.f;
+    pos.y -= (character_size + 2);
     numberText.setPosition(pos);
 
     pos = frame.getPosition() - frame.getOrigin();

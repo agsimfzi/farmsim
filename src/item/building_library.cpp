@@ -11,6 +11,7 @@ Building_Library::Building_Library()
     std::vector<Item_Data> items = Database::getItemPrototypes();
     for (auto& item : items) {
         if (item.type == Item_Type::BUILDING) {
+            std::shared_ptr<Machine> m;
             std::shared_ptr<Building> b;
             Building::Type t = findBuildingType(item);
             std::string derived_subtype; // for buildings with complex substrings (crafting/machines)
@@ -28,10 +29,12 @@ Building_Library::Building_Library()
                     //b = std::make_shared<Furniture>();
                     break;
                 case Building::MACHINE:
-                    b = std::make_shared<Machine>();
+                    m = std::make_shared<Machine>();
                     derived_subtype = item.subtype.substr(item.subtype.find(':') + 1);
-                    b->reactions = reactions[stringToMachineType(derived_subtype)];
+                    m->reactions = reactions[stringToMachineType(derived_subtype)];
+                    m->countReagants();
                     item.subtype = derived_subtype;
+                    b = m;
                     break;
                 case Building::LOOTABLE:
                     b = std::make_shared<Lootable>();

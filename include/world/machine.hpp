@@ -52,6 +52,10 @@ public:
 
     bool checkReagants(size_t i);
 
+    size_t max_reagant_count = 0;
+
+    void countReagants();
+
 private:
     std::vector<std::string> valid_reagants;
 

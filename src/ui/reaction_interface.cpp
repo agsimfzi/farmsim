@@ -5,9 +5,6 @@
 #include <resources/font_manager.hpp>
 #include <resources/palette.hpp>
 
-
-#include <iostream>
-
 const float Reaction_Panel::outline_thickness = 1.f;
 
 Reaction_Panel::Reaction_Panel(Reaction& rxn, Item_Library& item_library, sf::Vector2f pos, float size_x)
@@ -24,22 +21,18 @@ Reaction_Panel::Reaction_Panel(Reaction& rxn, Item_Library& item_library, sf::Ve
     product_pos += sf::Vector2f(-33.f, 33.f);
     product->setPosition(product_pos);
 
-    pos += sf::Vector2f(4.f, 4.f);
-    name.setPosition(pos);
     name.setString(rxn.product);
     name.setFont(Font_Manager::get(Font::UI));
     name.setFillColor(Palette::black);
-    name.setCharacterSize(32);
+    name.setCharacterSize(18);
+
+    sf::Vector2f name_pos(pos);
+    name_pos.x += 12.f;
+    name_pos.y += (frame_size.y - (name.getLocalBounds().top + name.getLocalBounds().height)) / 2.f;
+    name.setPosition(name_pos);
 
     for (auto& r : rxn.reagants) {
         reagants.push_back(item_library.shared(r.name));
-    }
-
-    if (product) {
-        std::cout << "\tloaded product from reaction " << rxn.name << ": " << product->getName() << "!\n";
-    }
-    else {
-        std::cout << "\tFAILED TO LOAD PRODUCT FROM REACTION " << rxn.name << ": " << product->getName() << "!\n";
     }
 
     unsetAvailable();

@@ -8,7 +8,7 @@ Machine::Machine()
 {
     interface = true;
     inventory.push_back(std::vector<std::shared_ptr<Item>>());
-        inventory.back().resize(3);
+    // REAGANT ROW SIZE IS SET IN ::countReagants()!
     inventory.push_back(std::vector<std::shared_ptr<Item>>());
         inventory.back().resize(1);
 
@@ -189,4 +189,16 @@ void Machine::setProduct(std::shared_ptr<Item> item)
         inventory.back().front().reset();
         endReaction();
     }
+}
+
+void Machine::countReagants()
+{
+    for (const auto& r : reactions) {
+        const size_t n = r.reagants.size();
+        if (max_reagant_count < n) {
+            max_reagant_count = n;
+        }
+    }
+    inventory[inventory.size() - 2].resize(max_reagant_count);
+
 }

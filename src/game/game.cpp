@@ -25,6 +25,7 @@ Game::Game(sf::View& nview)
     giveItemToPlayer("gold ore", 100);
     giveItemToPlayer("wood", 100);
     giveItemToPlayer("plank", 100);
+    giveItemToPlayer("stone", 100);
 
     giveItemToPlayer("broom");
 }
