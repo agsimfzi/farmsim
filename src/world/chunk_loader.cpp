@@ -2,6 +2,8 @@
 
 #include <util/primordial.hpp>
 
+#include <util/vector2_stream.hpp>
+
 Chunk_Loader::Chunk_Loader(Map_Tile<Floor_Info>& info)
     : info { info }
 {}
@@ -44,6 +46,8 @@ void Chunk_Loader::check(sf::Vector2i player_coordinates)
         }
 
         current = new_current;
+
+        std::cout << "changing current_index from " << current << " to " << new_current << "!\n";
 
         load();
     }
@@ -199,11 +203,6 @@ void Chunk_Loader::checkPickup(Player_Inventory& inventory, sf::Vector2f player_
                 bool picking = (pickup_all || (*i)->can_pickup);
                 if (picking) {
                     sf::Vector2f item_pos = (*i)->getPosition();
-                    if (scalarDistance(player_pos, item_pos) <= move_threshold) {
-                        // calculate movement vector and apply
-                        sf::Vector2f offset = calculateMoveVector(item_pos, player_pos, speed);
-                        (*i)->getSprite().move(offset);
-                    }
 
                     if ((*i)->getSprite().getGlobalBounds().contains(player_pos)) {
                         inventory.addItem((*i));
@@ -212,6 +211,11 @@ void Chunk_Loader::checkPickup(Player_Inventory& inventory, sf::Vector2f player_
                         }
                     }
                     else {
+                        if (scalarDistance(player_pos, item_pos) <= move_threshold) {
+                            // calculate movement vector and apply
+                            sf::Vector2f offset = calculateMoveVector(item_pos, player_pos, speed);
+                            (*i)->getSprite().move(offset);
+                        }
                         sf::Vector2i nc = findChunk((*i)->getPosition());
                         if (ci != nc) {
                             to_move.push_back(std::make_pair(nc, *i));

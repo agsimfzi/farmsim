@@ -178,7 +178,7 @@ void Chunk::addItem(std::shared_ptr<Item> item, sf::Vector2f pos)
 {
     if (item) {
         std::cout << "adding " << item->count() << " " << item->getName() << " to " << pos << '\n';
-        items.push_back(std::move(item));
+        items.push_back(item);
         items.back()->setPosition(pos);
     }
 }
