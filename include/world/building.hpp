@@ -32,6 +32,7 @@ public:
     short int health = 30;
 
     Type type;
+    std::string subtype;
 
     std::vector<Reaction> reactions;
 

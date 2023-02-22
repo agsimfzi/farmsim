@@ -63,8 +63,10 @@ void Inventory_Cell::setItem(std::shared_ptr<Item> i)
             i.reset();
         }
         else if (item->getUID() == i->getUID()) {
-            item->add(i->count());
-            i.reset();
+            item.reset();
+            item = i;
+            //item->add(i->count());
+            //i.reset();
         }
 
         if (item->count() == 1) {
@@ -96,7 +98,7 @@ void Inventory_Cell::calculateUseBarSize(int percent)
 
 void Inventory_Cell::clearItem()
 {
-    item.reset();
+    item = nullptr;
     numberText.setString("");
 }
 

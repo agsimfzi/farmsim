@@ -13,15 +13,30 @@
 #include <world/lootable.hpp>
 //#include <world/structure.hpp>
 
+#include <iostream>
+
 class Building_Library {
 public:
     Building_Library();
-    std::shared_ptr<Building> operator ()(size_t uid) { return uidShelf[uid]; }
-    std::shared_ptr<Building> operator ()(std::string name) { return stringShelf[name]; }
+    std::shared_ptr<Building> operator ()(size_t uid) { return makeBySubtype(uidShelf[uid].get()); }
+    std::shared_ptr<Building> operator ()(std::string name)
+    {
+        std::transform(name.begin(), name.end(), name.begin(), ::tolower);
+        if (stringShelf.contains(name)) {
+            std::cout << "returning " << stringShelf[name]->name << '\n';
+            return makeBySubtype(stringShelf[name].get());
+            //return std::make_shared<Building>(*stringShelf[name]);
+        }
+
+        std::cout << "FAILED TO FIND BUILDING OF NAME " << name << '\n';
+        return nullptr;
+    }
 
 private:
     std::map<std::string, std::shared_ptr<Building>> stringShelf;
     std::map<size_t, std::shared_ptr<Building>> uidShelf;
 
-    Building::Type findBuildingType(Item_Data i);
+    std::shared_ptr<Building> makeBySubtype(Building* b);
+
+    Building::Type findBuildingType(std::string subtype);
 };

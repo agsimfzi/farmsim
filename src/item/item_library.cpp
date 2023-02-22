@@ -99,6 +99,7 @@ std::shared_ptr<Item> Item_Library::shared(size_t uid)
 {
     return std::make_shared<Item>(*uidShelf[uid]);
 }
+
 std::shared_ptr<Item> Item_Library::shared(std::string name)
 {
     std::transform(name.begin(), name.end(), name.begin(), ::tolower);

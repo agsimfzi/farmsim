@@ -37,14 +37,17 @@ bool Machine::validReagant(std::string name, int rxn)
 
 void Machine::checkReaction()
 {
-    size_t n = reactions.size();
-    for (size_t i = 0; i < n; i++) {
+    int n = reactions.size();
+    for (int i = 0; i < n; i++) {
         if (checkReagants(i)) {
+            if (i != current_reaction) {
+                reaction_tick = 0;
+            }
             current_reaction = i;
             return;
         }
     }
-    current_reaction = -1;
+    endReaction();
 }
 
 bool Machine::checkReagants(size_t i)
@@ -173,9 +176,10 @@ size_t Machine::addReagant(std::shared_ptr<Item> item)
 
 void Machine::setReagant(std::shared_ptr<Item> item, size_t i)
 {
-    if (item && validReagant(item->getName(), current_reaction)) {
+    if (item) {
         inventory.front()[i].reset();
         inventory.front()[i] = item;
+        checkReaction();
     }
 }
 
@@ -185,7 +189,7 @@ void Machine::setProduct(std::shared_ptr<Item> item)
         inventory.back().front() = std::make_shared<Item>(*item);
     }
     else if (inventory.back().front()) {
-        inventory.back().front().reset();
+        //inventory.back().front().reset();
         endReaction();
     }
 }

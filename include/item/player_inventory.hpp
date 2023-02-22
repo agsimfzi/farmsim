@@ -26,8 +26,6 @@ public:
     void setEquipped(size_t index);
     void takeEquipped(int count = -1);
 
-    bool changed = true; // for polling
-
     void update();
 
     void removeItem(std::string name, size_t count);

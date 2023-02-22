@@ -13,7 +13,7 @@ Building_Library::Building_Library()
         if (item.type == Item_Type::BUILDING) {
             std::shared_ptr<Machine> m;
             std::shared_ptr<Building> b;
-            Building::Type t = findBuildingType(item);
+            Building::Type t = findBuildingType(item.subtype);
             std::string derived_subtype; // for buildings with complex substrings (crafting/machines)
             switch (t) {
                 case Building::CONTAINER:
@@ -38,6 +38,7 @@ Building_Library::Building_Library()
                     b = m;
                     break;
                 case Building::LOOTABLE:
+                    std::cout << "\tMAKING LOOTABLE " << item.name << "!\n";
                     b = std::make_shared<Lootable>();
                     break;
                 case Building::STRUCTURE:
@@ -51,6 +52,7 @@ Building_Library::Building_Library()
             b->type = t;
             b->name = item.name;
             b->uid = item.uid;
+            b->subtype = item.subtype;
 
             std::cout << "LIBRARY ADD, building " << b->name << " (" << b->uid << ") added, type " << item.subtype
                       << "\n\treactions:\n";
@@ -64,21 +66,38 @@ Building_Library::Building_Library()
 
             uidShelf[b->uid] = b;
             stringShelf[b->name] = b;
-
         }
     }
 }
 
-Building::Type Building_Library::findBuildingType(Item_Data i)
+std::shared_ptr<Building> Building_Library::makeBySubtype(Building* b)
 {
-    std::string t = i.subtype;
+    switch (b->type) {
+        case Building::CONTAINER:
+            return std::make_shared<Container>(*dynamic_cast<Container*>(b));
+        case Building::CRAFTING:
+            return std::make_shared<Crafting>(*dynamic_cast<Crafting*>(b));
+        case Building::FURNITURE:
+            //return std::make_shared<Furniture>(*dynamic_cast<Furniture*>(b));
+        case Building::MACHINE:
+            return std::make_shared<Machine>(*dynamic_cast<Machine*>(b));
+        case Building::LOOTABLE:
+            return std::make_shared<Lootable>(*dynamic_cast<Lootable*>(b));
+        case Building::STRUCTURE:
+            //return std::make_shared<Structure>(*dynamic_cast<Structure*>(b));
+        default:
+            return std::make_shared<Building>(*dynamic_cast<Building*>(b));
+    }
+}
 
-    if (t.find("MACHINE") != std::string::npos) {
+Building::Type Building_Library::findBuildingType(std::string subtype)
+{
+    if (subtype.find("MACHINE") != std::string::npos) {
         return Building::MACHINE;
     }
-    else if (t.find("CRAFTING") != std::string::npos) {
+    else if (subtype.find("CRAFTING") != std::string::npos) {
         return Building::CRAFTING;
     }
 
-    return Building::stringToType(t);
+    return Building::stringToType(subtype);
 }

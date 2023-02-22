@@ -10,11 +10,7 @@ public:
 
     virtual void update(sf::RenderWindow& window) override;
 
-    virtual void startDrag() override;
-    virtual void placeMergeSwap() override;
-    virtual void cancelDrag() override;
-
-    virtual void clickLeft(sf::RenderWindow& window) override;
+    virtual bool checkReactionInterface(sf::RenderWindow& window) override;
 
     void setProgressBarSize();
 
@@ -26,6 +22,6 @@ private:
 
     virtual void readExtension() override;
     virtual void writeExtension() override;
-    virtual void swap() override;
+    //virtual void swap() override;
     void checkReaction();
 };

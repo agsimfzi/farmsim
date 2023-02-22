@@ -20,8 +20,6 @@ void Player_Inventory::resize(const size_t rows, const size_t cols)
             row.push_back(nullptr);
         }
     }
-
-    changed = true;
 }
 
 void Player_Inventory::removeItem(std::string name, size_t count)
@@ -69,7 +67,6 @@ void Player_Inventory::addItem(std::shared_ptr<Item>& item)
         for (size_t r = 0; r < rowCount; r++) {
             for (size_t c = 0; c < rowWidth; c++) {
                 if (items[r][c] && item->getUID() == items[r][c]->getUID()) {
-                    changed = true;
                     int stack = count + items[r][c]->count();
                     if (stack < item->stackSize()) {
                         items[r][c]->add(count);
@@ -90,7 +87,6 @@ void Player_Inventory::addItem(std::shared_ptr<Item>& item)
         if (first_empty_index != sf::Vector2i(-1, -1) && item) {
             items[first_empty_index.x][first_empty_index.y] = item;
             item = nullptr;
-            changed = true;
         }
     }
 }
@@ -108,8 +104,6 @@ size_t Player_Inventory::takeItem(size_t x, size_t y, size_t count)
             items[x][y] = nullptr;
         }
     }
-
-    changed = true;
 
     return remainder;
 }
@@ -134,7 +128,6 @@ void Player_Inventory::update()
             if (items[r][c]) {
                 if (items[r][c]->count() == 0) {
                     items[r][c] = nullptr;
-                    changed = true;
                 }
             }
         }

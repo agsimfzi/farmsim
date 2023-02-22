@@ -17,8 +17,6 @@ public:
     Inventory_Interface(Player_Inventory& inventory, sf::View& view);
     void loadDrop(std::function<void(std::shared_ptr<Item>)> drop);
 
-    virtual ~Inventory_Interface(){}
-
     virtual void update(sf::RenderWindow& window);
 
     std::vector<std::vector<Inventory_Cell>> cells;
@@ -36,10 +34,8 @@ public:
     size_t screenWidth = 1920;
     size_t screenHeight = 1080;
 
-    void pollChanges();
-
-    virtual void clickLeft(sf::RenderWindow& window);
-    virtual void clickRight();
+    void clickLeft(sf::RenderWindow& window);
+    void clickRight();
 
     virtual void shiftClickLeft () {}
     virtual void shiftClickRight() {}
@@ -51,15 +47,13 @@ public:
 
     void close();
 
-    virtual void startDrag();
+    void startDrag();
     void checkDrag();
     void endDrag();
-    virtual void cancelDrag();
+    void cancelDrag();
 
     std::shared_ptr<Item> dragItem;
     sf::Text dragCountText;
-
-    void loadBuilding(Building* b, Item_Library& item_library);
 
     virtual void loadReactions(std::vector<Reaction> reactions, Item_Library& item_library);
 
@@ -76,7 +70,6 @@ protected:
 
     const static float cell_padding;
     sf::Vector2i dragStartIndex;
-    Container* container = nullptr;
     Crafting* crafting = nullptr;
     static size_t equippedIndex;
 
@@ -85,13 +78,14 @@ protected:
     sf::RectangleShape progress_bar;
     sf::RectangleShape progress_arrow;
 
-    virtual void placeMergeSwap();
-    virtual void swap();
+    void placeMergeSwap();
+    void swap();
+    void merge();
+
     void resize();
     void placeCells();
     void mousedIndex();
     void clearProgressBar();
-    void readBuilding();
 
     void checkTooltip(sf::RenderWindow& window);
 
@@ -99,12 +93,10 @@ protected:
     sf::Vector2i tooltip_index{ -1, -1 };
     bool reaction_tooltip = false;
 
-    virtual void readExtension();
-    virtual void writeExtension();
+    virtual void readExtension (){}
+    virtual void writeExtension(){}
 
-    void writeDecision();
-
-    bool checkReactionInterface(sf::RenderWindow& window);
+    virtual bool checkReactionInterface(sf::RenderWindow& window);
 
     static std::function<void(std::shared_ptr<Item>)> drop;
 

@@ -19,7 +19,7 @@
 World::World(Item_Library& item_library)
     : item_library { item_library }
 {
-    sf::Vector2i size(16, 16);
+    sf::Vector2i size(8, 8);
     size.x *= chunks.chunk_size.x;
     size.y *= chunks.chunk_size.y;
     size.y -= 1;
@@ -317,9 +317,11 @@ void World::placeWreckage()
         do {
             coords = randomNearbyEmptyTile(start_coords, distance);
         } while (coords == axe_coords);
-        std::shared_ptr<Lootable> lootable = std::make_shared<Lootable>(*std::dynamic_pointer_cast<Lootable>(building_library("crate")));
-        lootable->getInventory().front().front() = items[i];
-        lootable->getInventory().front().push_back(item_library.shared("plank"));
+        std::shared_ptr<Lootable> lootable = std::dynamic_pointer_cast<Lootable>(building_library("crate"));
+        lootable->addItem(items[i]);
+        lootable->addItem(item_library.shared("plank"));
+        //lootable->getInventory().front().front() = std::move(items[i]);
+        //lootable->getInventory().front().push_back(item_library.shared("plank"));
         lootable->getInventory().front().back()->setCount(prng::number(1, 3));
         tile_library[coords.x][coords.y].building = lootable;
         chunks.addBuilding(tile_library[coords.x][coords.y].building.get(), coords);

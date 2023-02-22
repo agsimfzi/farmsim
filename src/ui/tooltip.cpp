@@ -75,7 +75,7 @@ void Tooltip::setPosition(sf::Vector2f pos, sf::Vector2f window_size)
         pos_compute.y += name.getLocalBounds().top + name.getLocalBounds().height + (padding / 2.f);
     }
     description.setPosition(pos_compute);
-    pos_compute.y += description.getLocalBounds().top + description.getLocalBounds().height;
+    pos_compute.y += (description.getLocalBounds().top + description.getLocalBounds().height) * 1.1;
     value.setPosition(pos_compute);
     pos_compute.x += 24.f;
     pos_compute.y += value.getLocalBounds().top + value.getLocalBounds().height;

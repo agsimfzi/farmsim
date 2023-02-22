@@ -13,6 +13,7 @@ Game::Game(sf::View& nview)
 {
     player = Player(Database::getPlayerData(), Texture_Manager::get("PLAYER"));
 
+    giveItemToPlayer("chest", 3);
     giveItemToPlayer("furnace");
     giveItemToPlayer("iron bar", 50);
     giveItemToPlayer("copper bar", 10000);
@@ -122,9 +123,7 @@ void Game::clickLeft()
 {
     std::shared_ptr<Item> equipped = player_inventory.equippedItem();
     if (equipped) {
-        if (world.useItem(equipped)) {
-            player_inventory.changed = true;
-        }
+        world.useItem(equipped);
     }
 }
 

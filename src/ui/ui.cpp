@@ -123,7 +123,7 @@ void UI::resize(sf::Vector2u windowSize)
 
 void UI::loadDefaultReactions()
 {
-    inventory_interface->loadReactions(game.getWorld().getBuildingLibrary()("null_crafting").get()->reactions, game.getItemLibrary());
+    inventory_interface->loadReactions(game.getWorld().getBuildingLibrary()("null_crafting")->reactions, game.getItemLibrary());
 }
 
 void UI::toggleInventory()
@@ -240,7 +240,7 @@ void UI::checkBuilding()
         if (b) {
             switch(b->type) {
                 default:
-                    break;
+                    return;
                 case Building::CONTAINER:
                     inventory_interface = std::make_unique<Container_Interface>(game.getInventory(), view, dynamic_cast<Container*>(b));
                     inventory_interface->open = true;

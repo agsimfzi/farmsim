@@ -26,7 +26,7 @@ Machine_Interface::Machine_Interface(Player_Inventory& inventory, sf::View& view
         for (const auto& item : row) {
             cells.back().push_back(Inventory_Cell(item));
             cells.back().back().setPosition(pos);
-            pos.x += Inventory_Cell::size;
+            pos.x += Inventory_Cell::size + cell_padding;
         }
 
         pos.y += Inventory_Cell::size * 2.f;
@@ -59,47 +59,10 @@ Machine_Interface::Machine_Interface(Player_Inventory& inventory, sf::View& view
 
 void Machine_Interface::update(sf::RenderWindow& window)
 {
-    Inventory_Interface::update(window);
-
+    mousedIndex();
+    checkDrag();
+    checkTooltip(window);
     checkReaction();
-}
-
-void Machine_Interface::placeMergeSwap()
-{
-    //ugh
-    std::shared_ptr<Item> si = mousedItem();
-    int rows = inventory.rowCount;
-    if (moused.x == rows) {
-        if (machine->validReagant(dragItem->getName())) {
-            if (!si) {
-                mousedCell()->setItem(dragItem);
-            }
-            else if (dragItem->getUID() == si->getUID()) {
-                size_t remainder = si->add(dragItem->count());
-                mousedCell()->updateCount();
-                if (remainder == 0) {
-                    dragItem = nullptr;
-                }
-                else {
-                    dragItem->setCount(remainder);
-                }
-            }
-            else {
-                swap();
-            }
-            writeExtension();
-        }
-        else {
-            dragging = true;
-        }
-    }
-    else if (moused.x == rows + 1) {
-        cancelDrag();
-    }
-    else if (moused.x < rows) {
-        Inventory_Interface::placeMergeSwap();
-        writeExtension();
-    }
 }
 
 void Machine_Interface::readExtension()
@@ -132,7 +95,7 @@ void Machine_Interface::writeExtension()
     machine->checkReaction();
     reaction_interface.check(inventory);
 }
-
+/*
 void Machine_Interface::swap()
 {
     Inventory_Interface::swap();
@@ -145,42 +108,12 @@ void Machine_Interface::swap()
         writeExtension();
     }
 }
-
-void Machine_Interface::startDrag()
-{
-    Inventory_Interface::startDrag();
-    if (moused.x == (int)inventory.rowCount) {
-        machine->clearReagant(moused.y);
-        machine->checkReaction();
-        setProgressBarSize();
-    }
-    else if (moused.x == (int)inventory.rowCount + 1) {
-        machine->clearProduct();
-    }
-}
-
-void Machine_Interface::cancelDrag()
-{
-    cells[dragStartIndex.x][dragStartIndex.y].setItem(dragItem);
-
-    if (dragStartIndex.x == (int)inventory.rowCount) {
-        machine->addReagant(dragItem);
-        if (dragItem) {
-            dragging = true;
-            return;
-        }
-    }
-    else if (dragStartIndex.x == (int)inventory.rowCount + 1) {
-        machine->setProduct(dragItem);
-    }
-    dragging = false;
-    dragItem.reset();
-}
-
-void Machine_Interface::clickLeft(sf::RenderWindow& window)
+*/
+bool Machine_Interface::checkReactionInterface(sf::RenderWindow& window)
 {
     sf::Vector2f mpos = fMouse(window, reaction_interface.getView());
-    if (reaction_interface.contains(mpos)) {
+    bool parsed = (reaction_interface.contains(mpos));
+    if (parsed) {
         std::pair<Reaction*, std::shared_ptr<Item>> rxn = reaction_interface.click(fMouse(window, reaction_interface.getView()));
         Reaction* reaction = rxn.first;
 
@@ -192,7 +125,7 @@ void Machine_Interface::clickLeft(sf::RenderWindow& window)
                     inventory.addItem(i);
                     if (i) {
                         // ends the process if there's no remaining inventory space
-                        return;
+                        return parsed;
                     }
                     else {
                         c.clearItem();
@@ -214,10 +147,7 @@ void Machine_Interface::clickLeft(sf::RenderWindow& window)
             reaction_interface.check(inventory);
         }
     }
-    else {
-        Inventory_Interface::clickLeft(window);
-        reaction_interface.check(inventory);
-    }
+    return parsed;
 }
 
 void Machine_Interface::checkReaction()
