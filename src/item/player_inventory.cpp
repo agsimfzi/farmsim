@@ -68,7 +68,7 @@ void Player_Inventory::addItem(std::shared_ptr<Item>& item)
             for (size_t c = 0; c < rowWidth; c++) {
                 if (items[r][c] && item->getUID() == items[r][c]->getUID()) {
                     int stack = count + items[r][c]->count();
-                    if (stack < item->stackSize()) {
+                    if (stack <= item->stackSize()) {
                         items[r][c]->add(count);
                         item = nullptr;
                         return;

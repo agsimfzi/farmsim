@@ -13,7 +13,6 @@ public:
 
 private:
     Container* container;
-    std::vector<std::vector<std::shared_ptr<Item>>>& c_inventory;
 
     virtual void readExtension() override;
     virtual void writeExtension() override;

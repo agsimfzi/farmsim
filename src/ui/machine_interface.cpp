@@ -183,13 +183,8 @@ void Machine_Interface::shiftClickLeft()
         if (moused.x >= (int)inventory.rowCount) {
             // attempt move whole stack to inventory
             inventory.addItem(i);
-            if (!i) {
-                mousedCell()->clearItem();
-            }
-            else {
-                mousedItem()->setCount(i->count());
-            }
-            readInventory();
+            mousedCell()->setItem(i);
+            //readInventory();
             writeExtension();
         }
         else if (moused.x >= 0) {
@@ -215,7 +210,7 @@ void Machine_Interface::shiftClickRight()
         intermediate /= 2.f;
         intermediate += 0.9f; //aggressive round up to take the bigger half of odd numbers
         size_t diff = intermediate;
-        mousedItem()->take(diff);
+        mousedCell()->take(diff);
         if (mousedItem()->count() == 0) {
             mousedCell()->clearItem();
         }
@@ -225,7 +220,7 @@ void Machine_Interface::shiftClickRight()
             // move half of stack to inventory
             inventory.addItem(i);
             if (i) {
-                mousedItem()->add(i->count());
+                mousedCell()->add(i->count());
             }
             readInventory();
             writeExtension();
@@ -234,7 +229,7 @@ void Machine_Interface::shiftClickRight()
             // move half of stack to machine
             size_t remainder = machine->addReagant(i);
             if (remainder > 0) {
-                mousedItem()->add(remainder);
+                mousedCell()->add(remainder);
             }
             writeInventory();
             readExtension();

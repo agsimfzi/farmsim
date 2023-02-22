@@ -197,6 +197,7 @@ void Game::tick()
 {
     player.tick();
     world.tick(player.getCoordinates(Tile::tileSize));
+    giveItemToPlayer("wood", 100);
 }
 
 void Game::draw(sf::RenderTarget& target, sf::RenderStates states) const

@@ -22,6 +22,8 @@ public:
     void clearItem();
     std::shared_ptr<Item> getItem();
 
+    void add(size_t count);
+    void take(size_t count);
     void updateCount();
     void setCount(size_t count);
 

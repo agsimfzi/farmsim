@@ -60,28 +60,23 @@ void Inventory_Cell::setItem(std::shared_ptr<Item> i)
         if (!item) {
             item = i;
             item->setPosition(frame.getPosition());
-            i.reset();
         }
         else if (item->getUID() == i->getUID()) {
-            item.reset();
-            item = i;
-            //item->add(i->count());
-            //i.reset();
+            item->setCount(i->count());
         }
 
-        if (item->count() == 1) {
-            numberText.setString("");
+        std::string number = "";
+
+        if (item->count() > 1) {
+            number = std::to_string(item->count());
         }
-        else {
-            numberText.setString(std::to_string(item->count()));
-        }
+        numberText.setString(number);
+
+        usable = false;
 
         if (item->getUID() == 1) { // watering can
             usable = true;
             calculateUseBarSize(item->usePercent());
-        }
-        else {
-            usable = false;
         }
     }
     else if (item) {
@@ -105,6 +100,25 @@ void Inventory_Cell::clearItem()
 std::shared_ptr<Item> Inventory_Cell::getItem()
 {
     return item;
+}
+
+void Inventory_Cell::add(size_t count)
+{
+    if (item) {
+        item->add(count);
+        updateCount();
+    }
+}
+
+void Inventory_Cell::take(size_t count)
+{
+    if (item) {
+        item->take(count);
+        updateCount();
+        if (item->count() == 0) {
+            clearItem();
+        }
+    }
 }
 
 void Inventory_Cell::updateCount()

@@ -10,10 +10,6 @@
 
 #include <world/tile.hpp>
 
-#include <util/vector2_stream.hpp>
-
-// please don't tell anyone how i live
-
 std::function<void(std::shared_ptr<Item>)> Inventory_Interface::drop = [](std::shared_ptr<Item>){};
 size_t Inventory_Interface::equippedIndex = 0;
 
@@ -238,7 +234,6 @@ void Inventory_Interface::close()
 
 void Inventory_Interface::clickLeft(sf::RenderWindow& window)
 {
-    std::cout << "parsing click in inventory_interface!\n";
     if (!checkReactionInterface(window)) {
         if (!dragging) {
             startDrag();
@@ -254,12 +249,10 @@ bool Inventory_Interface::checkReactionInterface(sf::RenderWindow& window)
     sf::Vector2f mpos = fMouse(window, reaction_interface.getView());
     bool parsed = reaction_interface.contains(mpos);
     if (parsed) {
-        std::cout << "\treaction_interface click detected!\n";
         std::pair<Reaction*, std::shared_ptr<Item>> rxn = reaction_interface.click(fMouse(window, reaction_interface.getView()));
         Reaction* reaction = rxn.first;
         if (reaction) {
             Item product = *rxn.second;
-            std::cout << "\tvalid reaction and product returned!\n";
             auto remove = [&]()
                 {
                     for (const auto& r : reaction->reagants) {
@@ -311,7 +304,7 @@ void Inventory_Interface::clickRight()
                             dragItem = nullptr;
                             dragging = false;
                         }
-                        mousedItem()->add(1);
+                        mousedCell()->add(1);
                     }
                 }
             else {
@@ -337,7 +330,7 @@ void Inventory_Interface::clickRight()
             intermediate /= 2.f;
             intermediate += 0.9f; //aggressive round up to take the bigger half of odd numbers
             size_t diff = intermediate;
-            mousedItem()->take(diff);
+            mousedCell()->take(diff);
             dragItem->setCount(diff);
             writeInventory();
             writeExtension();
@@ -433,12 +426,12 @@ void Inventory_Interface::merge()
     int sum = dragItem->count() + mousedItem()->count();
     if (sum > dragItem->stackSize()) {
         size_t diff = sum - dragItem->stackSize();
-        mousedItem()->add(diff);
+        mousedCell()->add(diff);
         dragItem->take(diff);
         updateDragText();
     }
     else {
-        mousedItem()->add(dragItem->count());
+        mousedCell()->add(dragItem->count());
         dragItem.reset();
         dragging = false;
     }

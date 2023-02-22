@@ -55,7 +55,7 @@ public:
     std::shared_ptr<Item> dragItem;
     sf::Text dragCountText;
 
-    virtual void loadReactions(std::vector<Reaction> reactions, Item_Library& item_library);
+    void loadReactions(std::vector<Reaction> reactions, Item_Library& item_library);
 
 protected:
     Player_Inventory& inventory;

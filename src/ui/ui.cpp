@@ -287,6 +287,8 @@ void UI::draw(sf::RenderTarget& target, sf::RenderStates states) const
 
     target.draw(*inventory_interface, states);
 
+    target.setView(view);
+
     target.draw(player_pos, states);
 
     target.draw(energy_bar, states);
