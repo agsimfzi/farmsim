@@ -4,6 +4,7 @@
 #include <resources/font_manager.hpp>
 
 #include <util/fmouse.hpp>
+#include <util/shift_pressed.hpp>
 
 //////////////////////////////////////////////////////////////
 
@@ -177,7 +178,12 @@ bool UI::clickLeft()
 
     if (parsed) {
         if (inventory_interface->open) {
+            if (!inventory_interface->dragging && shiftPressed()) {
+                inventory_interface->shiftClickLeft();
+            }
+            else {
                 inventory_interface->clickLeft(window);
+            }
         }
         else if(minimap.isExpanded()) {
             minimap.startDrag();
@@ -205,7 +211,12 @@ bool UI::clickRight()
     bool parsed = overlay_active;
     if (parsed) {
         if (inventory_interface->open) {
-            inventory_interface->clickRight();
+            if (!inventory_interface->dragging && shiftPressed()) {
+                inventory_interface->shiftClickRight();
+            }
+            else {
+                inventory_interface->clickRight();
+            }
         }
         else if (minimap.isExpanded()) {
             closeOverlay();

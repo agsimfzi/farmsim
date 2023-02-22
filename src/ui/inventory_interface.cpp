@@ -107,34 +107,34 @@ void Inventory_Interface::checkTooltip(sf::RenderWindow& window)
                 }
             }*/
         }
-        else if (moused_index.x < 0 && moused_index.y < 0) {
+        else if (moused.x < 0 && moused.y < 0) {
             active_tooltip = reaction_interface.findTooltip(fMouse(window, reaction_interface.getView()));
         }
         else {
-            if (tooltip_index != moused_index) {
+            if (tooltip_index != moused) {
                 active_tooltip.reset();
-                std::shared_ptr<Item> item = cells[moused_index.x][moused_index.y].getItem();
+                std::shared_ptr<Item> item = mousedCell()->getItem();
                 if (item) {
                     active_tooltip = std::make_shared<Tooltip>(item);
-                    tooltip_index = moused_index;
+                    tooltip_index = moused;
                 }
             }
         }
         // disable tooltip if appropriate
     }
     else {
-        if (moused_index.x >= 0 && moused_index.y >= 0) {
-            std::shared_ptr<Item> item = cells[moused_index.x][moused_index.y].getItem();
+        if (moused.x >= 0 && moused.y >= 0) {
+            std::shared_ptr<Item> item = mousedItem();
             if (item) {
                 active_tooltip = std::make_shared<Tooltip>(item);
-                tooltip_index = moused_index;
+                tooltip_index = moused;
             }
         }
         else {
             std::shared_ptr<Tooltip> t = reaction_interface.findTooltip(fMouse(window, reaction_interface.getView()));
             if (t) {
                 active_tooltip = t;
-                tooltip_index = moused_index;
+                tooltip_index = moused;
             }
             // check reaction panels
         }
@@ -330,7 +330,7 @@ bool Inventory_Interface::checkReactionInterface(sf::RenderWindow& window)
 void Inventory_Interface::clickRight()
 {
     if (dragging) {
-        if (moused_index.x < 0) {
+        if (moused.x < 0) {
             std::shared_ptr<Item> dropping = std::make_shared<Item>(*dragItem);
             dropping->setCount(1);
             dragItem->take(1);
@@ -343,7 +343,7 @@ void Inventory_Interface::clickRight()
             writeDecision();
         }
         else {
-            std::shared_ptr<Item> i = cells[moused_index.x][moused_index.y].getItem();
+            std::shared_ptr<Item> i = mousedItem();
             if (i) {
                 if (i->getUID() == dragItem->getUID()
                 && (int)(i->count() + 1) < i->stackSize()) {
@@ -356,7 +356,7 @@ void Inventory_Interface::clickRight()
                             updateDragText();
                         }
                         i->add(1);
-                        if (moused_index.x >= (int)inventory.rowCount) {
+                        if (moused.x >= (int)inventory.rowCount) {
                             writeExtension();
                         }
                         else {
@@ -369,7 +369,7 @@ void Inventory_Interface::clickRight()
                 std::shared_ptr<Item> placing = std::make_shared<Item>(*dragItem);
                 placing->setCount(1);
                 dragItem->take(1);
-                cells[moused_index.x][moused_index.y].setItem(placing);
+                mousedCell()->setItem(placing);
                 if (dragItem->count() == 0) {
                     dragItem.reset();
                     dragging = false;
@@ -382,7 +382,7 @@ void Inventory_Interface::clickRight()
         }
     }
     else {
-        std::shared_ptr<Item> i = cells[moused_index.x][moused_index.y].getItem();
+        std::shared_ptr<Item> i = mousedItem();
         if (i) {
             dragging = true;
             dragItem = std::make_shared<Item>(*i);
@@ -400,10 +400,10 @@ void Inventory_Interface::clickRight()
 
 void Inventory_Interface::writeDecision()
 {
-    if (moused_index.x >= (int)inventory.rowCount) {
+    if (moused.x >= (int)inventory.rowCount) {
         writeExtension();
     }
-    else if (moused_index.x >= 0) {
+    else if (moused.x >= 0) {
         writeInventory();
     }
 }
@@ -419,21 +419,21 @@ void Inventory_Interface::updateDragText()
 
 void Inventory_Interface::startDrag()
 {
-    if (moused_index.x >= 0 && moused_index.y >= 0) {
-        sf::Vector2u i(moused_index);
+    if (moused.x >= 0 && moused.y >= 0) {
+        sf::Vector2u i(moused);
         std::shared_ptr<Item> item = cells[i.x][i.y].getItem();
         if (item) {
             dragItem = item;
             cells[i.x][i.y].clearItem();
             dragging = true;
-            dragStartIndex = moused_index;
+            dragStartIndex = moused;
             updateDragText();
             if (i.x < inventory.rowCount) {
                 inventory.clearItem(i.x, i.y);
             }
             else if (container) {
-                moused_index.x -= inventory.rowCount;
-                container->clearItem(moused_index);
+                moused.x -= inventory.rowCount;
+                container->clearItem(moused);
             }
             writeDecision();
         }
@@ -460,9 +460,9 @@ void Inventory_Interface::endDrag()
         return;
     }
 
-    if (moused_index.x >= 0 || moused_index.y >= 0) {
+    if (moused.x >= 0 || moused.y >= 0) {
         placeMergeSwap();
-        if (moused_index.x >= (int)inventory.rowCount) {
+        if (moused.x >= (int)inventory.rowCount) {
             writeExtension();
         }
     }
@@ -475,14 +475,14 @@ void Inventory_Interface::endDrag()
 
 void Inventory_Interface::placeMergeSwap()
 {
-    std::shared_ptr<Item> si = cells[moused_index.x][moused_index.y].getItem();
-    if (moused_index.x >= (int)inventory.rowCount) { // BUILDING PLACEMENT
+    std::shared_ptr<Item> si = mousedItem();
+    if (moused.x >= (int)inventory.rowCount) { // BUILDING PLACEMENT
         if (container) {
             if (si) {
                 swap();
             }
             else {
-                sf::Vector2i c(moused_index);
+                sf::Vector2i c(moused);
                 c.x -= inventory.rowCount;
                 container->setItem(dragItem, c);
                 dragItem.reset();
@@ -490,12 +490,12 @@ void Inventory_Interface::placeMergeSwap()
             readBuilding();
         }
     } // END BUILDING PLACEMENT
-    else { // INVENTORY PLACEMENT
+    else if (moused.x >= 0) { // INVENTORY PLACEMENT
         //if (dsi.x < (int)inventory.rowCount) {
             if (si) {
                 if (si->getUID() == dragItem->getUID()) { // merge
                     size_t remainder = si->add(dragItem->count());
-                    cells[moused_index.x][moused_index.y].updateCount();
+                    mousedCell()->updateCount();
                     if (remainder == 0) {
                         dragItem = nullptr;
                     }
@@ -505,8 +505,8 @@ void Inventory_Interface::placeMergeSwap()
                         updateDragText();
                         return;
                     }
-                    inventory.clearItem(moused_index.x, moused_index.y);
-                    inventory.placeItem(moused_index.x, moused_index.y, si);
+                    inventory.clearItem(moused.x, moused.y);
+                    inventory.placeItem(moused.x, moused.y, si);
                 } // end merge
                 else {
                     if (dragStartIndex.x < 0 && dragStartIndex.y < 0) {
@@ -517,8 +517,8 @@ void Inventory_Interface::placeMergeSwap()
                 }
             }
             else {
-                cells[moused_index.x][moused_index.y].setItem(dragItem);
-                inventory.placeItem(moused_index.x, moused_index.y, dragItem);
+                mousedCell()->setItem(dragItem);
+                inventory.placeItem(moused.x, moused.y, dragItem);
                 dragItem.reset();
             }
         /*}
@@ -562,9 +562,9 @@ void Inventory_Interface::placeMergeSwap()
 void Inventory_Interface::swap()
 {
 
-    cells[dragStartIndex.x][dragStartIndex.y].setItem(cells[moused_index.x][moused_index.y].getItem());
-    cells[moused_index.x][moused_index.y].clearItem();
-    cells[moused_index.x][moused_index.y].setItem(dragItem);
+    cells[dragStartIndex.x][dragStartIndex.y].setItem(mousedItem());
+    mousedCell()->clearItem();
+    mousedCell()->setItem(dragItem);
     dragItem.reset();
 
     int rows = inventory.rowCount;
@@ -578,13 +578,13 @@ void Inventory_Interface::swap()
         container->setItem(cells[dragStartIndex.x][dragStartIndex.y].getItem(), c);
     }
 
-    if (moused_index.x < rows) {
-        inventory.placeItem(moused_index.x, moused_index.y, cells[moused_index.x][moused_index.y].getItem());
+    if (moused.x < rows) {
+        inventory.placeItem(moused.x, moused.y, mousedItem());
     }
     else if (container) {
-        sf::Vector2i c(moused_index);
+        sf::Vector2i c(moused);
         c.x -= inventory.rowCount;
-        container->setItem(cells[moused_index.x][moused_index.y].getItem(), c);
+        container->setItem(mousedItem(), c);
     }
 }
 
@@ -635,13 +635,13 @@ void Inventory_Interface::mousedIndex()
         nc = cells[r].size();
         for (size_t c = 0; c < nc; c++) {
             if (cells[r][c].contains(mpos)) {
-                moused_index = sf::Vector2i(r, c);
+                moused = sf::Vector2i(r, c);
                 return;
             }
         }
     }
 
-    moused_index = sf::Vector2i(-1, -1);
+    moused = sf::Vector2i(-1, -1);
 }
 
 void Inventory_Interface::loadReactions(std::vector<Reaction> reactions, Item_Library& item_library)
@@ -695,6 +695,25 @@ void Inventory_Interface::readExtension()
 
 void Inventory_Interface::writeExtension()
 {}
+
+std::shared_ptr<Item> Inventory_Interface::mousedItem()
+{
+    if (moused.x >= 0) {
+        return cells[moused.x][moused.y].getItem();
+    }
+    else {
+        return nullptr;
+    }
+}
+
+Inventory_Cell* Inventory_Interface::mousedCell()
+{
+    if (moused.x >= 0) {
+        return &cells[moused.x][moused.y];
+    }
+
+    return nullptr;
+}
 
 void Inventory_Interface::draw(sf::RenderTarget& target, sf::RenderStates states) const
 {

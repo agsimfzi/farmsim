@@ -41,6 +41,10 @@ public:
     virtual void clickLeft(sf::RenderWindow& window);
     virtual void clickRight();
 
+    virtual void shiftClickLeft () {}
+    virtual void shiftClickRight() {}
+    // consider implementing these to move between quickbar
+
     bool open = false;
     bool dragging = false;
     bool expanded = false;
@@ -62,7 +66,7 @@ public:
 protected:
     Player_Inventory& inventory;
 
-    sf::Vector2i moused_index;
+    sf::Vector2i moused;
 
     sf::View& view;
 
@@ -103,6 +107,9 @@ protected:
     bool checkReactionInterface(sf::RenderWindow& window);
 
     static std::function<void(std::shared_ptr<Item>)> drop;
+
+    std::shared_ptr<Item> mousedItem();
+    Inventory_Cell* mousedCell();
 
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
 };

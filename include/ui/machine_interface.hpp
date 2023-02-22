@@ -18,6 +18,9 @@ public:
 
     void setProgressBarSize();
 
+    virtual void shiftClickLeft() override;
+    virtual void shiftClickRight() override;
+
 private:
     Machine* machine;
 

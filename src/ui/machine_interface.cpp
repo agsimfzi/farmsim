@@ -67,16 +67,16 @@ void Machine_Interface::update(sf::RenderWindow& window)
 void Machine_Interface::placeMergeSwap()
 {
     //ugh
-    std::shared_ptr<Item> si = cells[moused_index.x][moused_index.y].getItem();
+    std::shared_ptr<Item> si = mousedItem();
     int rows = inventory.rowCount;
-    if (moused_index.x == rows) {
+    if (moused.x == rows) {
         if (machine->validReagant(dragItem->getName())) {
             if (!si) {
-                cells[moused_index.x][moused_index.y].setItem(dragItem);
+                mousedCell()->setItem(dragItem);
             }
             else if (dragItem->getUID() == si->getUID()) {
                 size_t remainder = si->add(dragItem->count());
-                cells[moused_index.x][moused_index.y].updateCount();
+                mousedCell()->updateCount();
                 if (remainder == 0) {
                     dragItem = nullptr;
                 }
@@ -93,10 +93,10 @@ void Machine_Interface::placeMergeSwap()
             dragging = true;
         }
     }
-    else if (moused_index.x == rows + 1) {
+    else if (moused.x == rows + 1) {
         cancelDrag();
     }
-    else if (moused_index.x < rows) {
+    else if (moused.x < rows) {
         Inventory_Interface::placeMergeSwap();
         writeExtension();
     }
@@ -139,9 +139,9 @@ void Machine_Interface::swap()
 
     int rows = inventory.rowCount;
 
-    if (dragStartIndex.x == rows || moused_index.x == rows) {
+    if (dragStartIndex.x == rows || moused.x == rows) {
         machine->clearReagant(dragStartIndex.y);
-        machine->setReagant(cells[dragStartIndex.x][dragStartIndex.y].getItem(), moused_index.y);
+        machine->setReagant(cells[dragStartIndex.x][dragStartIndex.y].getItem(), moused.y);
         writeExtension();
     }
 }
@@ -149,12 +149,12 @@ void Machine_Interface::swap()
 void Machine_Interface::startDrag()
 {
     Inventory_Interface::startDrag();
-    if (moused_index.x == (int)inventory.rowCount) {
-        machine->clearReagant(moused_index.y);
+    if (moused.x == (int)inventory.rowCount) {
+        machine->clearReagant(moused.y);
         machine->checkReaction();
         setProgressBarSize();
     }
-    else if (moused_index.x == (int)inventory.rowCount + 1) {
+    else if (moused.x == (int)inventory.rowCount + 1) {
         machine->clearProduct();
     }
 }
@@ -244,4 +244,70 @@ void Machine_Interface::setProgressBarSize()
     size.x = Inventory_Cell::size;
     size.y = (Inventory_Cell::size * machine->reactionProgress());
     progress_bar.setSize(size);
+}
+
+void Machine_Interface::shiftClickLeft()
+{
+    std::shared_ptr<Item> i = mousedItem();
+    if (i) {
+        if (moused.x >= (int)inventory.rowCount) {
+            // attempt move whole stack to inventory
+            inventory.addItem(i);
+            if (!i) {
+                mousedCell()->clearItem();
+            }
+            else {
+                mousedItem()->setCount(i->count());
+            }
+            readInventory();
+            writeExtension();
+        }
+        else if (moused.x >= 0) {
+            // attempt move whole stack to machine
+            size_t remainder = machine->addReagant(i);
+            if (remainder > 0) {
+                i->setCount(remainder);
+            }
+            else {
+                mousedCell()->clearItem();
+            }
+            writeInventory();
+            readExtension();
+        }
+    }
+}
+
+void Machine_Interface::shiftClickRight()
+{
+    std::shared_ptr<Item> i = std::make_shared<Item>(*mousedItem());
+    if (i) {
+        float intermediate = i->count();
+        intermediate /= 2.f;
+        intermediate += 0.9f; //aggressive round up to take the bigger half of odd numbers
+        size_t diff = intermediate;
+        mousedItem()->take(diff);
+        if (mousedItem()->count() == 0) {
+            mousedCell()->clearItem();
+        }
+        i->setCount(diff);
+
+        if (moused.x >= (int)inventory.rowCount) {
+            // move half of stack to inventory
+            inventory.addItem(i);
+            if (i) {
+                mousedItem()->add(i->count());
+            }
+            readInventory();
+            writeExtension();
+        }
+        else if (moused.x >= 0) {
+            // move half of stack to machine
+            size_t remainder = machine->addReagant(i);
+            if (remainder > 0) {
+                mousedItem()->add(remainder);
+            }
+            writeInventory();
+            readExtension();
+        }
+    }
 }
