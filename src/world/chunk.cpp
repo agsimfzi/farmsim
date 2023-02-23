@@ -3,10 +3,10 @@
 #include <resources/Texture_Manager.hpp>
 
 #include <util/primordial.hpp>
-#include <util/vector2_stream.hpp>
 
 Chunk::Chunk(sf::Vector2i start, sf::Vector2i size, Map_Tile<Floor_Info>& info)
     : start { start }
+    , end { start + size }
 {
     for (int x = 0; x < size.x; x++) {
         for (int y = 0; y < size.y; y++) {
@@ -55,8 +55,6 @@ Chunk::Chunk(sf::Vector2i start, sf::Vector2i size, Map_Tile<Floor_Info>& info)
     frame.setFillColor(sf::Color::Transparent);
     frame.setOutlineThickness(2.f);
     frame.setOutlineColor(sf::Color::Red);
-
-    end = start + size;
 }
 
 bool Chunk::contains(sf::Vector2f pos)
@@ -177,10 +175,39 @@ void Chunk::addBuilding(Building* building, sf::Vector2i c)
 void Chunk::addItem(std::shared_ptr<Item> item, sf::Vector2f pos)
 {
     if (item) {
-        std::cout << "adding " << item->count() << " " << item->getName() << " to " << pos << '\n';
         items.push_back(item);
         items.back()->setPosition(pos);
     }
+}
+
+Map_Tile<std::shared_ptr<Floor>>& Chunk::getFloor()
+{
+    return floor;
+}
+
+Map_Tile<std::shared_ptr<Detail>>& Chunk::getDetails()
+{
+    return details;
+}
+
+Map_Tile<std::shared_ptr<Tree>>& Chunk::getTrees()
+{
+    return trees;
+}
+
+Map_Tile<std::shared_ptr<Rock>>& Chunk::getRocks()
+{
+    return rocks;
+}
+
+Map_Tile<std::shared_ptr<sf::Sprite>>& Chunk::getBuildings()
+{
+    return buildings;
+}
+
+sf::RectangleShape& Chunk::getFrame()
+{
+    return frame;
 }
 
 void Chunk::draw(sf::RenderTarget& target, sf::RenderStates states) const

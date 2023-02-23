@@ -13,20 +13,12 @@ Game::Game(sf::View& nview)
 {
     player = Player(Database::getPlayerData(), Texture_Manager::get("PLAYER"));
 
-    giveItemToPlayer("chest", 3);
-    giveItemToPlayer("furnace");
-    giveItemToPlayer("iron bar", 50);
-    giveItemToPlayer("copper bar", 10000);
-    giveItemToPlayer("gold bar", 50);
-    giveItemToPlayer("coal", 500);
-    giveItemToPlayer("iron ore", 100);
-    giveItemToPlayer("copper ore", 100);
-    giveItemToPlayer("gold ore", 100);
-    giveItemToPlayer("wood", 9990);
-    giveItemToPlayer("plank", 100);
-    giveItemToPlayer("stone", 100);
-
-    giveItemToPlayer("broom");
+    giveItemToPlayer("stone", 15);
+    giveItemToPlayer("wood", 15);
+    giveItemToPlayer("coal", 10);
+    giveItemToPlayer("iron ore", 2);
+    giveItemToPlayer("copper ore", 3);
+    giveItemToPlayer("gold ore", 1);
 }
 
 void Game::giveItemToPlayer(std::string name, size_t count)
@@ -93,9 +85,17 @@ void Game::update(float deltaTime)
     view.move(player.move(local_blocks, deltaTime));
 
     player_inventory.update();
-    world.update(player_inventory, player);
+    world.update(player_inventory, player, deltaTime);
 
     view.setCenter(player.getPosition());
+
+    prepRenderer();
+}
+
+void Game::prepRenderer()
+{
+    renderer.clear();
+    renderer.load(world, player);
 }
 
 Player& Game::getPlayer()
@@ -201,6 +201,5 @@ void Game::tick()
 
 void Game::draw(sf::RenderTarget& target, sf::RenderStates states) const
 {
-    target.draw(world, states);
-    target.draw(player, states);
+    target.draw(renderer, states);
 }

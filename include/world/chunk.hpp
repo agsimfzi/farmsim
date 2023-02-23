@@ -35,11 +35,20 @@ public:
     void addBuilding(Building* b, sf::Vector2i c);
     void addItem(std::shared_ptr<Item> item, sf::Vector2f pos);
 
+    const sf::Vector2i start;
+    const sf::Vector2i end;
+
+    Map_Tile<std::shared_ptr<Floor>>& getFloor();
+    Map_Tile<std::shared_ptr<Detail>>& getDetails();
+    Map_Tile<std::shared_ptr<Tree>>& getTrees();
+    Map_Tile<std::shared_ptr<Rock>>& getRocks();
+    Map_Tile<std::shared_ptr<sf::Sprite>>& getBuildings();
+
+    sf::RectangleShape& getFrame();
+
 private:
     sf::FloatRect f_bounds;
     sf::IntRect i_bounds;
-    sf::Vector2i start;
-    sf::Vector2i end;
     sf::RectangleShape frame;
     Map_Tile<std::shared_ptr<Floor>> floor;
     Map_Tile<std::shared_ptr<Detail>> details;
@@ -47,5 +56,6 @@ private:
     Map_Tile<std::shared_ptr<Rock>> rocks;
     Map_Tile<std::shared_ptr<sf::Sprite>> buildings;
     std::vector<std::shared_ptr<Item>> items;
+
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
 };

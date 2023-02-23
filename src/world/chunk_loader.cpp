@@ -81,6 +81,21 @@ Chunk* Chunk_Loader::currentChunk()
     return chunks[current.x][current.y].get();
 }
 
+std::vector<Chunk*> Chunk_Loader::localChunks()
+{
+    std::vector<Chunk*> chunks;
+    for (int x = -1; x <= 1; x++) {
+        for (int y = -1; y <= 1; y++) {
+            sf::Vector2i c(current + sf::Vector2i(x, y));
+            Chunk* k = chunk(c);
+            if (k) {
+                chunks.push_back(k);
+            }
+        }
+    }
+    return chunks;
+}
+
 void Chunk_Loader::clear()
 {
     chunks.clear();
@@ -125,6 +140,16 @@ Rock* Chunk_Loader::rock(sf::Vector2i i)
         r = chunks[c.x][c.y]->getRock(i);
     }
     return r;
+}
+
+sf::Sprite* Chunk_Loader::building(sf::Vector2i i)
+{
+    sf::Sprite* b = nullptr;
+    sf::Vector2i c = findChunk(i);
+    if (validChunkIndex(c)) {
+        b = chunks[c.x][c.y]->getBuilding(i);
+    }
+    return b;
 }
 
 void Chunk_Loader::eraseDetail(sf::Vector2i i)
@@ -186,10 +211,10 @@ bool Chunk_Loader::validChunkIndex(int x, int y)
     return validChunkIndex(sf::Vector2i(x, y));
 }
 
-void Chunk_Loader::checkPickup(Player_Inventory& inventory, sf::Vector2f player_pos, bool pickup_all)
+void Chunk_Loader::checkPickup(Player_Inventory& inventory, sf::Vector2f player_pos, bool pickup_all, float deltaTime)
 {
     const static float move_threshold = 192.f;
-    const static float speed = 2.f;
+    const static float speed = 4.f * deltaTime; // need to pass the delta for this
     std::vector<std::pair<sf::Vector2i, std::shared_ptr<Item>>> to_move;
     for (int x = -1; x <= 1; x++) {
         for (int y = -1; y <= 1; y++) {

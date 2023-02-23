@@ -27,8 +27,6 @@ public:
 
     void resize(sf::Vector2u windowSize);
 
-    void setMouseover(Entity* entity);
-
     void scroll(float delta);
 
     void numRelease(int num);
@@ -59,8 +57,6 @@ private:
     sf::RenderWindow& window;
     Game& game;
     sf::Font& font;
-
-    Entity_Mouseover entityInfo;
 
     sf::View& view;
 

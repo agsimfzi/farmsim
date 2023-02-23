@@ -12,7 +12,6 @@ UI::UI(sf::RenderWindow& window, Game& game, sf::View& view)
     : window { window }
     , game { game }
     , font { Font_Manager::get(Font::UI) }
-    , entityInfo { Font_Manager::get(Font::UI) }
     , view{ view }
 {
     inventory_interface = std::make_unique<Inventory_Interface>(Inventory_Interface(game.getInventory(), view));
@@ -71,11 +70,6 @@ void UI::update()
 
 }
 
-void UI::setMouseover(Entity* entity)
-{
-    entityInfo.update(entity);
-}
-
 void UI::scroll(float delta)
 {
     if (overlay_active && inventory_interface->open) {
@@ -108,8 +102,6 @@ void UI::scale(sf::RenderWindow& window)
     sf::Vector2f size(256, 256);
     pos.y += size.y + 8.f;
     //size.y = 320.f;
-
-    entityInfo.set(pos, size);
 }
 
 void UI::stopInput()
@@ -276,8 +268,6 @@ void UI::loadInterface(Building* b)
 
 void UI::draw(sf::RenderTarget& target, sf::RenderStates states) const
 {
-    target.draw(entityInfo, states);
-
     if (overlay_active) {
         target.draw(overlay, states);
     }
@@ -285,11 +275,11 @@ void UI::draw(sf::RenderTarget& target, sf::RenderStates states) const
         target.draw(player_target, states);
     }
 
+    target.draw(player_pos, states);
+
     target.draw(*inventory_interface, states);
 
     target.setView(view);
-
-    target.draw(player_pos, states);
 
     target.draw(energy_bar, states);
 

@@ -232,13 +232,11 @@ void Inventory_Interface::close()
 
 void Inventory_Interface::clickLeft(sf::RenderWindow& window)
 {
-    if (!checkReactionInterface(window)) {
-        if (!dragging) {
-            startDrag();
-        }
-        else {
-            endDrag();
-        }
+    if (dragging) {
+        endDrag();
+    }
+    else if (!checkReactionInterface(window)) {
+        startDrag();
     }
 }
 
@@ -340,7 +338,7 @@ void Inventory_Interface::clickRight()
 void Inventory_Interface::updateDragText()
 {
     std::string text = "";
-    if (dragItem->count() > 1) {
+    if (dragItem && dragItem->count() > 1) {
         text = std::to_string(dragItem->count());
     }
     dragCountText.setString(text);
@@ -350,9 +348,9 @@ void Inventory_Interface::startDrag()
 {
     dragStartIndex = moused;
     dragItem = mousedItem();
-    updateDragText();
-    dragging = true;
     if (dragItem && moused.x >= 0) {
+        updateDragText();
+        dragging = true;
         mousedCell()->clearItem();
         writeInventory();
         writeExtension();

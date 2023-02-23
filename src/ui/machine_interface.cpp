@@ -65,6 +65,7 @@ void Machine_Interface::update(sf::RenderWindow& window)
     mousedIndex();
     checkDrag();
     checkTooltip(window);
+    readInventory();
     checkReaction();
 }
 
@@ -83,10 +84,11 @@ void Machine_Interface::readExtension()
 
 void Machine_Interface::writeExtension()
 {
+    std::shared_ptr<Item> item;
     size_t r = inventory.rowCount;
     size_t n = cells[r].size();
     for (size_t i = 0; i < n; i++) {
-        std::shared_ptr<Item> item = cells[r][i].getItem();
+        item = cells[r][i].getItem();
         if (item) {
             machine->setReagant(item, i);
         }
@@ -94,24 +96,17 @@ void Machine_Interface::writeExtension()
             machine->clearReagant(i);
         }
     }
-    machine->setProduct(cells.back().front().getItem());
+    item = cells.back().front().getItem();
+    if (item) {
+        machine->setProduct(cells.back().front().getItem());
+    }
+    else {
+        machine->clearProduct();
+    }
     machine->checkReaction();
     reaction_interface.check(inventory);
 }
-/*
-void Machine_Interface::swap()
-{
-    Inventory_Interface::swap();
 
-    int rows = inventory.rowCount;
-
-    if (dragStartIndex.x == rows || moused.x == rows) {
-        machine->clearReagant(dragStartIndex.y);
-        machine->setReagant(cells[dragStartIndex.x][dragStartIndex.y].getItem(), moused.y);
-        writeExtension();
-    }
-}
-*/
 bool Machine_Interface::checkReactionInterface(sf::RenderWindow& window)
 {
     sf::Vector2f mpos = fMouse(window, reaction_interface.getView());
@@ -181,13 +176,18 @@ void Machine_Interface::setProgressBarSize()
 
 void Machine_Interface::shiftClickLeft()
 {
-    std::shared_ptr<Item> i = mousedItem();
-    if (i) {
+    if (!dragging && mousedItem()) {
+        std::shared_ptr<Item> i = std::make_shared<Item>(*mousedItem());
         if (moused.x >= (int)inventory.rowCount) {
             // attempt move whole stack to inventory
             inventory.addItem(i);
-            mousedCell()->setItem(i);
-            //readInventory();
+            if (!i) {
+                mousedCell()->clearItem();
+            }
+            else {
+                mousedCell()->add(i->count());
+            }
+            readInventory();
             writeExtension();
         }
         else if (moused.x >= 0) {
@@ -207,16 +207,14 @@ void Machine_Interface::shiftClickLeft()
 
 void Machine_Interface::shiftClickRight()
 {
-    std::shared_ptr<Item> i = std::make_shared<Item>(*mousedItem());
-    if (i) {
+    if (!dragging && mousedItem()) {
+        std::shared_ptr<Item> i = std::make_shared<Item>(*mousedItem());
         float intermediate = i->count();
         intermediate /= 2.f;
         intermediate += 0.9f; //aggressive round up to take the bigger half of odd numbers
+        size_t o_count = i->count();
         size_t diff = intermediate;
         mousedCell()->take(diff);
-        if (mousedItem()->count() == 0) {
-            mousedCell()->clearItem();
-        }
         i->setCount(diff);
 
         if (moused.x >= (int)inventory.rowCount) {
@@ -228,7 +226,7 @@ void Machine_Interface::shiftClickRight()
             readInventory();
             writeExtension();
         }
-        else if (moused.x >= 0) {
+        else if (moused.x >= 0 && machine->validReagant(i->getName())) {
             // move half of stack to machine
             size_t remainder = machine->addReagant(i);
             if (remainder > 0) {
@@ -236,6 +234,11 @@ void Machine_Interface::shiftClickRight()
             }
             writeInventory();
             readExtension();
+        }
+        else {
+            i->setCount(o_count);
+            mousedCell()->setItem(i);
+            writeInventory();
         }
     }
 }

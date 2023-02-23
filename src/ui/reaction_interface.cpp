@@ -103,7 +103,7 @@ void Reaction_Interface::load(std::vector<Reaction> rxn
 
     sf::Vector2f size(0.f, 0.f);
 
-    float full_size_y;
+    float full_size_y = 0.f;
 
     for (auto& r : reactions) {
         if (r.tag != tag) {

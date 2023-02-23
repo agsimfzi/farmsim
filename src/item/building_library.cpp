@@ -38,7 +38,6 @@ Building_Library::Building_Library()
                     b = m;
                     break;
                 case Building::LOOTABLE:
-                    std::cout << "\tMAKING LOOTABLE " << item.name << "!\n";
                     b = std::make_shared<Lootable>();
                     break;
                 case Building::STRUCTURE:

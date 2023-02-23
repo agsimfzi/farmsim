@@ -70,10 +70,10 @@ void Shell::update()
             break;
         case Main_State::GAME:
             game.update(deltaTime);
-            ui.setMouseover(game.mousedEntity(fMouse(window, viewGame)));
             ui.update();
             fpsText.setString(std::to_string((int)(1.f / fpsClock.getElapsedTime().asSeconds())));
             fpsClock.restart();
+            game.prepRenderer();
             break;
         default:
             break;

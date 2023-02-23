@@ -36,11 +36,12 @@ public:
     void finalize();
 
     Map_Tile<Crop>& getCrops();
+    std::vector<std::shared_ptr<Vehicle>>& getVehicles();
 
     std::vector<sf::FloatRect> getLocalImpassableTiles(sf::Vector2i p);
     std::vector<std::pair<Floor_Info, sf::FloatRect>> getLocalTiles(sf::Vector2i p);
 
-    void update(Player_Inventory& inventory, Player& player);
+    void update(Player_Inventory& inventory, Player& player, float deltaTime);
 
     sf::Vector2i* checkMouseTarget(sf::Vector2f mpos, sf::Vector2i playerCoords);
 
@@ -76,7 +77,7 @@ public:
 
     Floor* activeFloor(sf::Vector2i i);
 
-    void checkPickup(Player_Inventory& inventory, Player& player);
+    void checkPickup(Player_Inventory& inventory, Player& player, float deltaTime);
 
     Chunk_Loader& getChunks();
 

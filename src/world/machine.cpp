@@ -125,9 +125,8 @@ void Machine::clearReagant(size_t i)
 {
     if (i >= 0 && i < inventory.front().size() && inventory.front()[i]) {
         inventory.front()[i].reset();
-        endReaction();
-        checkReaction();
     }
+    checkReaction();
 }
 
 void Machine::clearProduct()
@@ -185,13 +184,11 @@ void Machine::setReagant(std::shared_ptr<Item> item, size_t i)
 
 void Machine::setProduct(std::shared_ptr<Item> item)
 {
+    inventory.back().front().reset();
     if (item) {
-        inventory.back().front() = std::make_shared<Item>(*item);
+        inventory.back().front() = item;
     }
-    else if (inventory.back().front()) {
-        //inventory.back().front().reset();
-        endReaction();
-    }
+    checkReaction();
 }
 
 void Machine::countReagants()

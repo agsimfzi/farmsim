@@ -19,7 +19,7 @@
 World::World(Item_Library& item_library)
     : item_library { item_library }
 {
-    sf::Vector2i size(8, 8);
+    sf::Vector2i size(128, 128);
     size.x *= chunks.chunk_size.x;
     size.y *= chunks.chunk_size.y;
     size.y -= 1;
@@ -37,9 +37,9 @@ void World::reset()
     chunks.clear();
 }
 
-void World::update(Player_Inventory& player_inventory, Player& player)
+void World::update(Player_Inventory& player_inventory, Player& player, float deltaTime)
 {
-    checkPickup(player_inventory, player);
+    checkPickup(player_inventory, player, deltaTime);
 
     if (energy_diff != 0) {
         player.energy -= energyDiff();
@@ -408,6 +408,11 @@ Map_Tile<Crop>& World::getCrops()
     return crops;
 }
 
+std::vector<std::shared_ptr<Vehicle>>& World::getVehicles()
+{
+    return vehicles;
+}
+
 std::vector<sf::FloatRect> World::getLocalImpassableTiles(sf::Vector2i p)
 {
     std::vector<sf::FloatRect> local_tiles;
@@ -625,6 +630,13 @@ void World::pick(int factor)
                 rock->hit(factor);
                 if (rock->dead()) {
                     tile_library[t.x][t.y].rock = false;
+
+                    if (prng::boolean()) { // INDEPENDENT COAL-SPAWN CHANCE
+                        std::shared_ptr<Item> item = std::make_shared<Item>(*item_library.item("coal"));
+                        item->setCount(prng::number(3, 7));
+                        chunks.addItem(item, t);
+                    }
+
                     chunks.eraseRock(t);
                     std::string key = "stone";
                     size_t count = prng::number(2, 4);
@@ -645,11 +657,6 @@ void World::pick(int factor)
                     item->setCount(count);
                     chunks.addItem(item, t);
 
-                    if (prng::boolean()) { // INDEPENDENT COAL-SPAWN CHANCE
-                        std::shared_ptr<Item> item = std::make_shared<Item>(*item_library.item("coal"));
-                        item->setCount(prng::number(3, 7));
-                        chunks.addItem(item, t);
-                    }
                 }
             }
         }
@@ -746,9 +753,9 @@ Floor* World::activeFloor(sf::Vector2i i)
     return f;
 }
 
-void World::checkPickup(Player_Inventory& inventory, Player& player)
+void World::checkPickup(Player_Inventory& inventory, Player& player, float deltaTime)
 {
-    chunks.checkPickup(inventory, player.getPosition(), pickup_all);
+    chunks.checkPickup(inventory, player.getPosition(), pickup_all, deltaTime);
 }
 
 Chunk_Loader& World::getChunks()

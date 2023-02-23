@@ -18,12 +18,14 @@
 
 #include <world/world.hpp>
 
+#include "game_renderer.hpp"
 #include "game_state.hpp"
 
 class Game : private State_Hook, public sf::Drawable {
 public:
     Game(sf::View& nview);
     void update(float deltaTime);
+    void prepRenderer();
     void enter();
     Player& getPlayer();
     World& getWorld();
@@ -72,6 +74,8 @@ private:
     Game_State state { Game_State::PEACE };
 
     sf::Clock tick_clock;
+
+    Game_Renderer renderer;
 
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
 };

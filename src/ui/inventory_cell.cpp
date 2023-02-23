@@ -115,9 +115,6 @@ void Inventory_Cell::take(size_t count)
     if (item) {
         item->take(count);
         updateCount();
-        if (item->count() == 0) {
-            clearItem();
-        }
     }
 }
 
