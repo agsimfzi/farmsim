@@ -5,7 +5,7 @@
 enum class Machine_Type {
     FURNACE,
     TABLE_SAW,
-    SEED_SIFTER,
+    SEED_EXTRACTOR,
     NULL_TYPE
 };
 
@@ -17,8 +17,8 @@ inline Machine_Type stringToMachineType(std::string s) {
     else if (s == "TABLE_SAW") {
         return Machine_Type::TABLE_SAW;
     }
-    else if (s == "SEED_SIFTER") {
-        return Machine_Type::SEED_SIFTER;
+    else if (s == "SEED_EXTRACTOR") {
+        return Machine_Type::SEED_EXTRACTOR;
     }
     else {
         return Machine_Type::NULL_TYPE;

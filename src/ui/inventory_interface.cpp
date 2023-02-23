@@ -386,6 +386,7 @@ void Inventory_Interface::endDrag()
         dragItem->can_pickup = false;
         drop(dragItem);
         dragItem.reset();
+        dragging = false;
     }
 }
 
@@ -395,7 +396,7 @@ void Inventory_Interface::placeMergeSwap()
         if (mousedItem()->getUID() == dragItem->getUID()) {
             merge();
         }
-        else {
+        else if (dragStartIndex.x >= 0) {
             swap();
         }
     }

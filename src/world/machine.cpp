@@ -77,7 +77,7 @@ void Machine::tick(Item_Library& item_library)
         if (!active_product
         || equalStrings(active_product->getName(), reactions[current_reaction].product)) {
             size_t count = 1;
-            if (machine_type == Machine_Type::SEED_SIFTER) {
+            if (machine_type == Machine_Type::SEED_EXTRACTOR) {
                 count += prng::boolean(0.5);
                 count += prng::boolean(0.25);
             }
