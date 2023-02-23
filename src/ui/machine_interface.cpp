@@ -15,11 +15,12 @@ Machine_Interface::Machine_Interface(Player_Inventory& inventory, sf::View& view
     float sx = pos.x;
     sf::Vector2f progress_pos = pos;
     progress_pos.x += ((building_inventory.front().size() - 1) * Inventory_Cell::size) / 2.f;
-    progress_pos.y += Inventory_Cell::size;
+    progress_pos.y += Inventory_Cell::size + cell_padding;
     progress_bar.setPosition(progress_pos);
     progress_arrow.setPosition(progress_pos);
     progress_arrow.setSize(sf::Vector2f(Inventory_Cell::size, Inventory_Cell::size));
     progress_arrow.setOrigin(Inventory_Cell::size / 2.f, Inventory_Cell::size / 2.f);
+
     for (const auto& row : building_inventory) {
         pos.x = sx;
         cells.push_back(std::vector<Inventory_Cell>());
@@ -29,7 +30,7 @@ Machine_Interface::Machine_Interface(Player_Inventory& inventory, sf::View& view
             pos.x += Inventory_Cell::size + cell_padding;
         }
 
-        pos.y += Inventory_Cell::size * 2.f;
+        pos.y += (Inventory_Cell::size + cell_padding) * 2.f;
     }
     progress_pos.y += Inventory_Cell::size;
 
@@ -40,19 +41,21 @@ Machine_Interface::Machine_Interface(Player_Inventory& inventory, sf::View& view
     pos.y -= Inventory_Cell::size;
     pos.y -= 256.f;
 
-    sf::Vector2f size(320.f, 512.f);
-    reaction_interface.setView(pos, size);
-
     pos = cells[inventory.rowCount].front().getPosition();
     pos.x -= Inventory_Cell::size;
     pos.y -= Inventory_Cell::size;
 
+    sf::Vector2f size;
     size.x = cells[inventory.rowCount].back().getPosition().x + Inventory_Cell::size;
     size.y = cells.back().back().getPosition().y + Inventory_Cell::size;
     size -= pos;
 
     frame.setPosition(pos);
     frame.setSize(size);
+
+    pos = frame.getPosition();
+    pos.x += frame.getSize().x + Inventory_Cell::size;
+    reaction_pos = pos;
 
     readExtension();
 }

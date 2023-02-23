@@ -17,4 +17,5 @@ struct Reaction {
     std::vector<Reagant> reagants;
     std::string product;
     size_t length = 1;
+    std::string tag;
 };

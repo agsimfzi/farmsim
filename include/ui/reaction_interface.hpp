@@ -14,7 +14,7 @@
 class Reaction_Panel : public sf::Drawable {
 public:
     Reaction_Panel() = delete;
-    Reaction_Panel(Reaction& rxn, Item_Library& item_library, sf::Vector2f pos, float size_x);
+    Reaction_Panel(Reaction& rxn, Item_Library& item_library, sf::Vector2f pos);
 
     ~Reaction_Panel();
 
@@ -47,11 +47,12 @@ private:
 
 class Reaction_Interface : public sf::Drawable, public Scrollable {
 public:
-    Reaction_Interface() = default;
+    Reaction_Interface() : Scrollable() {}
 
     void load(std::vector<Reaction> reactions
             , Player_Inventory& inventory
-            , Item_Library& item_library);
+            , Item_Library& item_library
+            , sf::Vector2f pos);
 
     void check(Player_Inventory& inventory);
 
@@ -64,6 +65,7 @@ public:
 private:
     std::vector<Reaction> reactions;
     std::vector<Reaction_Panel> panels;
+    sf::RectangleShape frame;
 
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
 };

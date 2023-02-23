@@ -7,9 +7,9 @@
 
 const float Reaction_Panel::outline_thickness = 1.f;
 
-Reaction_Panel::Reaction_Panel(Reaction& rxn, Item_Library& item_library, sf::Vector2f pos, float size_x)
+Reaction_Panel::Reaction_Panel(Reaction& rxn, Item_Library& item_library, sf::Vector2f pos)
 {
-    sf::Vector2f frame_size(size_x, 66.f);
+    sf::Vector2f frame_size(66.f, 66.f);
     frame.setSize(frame_size);
     frame.setOutlineThickness(outline_thickness);
     frame.setOutlineColor(Palette::inventory_outline);
@@ -17,15 +17,16 @@ Reaction_Panel::Reaction_Panel(Reaction& rxn, Item_Library& item_library, sf::Ve
 
     product = item_library.shared(rxn.product);
     sf::Vector2f product_pos(pos);
-    product_pos.x += size_x;
-    product_pos += sf::Vector2f(-33.f, 33.f);
+    product_pos += (frame_size / 2.f);
+    //product_pos.x += size_x;
+    //product_pos += sf::Vector2f(-33.f, 33.f);
     product->setPosition(product_pos);
-
+/*
     name.setString(rxn.product);
     name.setFont(Font_Manager::get(Font::UI));
     name.setFillColor(Palette::black);
     name.setCharacterSize(18);
-
+*/
     sf::Vector2f name_pos(pos);
     name_pos.x += 12.f;
     name_pos.y += (frame_size.y - (name.getLocalBounds().top + name.getLocalBounds().height)) / 2.f;
@@ -83,21 +84,57 @@ void Reaction_Panel::draw(sf::RenderTarget& target, sf::RenderStates states) con
 
 ///////////////////////////////////////////////////////////////////////////////////////////
 
-void Reaction_Interface::load(std::vector<Reaction> rxn, Player_Inventory& inventory, Item_Library& item_library)
+void Reaction_Interface::load(std::vector<Reaction> rxn
+                            , Player_Inventory& inventory
+                            , Item_Library& item_library
+                            , sf::Vector2f pos)
 {
+    scrollbar.setSize(sf::Vector2f(12.f, 12.f));
+    const static float max_size = 390.f;
     reactions = rxn;
 
     panels.clear();
 
-    float size_x = view.getSize().x - 20.f;
+    sf::Vector2f c_pos(4.f, 4.f);
 
-    sf::Vector2f pos(4.f, 4.f);
+    float sx = c_pos.x;
+
+    std::string tag = rxn.front().tag;
+
+    sf::Vector2f size(0.f, 0.f);
+
+    float full_size_y;
 
     for (auto& r : reactions) {
-        panels.push_back(Reaction_Panel(r, item_library, pos, size_x));
-        pos.y += 74.f;
+        if (r.tag != tag) {
+            tag = r.tag;
+            c_pos.x = sx;
+            c_pos.y += 74.f;
+        }
+        panels.push_back(Reaction_Panel(r, item_library, c_pos));
+        if (c_pos.x + 70.f > size.x) {
+            size.x = c_pos.x + 70.f;
+        }
+        if (c_pos.y + 70.f > size.y) {
+            size.y = c_pos.y + 70.f;
+            full_size_y = size.y;
+            if (size.y > max_size) {
+                size.y = max_size;
+            }
+        }
+        c_pos.x += 74.f;
     }
-    setScrollable(pos.y);
+    size.x += scrollbar.getSize().x;
+    setView(pos, size);
+    setScrollable(full_size_y);
+
+    size.x -= 4.f;
+    size.y = full_size_y - 2.f;
+    frame.setPosition(sf::Vector2f(1.f, 1.f));
+    frame.setSize(size);
+    frame.setFillColor(Palette::inventory_bg);
+    frame.setOutlineColor(Palette::inventory_outline);
+    frame.setOutlineThickness(1.f);
     check(inventory);
 }
 
@@ -165,6 +202,7 @@ std::shared_ptr<Tooltip> Reaction_Interface::findTooltip(sf::Vector2f mpos)
 void Reaction_Interface::draw(sf::RenderTarget& target, sf::RenderStates states) const
 {
     target.setView(view);
+    target.draw(frame, states);
     for (const auto& p : panels) {
         target.draw(p, states);
     }

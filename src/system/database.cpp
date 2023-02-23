@@ -381,12 +381,14 @@ std::map<Machine_Type, std::vector<Reaction>> Database::getReactions()
         std::string product;
         int length;
         std::string location;
+        std::string tag;
 
         name = reinterpret_cast<const char*>(sqlite3_column_text(statement, column++));
         reagant_string = reinterpret_cast<const char*>(sqlite3_column_text(statement, column++));
         product = reinterpret_cast<const char*>(sqlite3_column_text(statement, column++));
         length = sqlite3_column_int(statement, column++);
         location = reinterpret_cast<const char*>(sqlite3_column_text(statement, column++));
+        tag = reinterpret_cast<const char*>(sqlite3_column_text(statement, column++));
 
         Machine_Type loc_type = stringToMachineType(location);
 
@@ -406,6 +408,7 @@ std::map<Machine_Type, std::vector<Reaction>> Database::getReactions()
             r.reagants = reagants;
             r.product = product;
             r.length = length;
+            r.tag = tag;
 
         reactions[loc_type].push_back(r);
     }
@@ -434,11 +437,13 @@ std::map<Crafting_Type, std::vector<Reaction>> Database::getRecipes()
         std::string reagant_string;
         std::string product;
         std::string location;
+        std::string tag;
 
         name = reinterpret_cast<const char*>(sqlite3_column_text(statement, column++));
         reagant_string = reinterpret_cast<const char*>(sqlite3_column_text(statement, column++));
         product = reinterpret_cast<const char*>(sqlite3_column_text(statement, column++));
         location = reinterpret_cast<const char*>(sqlite3_column_text(statement, column++));
+        tag = reinterpret_cast<const char*>(sqlite3_column_text(statement, column++));
 
         Crafting_Type loc_type = stringToCraftingType(location);
 
@@ -457,6 +462,7 @@ std::map<Crafting_Type, std::vector<Reaction>> Database::getRecipes()
             r.name = name;
             r.reagants = reagants;
             r.product = product;
+            r.tag = tag;
 
         recipes[loc_type].push_back(r);
     }

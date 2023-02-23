@@ -18,13 +18,11 @@ Container_Interface::Container_Interface(Player_Inventory& inventory, sf::View& 
         }
     }
 
-    pos = cells.back().back().getPosition();
+    pos = cells[1].back().getPosition();
 
     pos.x += (Inventory_Cell::size * 1.5f);
     pos.y -= (Inventory_Cell::size / 2.f);
-
-    sf::Vector2f size(320.f, 512.f);
-    reaction_interface.setView(pos, size);
+    reaction_pos = pos;
 
     frame.setSize(sf::Vector2f(0.f, 0.f));
 }

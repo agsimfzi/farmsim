@@ -35,6 +35,7 @@ void Scrollable::setScrollable(float max_height)
     scrollbar.setSize(sf::Vector2f(12.f, 12.f));
 
     scroll_x_pos = view.getSize().x - scrollbar.getSize().x;
+    current_scroll = 0.f;
 
     float fheight = max_height;
     if (size.y > fheight) {
@@ -96,6 +97,9 @@ void Scrollable::resizeScrollbar(){
 void Scrollable::placeScrollbar(){
     sf::Vector2f pos(scroll_x_pos, current_scroll);
     pos.y += (size.y - scrollbar.getSize().y) * (current_scroll / max_scroll);
+    if (max_scroll == 0.f) {
+        pos.y = 0.f;
+    }
     if(max_scroll > size.y){
         //pos.y += (frame.height - scrollbar.getSize().y) * (current_scroll / max_scroll);
     }

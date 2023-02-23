@@ -40,6 +40,11 @@ Tooltip::Tooltip(std::shared_ptr<Item> item)
 
 Tooltip::Tooltip(Reaction& reaction, std::vector<std::shared_ptr<Item>> reagants)
 {
+    name.setString(reaction.product);
+    name.setFont(Font_Manager::get(Font::UI));
+    name.setFillColor(Palette::black);
+    name.setCharacterSize(16);
+
     for (auto& i : reagants) {
         sf::Sprite sprite = i->getSprite();
         std::string lstr = "x";

@@ -66,6 +66,8 @@ protected:
 
     Reaction_Interface reaction_interface;
 
+    sf::Vector2f reaction_pos;
+
     void updateDragText();
 
     const static float cell_padding;

@@ -52,7 +52,6 @@ void Inventory_Interface::loadDrop(std::function<void(std::shared_ptr<Item>)> dr
     this->drop = drop;
 }
 
-
 void Inventory_Interface::readInventory()
 {
     size_t nr = inventory.rowCount;
@@ -153,11 +152,10 @@ void Inventory_Interface::placeCells()
         }
     }
 
-    pos.x = max_x + 64.f;
-    pos.y -= 512.f;
-
-    sf::Vector2f size(320.f, 512.f);
-    reaction_interface.setView(pos, size);
+    pos = cells[1].back().getPosition();
+    pos.x += (Inventory_Cell::size * 1.5f);
+    pos.y -= (Inventory_Cell::size / 2.f);
+    reaction_pos = pos;
 }
 
 void Inventory_Interface::setEquippedIndex(size_t active)
@@ -471,7 +469,7 @@ void Inventory_Interface::mousedIndex()
 
 void Inventory_Interface::loadReactions(std::vector<Reaction> reactions, Item_Library& item_library)
 {
-    reaction_interface.load(reactions, inventory, item_library);
+    reaction_interface.load(reactions, inventory, item_library, reaction_pos);
 }
 
 std::shared_ptr<Item> Inventory_Interface::mousedItem()
