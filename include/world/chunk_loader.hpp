@@ -2,6 +2,8 @@
 
 #include <memory>
 
+#include <entity/player.hpp>
+
 #include <item/player_inventory.hpp>
 
 #include "chunk.hpp"
@@ -45,7 +47,7 @@ public:
     void addBuilding(Building* b, sf::Vector2i coords);
     void addItem(std::shared_ptr<Item> item, sf::Vector2i coords);
 
-    void checkPickup(Player_Inventory& inventory, sf::Vector2f player_pos, bool pickup_all, float deltaTime);
+    void checkPickup(Player_Inventory& inventory, Player& player, bool pickup_all, float deltaTime);
 
 private:
     void moveChunks(Direction d);

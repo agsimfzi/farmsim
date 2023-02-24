@@ -755,7 +755,7 @@ Floor* World::activeFloor(sf::Vector2i i)
 
 void World::checkPickup(Player_Inventory& inventory, Player& player, float deltaTime)
 {
-    chunks.checkPickup(inventory, player.getPosition(), pickup_all, deltaTime);
+    chunks.checkPickup(inventory, player, pickup_all, deltaTime);
 }
 
 Chunk_Loader& World::getChunks()

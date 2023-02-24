@@ -84,6 +84,7 @@ void Inventory_Interface::update(sf::RenderWindow& window)
     checkDrag();
     checkTooltip(window);
     readInventory();
+    reaction_interface.check();
 }
 
 void Inventory_Interface::checkTooltip(sf::RenderWindow& window)

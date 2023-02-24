@@ -336,6 +336,11 @@ bool Entity::movingVehicle()
     return (vehicle && vehicle->getState() == Vehicle_State::MOVING);
 }
 
+sf::FloatRect Entity::getBounds()
+{
+    return bounds;
+}
+
 void Entity::draw(sf::RenderTarget& target, sf::RenderStates states) const
 {
     if (vehicle) {

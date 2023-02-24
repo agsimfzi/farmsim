@@ -66,20 +66,27 @@ void Machine_Interface::update(sf::RenderWindow& window)
     checkDrag();
     checkTooltip(window);
     readInventory();
-    checkReaction();
+    readExtension();
 }
 
 void Machine_Interface::readExtension()
 {
-    std::vector<std::shared_ptr<Item>> reagants = machine->getInventory().front();
-    for (size_t i = 0; i < reagants.size(); i++) {
-        cells[inventory.rowCount][i].clearItem();
-        cells[inventory.rowCount][i].setItem(reagants[i]);
+    size_t r = inventory.rowCount;
+    size_t n = cells[r].size();
+    std::vector<std::shared_ptr<Item>> reagants = machine->activeReagants();
+    for (size_t i = 0; i < n; i++) {
+        cells[r][i].clearItem();
+        cells[r][i].setItem(reagants[i]);
+        //cells[r][i].updateCount();
     }
-
-    cells.back().front().clearItem();
-    cells.back().front().setItem(machine->getInventory().back().front());
-    reaction_interface.check(inventory);
+    r++; // shift to product row
+    if (!cells[r].front().getItem()) {
+        cells[r].front().setItem(machine->activeProduct());
+    }
+    else {
+        cells[r].front().updateCount();
+    }
+    setProgressBarSize();
 }
 
 void Machine_Interface::writeExtension()
@@ -103,12 +110,10 @@ void Machine_Interface::writeExtension()
     else {
         machine->clearProduct();
     }
-    machine->checkReaction();
-    reaction_interface.check(inventory);
 }
 
 bool Machine_Interface::checkReactionInterface(sf::RenderWindow& window)
-{
+{ // PARSES CLICKS WITHIN THE REACTION INTERFACE
     sf::Vector2f mpos = fMouse(window, reaction_interface.getView());
     bool parsed = (reaction_interface.contains(mpos));
     if (parsed) {
@@ -148,24 +153,6 @@ bool Machine_Interface::checkReactionInterface(sf::RenderWindow& window)
     return parsed;
 }
 
-void Machine_Interface::checkReaction()
-{
-    size_t r = inventory.rowCount;
-    size_t n = cells[r].size();
-    std::vector<std::shared_ptr<Item>> reagants = machine->activeReagants();
-    for (size_t i = 0; i < n; i++) {
-        cells[r][i].updateCount();
-    }
-    r++; // shift to product row
-    if (!cells[r].front().getItem()) {
-        cells[r].front().setItem(machine->activeProduct());
-    }
-    else {
-        cells[inventory.rowCount + 1].front().updateCount();
-    }
-    setProgressBarSize();
-}
-
 void Machine_Interface::setProgressBarSize()
 {
     sf::Vector2f size;
@@ -178,6 +165,7 @@ void Machine_Interface::shiftClickLeft()
 {
     if (!dragging && mousedItem()) {
         std::shared_ptr<Item> i = std::make_shared<Item>(*mousedItem());
+        mousedCell()->clearItem();
         if (moused.x >= (int)inventory.rowCount) {
             // attempt move whole stack to inventory
             inventory.addItem(i);
@@ -185,7 +173,7 @@ void Machine_Interface::shiftClickLeft()
                 mousedCell()->clearItem();
             }
             else {
-                mousedCell()->add(i->count());
+                mousedCell()->setItem(i);
             }
             readInventory();
             writeExtension();

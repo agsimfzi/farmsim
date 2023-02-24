@@ -55,6 +55,8 @@ public:
     Vehicle::Type getVehicleType();
     void setVehicle(std::shared_ptr<Vehicle> v);
 
+    sf::FloatRect getBounds();
+
 protected:
     Entity_State state = Entity_State::IDLE;
     Entity_State lastState = Entity_State::IDLE;

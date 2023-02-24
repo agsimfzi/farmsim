@@ -22,6 +22,4 @@ private:
 
     virtual void readExtension() override;
     virtual void writeExtension() override;
-    //virtual void swap() override;
-    void checkReaction();
 };

@@ -211,10 +211,11 @@ bool Chunk_Loader::validChunkIndex(int x, int y)
     return validChunkIndex(sf::Vector2i(x, y));
 }
 
-void Chunk_Loader::checkPickup(Player_Inventory& inventory, sf::Vector2f player_pos, bool pickup_all, float deltaTime)
+void Chunk_Loader::checkPickup(Player_Inventory& inventory, Player& player, bool pickup_all, float deltaTime)
 {
+    sf::Vector2f player_pos = player.getPosition();
     const static float move_threshold = 192.f;
-    const static float speed = 4.f * deltaTime; // need to pass the delta for this
+    const static float speed = 1.f * deltaTime; // need to pass the delta for this
     std::vector<std::pair<sf::Vector2i, std::shared_ptr<Item>>> to_move;
     for (int x = -1; x <= 1; x++) {
         for (int y = -1; y <= 1; y++) {
@@ -225,7 +226,8 @@ void Chunk_Loader::checkPickup(Player_Inventory& inventory, sf::Vector2f player_
                 if (picking) {
                     sf::Vector2f item_pos = (*i)->getPosition();
 
-                    if ((*i)->getSprite().getGlobalBounds().contains(player_pos)) {
+                    // if ((*i)->getSprite().getGlobalBounds().contains(player_pos)) {
+                    if (player.getBounds().contains((*i)->getSprite().getPosition())) {
                         inventory.addItem((*i));
                         if (!(*i)) {
                             chunks[ci.x][ci.y]->getItems().erase(i);

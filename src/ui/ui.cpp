@@ -1,7 +1,8 @@
 #include <ui/ui.hpp>
 
-#include <resources/texture_manager.hpp>
 #include <resources/font_manager.hpp>
+#include <resources/palette.hpp>
+#include <resources/texture_manager.hpp>
 
 #include <util/fmouse.hpp>
 #include <util/shift_pressed.hpp>
@@ -29,7 +30,10 @@ UI::UI(sf::RenderWindow& window, Game& game, sf::View& view)
 
     player_pos.setPosition(sf::Vector2f(1800.f, 1000.f));
     player_pos.setFont(font);
-    player_pos.setFillColor(sf::Color(200, 200, 200));
+    player_pos.setFillColor(Palette::white);
+    player_pos.setCharacterSize(12);
+    player_pos.setOutlineThickness(2.f);
+    player_pos.setOutlineColor(Palette::black);
 
     energy_bar.setPosition(sf::Vector2f(1600.f, 980.f));
 }

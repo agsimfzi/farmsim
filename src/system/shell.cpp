@@ -6,7 +6,7 @@
 //////////////////////////////////////////////////////////////
 
 Shell::Shell()
-    : window { sf::VideoMode::getDesktopMode(), "farm sim prototype", sf::Style::Fullscreen }
+    : window { sf::VideoMode::getDesktopMode(), "Fairy Farm", sf::Style::Fullscreen }
 {
     sf::Cursor cursor;
     cursor.loadFromSystem(sf::Cursor::Cross);
@@ -26,7 +26,7 @@ Shell::Shell()
     fpsText.setFont(Font_Manager::get(Font::MENU));
     fpsText.setString("0");
     fpsText.setFillColor(sf::Color::Red);
-    fpsText.setPosition(sf::Vector2f(window.getSize().x - 64.f, window.getSize().y - 96.f));
+    fpsText.setPosition(sf::Vector2f(8.f, 8.f));
 
     ui.scale(window);
 
@@ -123,8 +123,8 @@ void Shell::loadNewLevel()
     loads.push_back(std::bind(&World::makeBiomes, &game.getWorld()));
     messages.push_back("making biomes...");
 
-    //loads.push_back(std::bind(&World::makeGrass, &game.getWorld()));
-    //messages.push_back("making grass...");
+    loads.push_back(std::bind(&World::makeGrass, &game.getWorld()));
+    messages.push_back("making grass...");
 
     loads.push_back(std::bind(&UI::init, &ui));
     messages.push_back("initializing UI.");
