@@ -13,12 +13,12 @@
 #include <item/item_library.hpp>
 #include <item/player_inventory.hpp>
 
+#include "biome.hpp"
 #include "crop.hpp"
 #include "crop_library.hpp"
-
-#include "biome.hpp"
 #include "chunk.hpp"
 #include "chunk_loader.hpp"
+#include "season.hpp"
 #include "tile.hpp"
 #include "tile_info.hpp"
 #include "vehicle_library.hpp"
@@ -94,6 +94,10 @@ public:
 
     Building_Library& getBuildingLibrary();
 
+    void nextSeason();
+    void killUnseasonableCrops();
+    void removeCrop(sf::Vector2i i);
+
 private:
     bool changeActiveTile(Floor_Type prereq, Floor_Type ntype);
 
@@ -116,6 +120,8 @@ private:
     bool interacting = false;
 
     Map_Tile<Crop> crops;
+
+    Season season = Season::SPRING;
 
     bool inRange(sf::Vector2i c1, sf::Vector2i c2);
 

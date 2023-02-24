@@ -19,7 +19,7 @@
 World::World(Item_Library& item_library)
     : item_library { item_library }
 {
-    sf::Vector2i size(128, 128);
+    sf::Vector2i size(32, 32);
     size.x *= chunks.chunk_size.x;
     size.y *= chunks.chunk_size.y;
     size.y -= 1;
@@ -29,6 +29,30 @@ World::World(Item_Library& item_library)
     chunks.world_max = world_max;
 
     std::cout << "WORLD BOUNDS CALCULATED:\n\t" << world_min << " to " << world_max << "!\n";
+}
+
+void World::nextSeason()
+{
+    std::cout << "\n\nSEASON CHANGE, FROM " << seasonToString(season);
+    int s = static_cast<int>(season);
+    s++;
+    if (s > 3) {
+        s = 0;
+    }
+    season = static_cast<Season>(s);
+    std::cout << " TO " << seasonToString(season) << "!\n";
+    killUnseasonableCrops();
+}
+
+void World::killUnseasonableCrops()
+{
+    for (auto& r : crops) {
+        for (auto& c : r.second) {
+            if (!c.second.checkSeason(season)) {
+                c.second.kill();
+            }
+        }
+    }
 }
 
 void World::reset()
@@ -47,8 +71,8 @@ void World::update(Player_Inventory& player_inventory, Player& player, float del
         if (player.energy < 0) {
             player.energy = 0;
         }
-        energy = player.energy;
     }
+    energy = player.energy;
 
     /*
     for (auto& m : machines) {
@@ -115,9 +139,7 @@ void World::interact(Player& player, Player_Inventory& player_inventory)
                         chunks.addItem(i, player.getCoordinates(Tile::tileSize));
                     }
 
-                    crops[t.x].erase(t.y);
-                    f->setType(Floor_Type::TILLED);
-                    f->planted = false;
+                    removeCrop(t);
                 }
             } // END HARVEST
         }
@@ -573,6 +595,9 @@ void World::hoe()
             tileToLibrary(t);
         }
     }
+    else if (tile_library[t.x][t.y].planted) {
+        removeCrop(t);
+    }
 }
 
 void World::water(std::shared_ptr<Item> item)
@@ -622,7 +647,8 @@ void World::axe(int factor)
 
 void World::pick(int factor)
 {
-    if (!changeActiveTile(Floor_Type::TILLED, Floor_Type::DIRT)) {
+    if (!changeActiveTile(Floor_Type::TILLED, Floor_Type::DIRT)
+    && !changeActiveTile(Floor_Type::WATERED, Floor_Type::DIRT)) {
         sf::Vector2i t = *activeTile;
         if (tile_library[t.x][t.y].rock) {
             Rock* rock = chunks.rock(t);
@@ -685,16 +711,21 @@ void World::plantCrop(std::shared_ptr<Item> item)
     // no need for a redundant check of activeTile, as that is handled in ::interact()
     sf::Vector2i t = *activeTile;
     Floor* f = chunks.floor(*activeTile);
-    if (plantableTile(t)) {
+    Crop crop = *crop_library.get(item->getUID());
+    if (plantableTile(t) && crop.checkSeason(season)) {
         item->take(1);
-        f->planted = true;
 
-        Crop* c = crop_library.get(item->getUID());
-        if (c) {
-            crops[t.x][t.y] = Crop(*c);
-            crops[t.x][t.y].place(t, f->getPosition());
-        }
+        auto unwater = [&](sf::Vector2i c)
+        {
+            chunks.floor(c)->setType(Floor_Type::TILLED);
+            tileToLibrary(c);
+        };
+        crop.unwater = unwater;
+
+        crops[t.x][t.y] = crop;
+        crops[t.x][t.y].place(t, f->getPosition());
         tileToLibrary(t);
+        f->planted = true;
     }
 
 }
@@ -707,12 +738,26 @@ bool World::changeActiveTile(Floor_Type prereq, Floor_Type ntype)
         Floor* f = chunks.floor(*activeTile);
         change = (f->type == prereq);
         if (change) {
+            if (f->planted && ntype != Floor_Type::WATERED) {
+                f->planted = false;
+                removeCrop(*activeTile);
+            }
             f->setType(ntype);
             tileToLibrary(f);
         }
     }
 
     return change;
+}
+
+void World::removeCrop(sf::Vector2i i)
+{
+    tile_library[i.x][i.y].planted = false;
+    chunks.floor(i)->planted = false;
+    crops[i.x].erase(i.y);
+    if (crops[i.x].size() == 0) {
+        crops.erase(i.x);
+    }
 }
 
 void World::tick(sf::Vector2i player_coordinates)

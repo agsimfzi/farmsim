@@ -42,10 +42,17 @@ Crop_Library::Crop_Library()
                   << ", water " << d.water_factor
                   << ", stages " << d.stage_count
                   << ", size " << d.y_size << '\n';
+        std::cout << "\tspring: " << d.seasons[Season::SPRING] << '\n';
+        std::cout << "\tsummer: " << d.seasons[Season::SUMMER] << '\n';
+        std::cout << "\tautumn: " << d.seasons[Season::AUTUMN] << '\n';
+        std::cout << "\twinter: " << d.seasons[Season::WINTER] << '\n';
     }
 }
 
 Crop* Crop_Library::get(size_t uid)
 {
+    if (!shelf.contains(uid)) {
+        std::cout << "FAILED TO FIND CROP " << uid << "!\n";
+    }
     return shelf[uid].get();
 }

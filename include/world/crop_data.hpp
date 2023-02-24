@@ -2,9 +2,8 @@
 
 #include <SFML/System/Vector2.hpp>
 
+#include <map>
 #include <string>
-
-#include <item/item_data.hpp>
 
 #include "season.hpp"
 
@@ -14,10 +13,10 @@ public:
     size_t uid;
     std::string name;
 
-    Season season;
-
     float growth_coef;
     float water_factor;
     size_t stage_count;
     int y_size;
+
+    std::map<Season, bool> seasons;
 };

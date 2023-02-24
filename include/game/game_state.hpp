@@ -3,27 +3,18 @@
 #include <string>
 
 enum Game_State {
-    PEACE,
-    COMBAT,
-    BOSS,
-    WIN,
-    LOSS,
+    STANDARD,
+    SEASON_CHANGE
 };
 
 inline std::string gameStateToString(Game_State s)
 {
     switch (s) {
-        case Game_State::PEACE:
-            return "PEACE";
-        case Game_State::COMBAT:
-            return "COMBAT";
-        case Game_State::BOSS:
-            return "BOSS";
-        case Game_State::WIN:
-            return "WIN";
-        case Game_State::LOSS:
-            return "LOSS";
+        case Game_State::STANDARD:
+            return "STANDARD";
+        case Game_State::SEASON_CHANGE:
+            return "SEASON_CHANGE";
         default:
-            return "INEXPLICABLE NULL VALUE";
+            return "INEXPLICABLE GAME_STATE NULL VALUE";
     }
 }

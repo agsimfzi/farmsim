@@ -23,6 +23,13 @@ public:
 
     void place(sf::Vector2i coordinates, sf::Vector2f pos);
 
+    bool checkSeason(Season s);
+
+    void kill();
+    bool dead();
+
+    std::function<void(sf::Vector2i)> unwater;
+
 private:
     sf::Sprite sprite;
 

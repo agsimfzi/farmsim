@@ -1,6 +1,6 @@
 #include <world/crop.hpp>
 
-const float Crop::stage_threshold = 1.f;
+const float Crop::stage_threshold = 100.f;
 
 Crop::Crop(Crop_Data d)
     : Crop_Data(d)
@@ -20,14 +20,17 @@ sf::Sprite& Crop::getSprite()
 void Crop::tick(bool watered)
 {
     // introduce random variance
-    if (!fullyGrown()) {
+    if (!fullyGrown() && !dead()) {
         float stage_advance = growth_coef;
         if (watered) {
             stage_advance *= water_factor;
         }
+        //std::cout << "plant has advanced from " << growth;
         growth += stage_advance;
+        //std::cout << " to " << growth << '\n';
         if (growth >= stage_threshold) {
             nextStage();
+            unwater(coordinates);
         }
     }
 }
@@ -39,7 +42,7 @@ sf::Vector2i Crop::getCoordinates()
 
 bool Crop::fullyGrown()
 {
-    return (stage >= stage_count);
+    return (stage == stage_count);
 }
 
 size_t Crop::getUID()
@@ -60,13 +63,28 @@ void Crop::place(sf::Vector2i coordinates, sf::Vector2f pos)
 
 void Crop::nextStage()
 {
-    if (!fullyGrown()) {
-        sf::IntRect tr = sprite.getTextureRect();
-        tr.top += y_size;
-        sprite.setTextureRect(tr);
-        growth = 0.f;
-        stage++;
+    sf::IntRect tr = sprite.getTextureRect();
+    tr.top += y_size;
+    sprite.setTextureRect(tr);
+    growth = 0.f;
+    stage++;
+}
+
+bool Crop::checkSeason(Season s)
+{
+    return seasons[s];
+}
+
+void Crop::kill()
+{
+    while (stage <= stage_count) {
+        nextStage();
     }
+}
+
+bool Crop::dead()
+{
+    return (stage == stage_count + 1);
 }
 
 void Crop::draw(sf::RenderTarget& target, sf::RenderStates states) const

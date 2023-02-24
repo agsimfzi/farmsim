@@ -12,13 +12,27 @@ Game::Game(sf::View& nview)
     : view { nview }
 {
     player = Player(Database::getPlayerData(), Texture_Manager::get("PLAYER"));
-
+/*
     giveItemToPlayer("stone", 15);
     giveItemToPlayer("wood", 15);
     giveItemToPlayer("coal", 10);
     giveItemToPlayer("iron ore", 2);
     giveItemToPlayer("copper ore", 3);
     giveItemToPlayer("gold ore", 1);
+*/
+}
+
+void Game::nextSeason()
+{
+    player.energy = player.max_energy;
+    world.nextSeason();
+
+    const static size_t ticks = 1000;
+    for (size_t i = 0; i < ticks; i++) {
+        tick();
+    }
+
+    std::cout << "\nseason change ticks complete!\n";
 }
 
 void Game::giveItemToPlayer(std::string name, size_t count)

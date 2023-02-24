@@ -67,6 +67,7 @@ void Machine_Interface::update(sf::RenderWindow& window)
     checkTooltip(window);
     readInventory();
     readExtension();
+    reaction_interface.check(inventory);
 }
 
 void Machine_Interface::readExtension()

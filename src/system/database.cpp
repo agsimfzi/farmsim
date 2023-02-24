@@ -2,11 +2,13 @@
 
 #include <SFML/Audio/Sound.hpp>
 
+#include <audio/sound_context.hpp>
+
 #include <animation/animation.hpp>
 
 #include <input/convert_action_trigger.hpp>
 
-#include <audio/sound_context.hpp>
+#include <world/season.hpp>
 
 //////////////////////////////////////////////////////////////
 
@@ -343,6 +345,7 @@ std::vector<Crop_Data> Database::getCropPrototypes()
         // water_factor
         // stage_count
         // y_size
+        // seasons
 
         Crop_Data c;
 
@@ -352,6 +355,13 @@ std::vector<Crop_Data> Database::getCropPrototypes()
         c.water_factor = sqlite3_column_double(statement, column++);
         c.stage_count = sqlite3_column_int(statement, column++);
         c.y_size = sqlite3_column_int(statement, column++);
+        std::string seasons = reinterpret_cast<const char*>(sqlite3_column_text(statement, column++));
+
+        for (int i = 0; i < 4; i++) {
+            Season s = static_cast<Season>(i);
+            c.seasons[s] = (seasons.find(seasonToString(s)) != std::string::npos);
+
+        }
 
         crops.push_back(c);
     }

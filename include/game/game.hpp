@@ -30,6 +30,8 @@ public:
     Player& getPlayer();
     World& getWorld();
 
+    void nextSeason();
+
     void startGame();
 
     void clickLeft();
@@ -71,7 +73,7 @@ private:
 
     sf::View& view;
 
-    Game_State state { Game_State::PEACE };
+    Game_State state { Game_State::STANDARD };
 
     sf::Clock tick_clock;
 
