@@ -2,7 +2,11 @@
 
 Item::Item(Item_Data d)
     : Item_Data(d)
-{}
+{
+    if (subtype.find("EDIBLE") != std::string::npos) {
+        m_edible = true;
+    }
+}
 
 void Item::setSprite(sf::Sprite sprite)
 {
@@ -133,6 +137,11 @@ void Item::reduceUses()
     if (use_percent < 0) {
         use_percent = 0;
     }
+}
+
+bool Item::edible()
+{
+    return m_edible;
 }
 
 void Item::draw(sf::RenderTarget& target, sf::RenderStates states) const

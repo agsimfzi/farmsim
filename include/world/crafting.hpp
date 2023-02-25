@@ -6,7 +6,7 @@
 
 enum class Crafting_Type {
     WORKBENCH,
-    CARPENTER_TABLE,
+    CARPENTRY_TABLE,
     ANVIL,
     TOOL_BENCH,
     BOAT_WORKSHOP,
@@ -19,8 +19,8 @@ inline Crafting_Type stringToCraftingType(std::string s) {
     if (s == "WORKBENCH") {
         return Crafting_Type::WORKBENCH;
     }
-    else if (s == "CARPENTER_TABLE") {
-        return Crafting_Type::CARPENTER_TABLE;
+    else if (s == "CARPENTRY_TABLE") {
+        return Crafting_Type::CARPENTRY_TABLE;
     }
     else if (s == "ANVIL") {
         return Crafting_Type::ANVIL;

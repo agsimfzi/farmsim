@@ -26,7 +26,7 @@ Building_Library::Building_Library()
                     item.subtype = derived_subtype;
                     break;
                 case Building::FURNITURE:
-                    //b = std::make_shared<Furniture>();
+                    b = std::make_shared<Furniture>();
                     break;
                 case Building::MACHINE:
                     m = std::make_shared<Machine>();
@@ -77,7 +77,7 @@ std::shared_ptr<Building> Building_Library::makeBySubtype(Building* b)
         case Building::CRAFTING:
             return std::make_shared<Crafting>(*dynamic_cast<Crafting*>(b));
         case Building::FURNITURE:
-            //return std::make_shared<Furniture>(*dynamic_cast<Furniture*>(b));
+            return std::make_shared<Furniture>(*dynamic_cast<Furniture*>(b));
         case Building::MACHINE:
             return std::make_shared<Machine>(*dynamic_cast<Machine*>(b));
         case Building::LOOTABLE:

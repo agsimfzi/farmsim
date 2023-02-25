@@ -14,7 +14,11 @@ Tooltip::Tooltip(std::shared_ptr<Item> item)
     name.setFillColor(Palette::black);
     name.setCharacterSize(16);
 
-    description.setString(item->getDescription());
+    std::string desc = item->getDescription();
+    if (item->edible()) {
+        desc += "\nRestores " + std::to_string(item->useFactor()) + " energy.";
+    }
+    description.setString(desc);
     description.setFont(Font_Manager::get(Font::UI));
     description.setFillColor(Palette::black);
     description.setCharacterSize(14);

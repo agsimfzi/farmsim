@@ -43,10 +43,13 @@ public:
     std::string getDescription();
     int getValue();
 
+    bool edible();
+
 private:
     sf::Sprite sprite;
 
     size_t m_count;
+    bool m_edible = false;
 
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
 };

@@ -8,7 +8,7 @@
 #include <world/building.hpp>
 #include <world/container.hpp>
 #include <world/crafting.hpp>
-//#include <world/furniture.hpp>
+#include <world/furniture.hpp>
 #include <world/machine.hpp>
 #include <world/lootable.hpp>
 //#include <world/structure.hpp>

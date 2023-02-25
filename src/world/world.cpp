@@ -19,7 +19,7 @@
 World::World(Item_Library& item_library)
     : item_library { item_library }
 {
-    sf::Vector2i size(32, 32);
+    sf::Vector2i size(64, 64);
     size.x *= chunks.chunk_size.x;
     size.y *= chunks.chunk_size.y;
     size.y -= 1;
@@ -65,11 +65,18 @@ void World::update(Player_Inventory& player_inventory, Player& player, float del
 {
     checkPickup(player_inventory, player, deltaTime);
 
-    if (energy_diff != 0) {
-        player.energy -= energyDiff();
+// MOVE THIS LOGIC INTERNAL TO PLAYER
+    if (energy_diff < 0) {
+        player.energy += energyDiff();
         player.resetItemUseIndex();
         if (player.energy < 0) {
             player.energy = 0;
+        }
+    }
+    else if (energy_diff > 0) {
+        player.energy += energyDiff();
+        if (player.energy > player.max_energy) {
+            player.energy = player.max_energy;
         }
     }
     energy = player.energy;
@@ -325,11 +332,6 @@ void World::placeWreckage()
     items.back()->setCount(10);
     items.push_back(item_library.shared(1001));
     items.back()->setCount(10);
-    //items.push_back(item_library.shared("chest"));
-    //items.push_back(item_library.shared("workbench"));
-    //items.push_back(item_library.shared("furnace"));
-    //items.push_back(item_library.shared("table saw"));
-    //items.push_back(item_library.shared("anvil"));
 
     sf::Vector2i coords;
 
@@ -340,14 +342,14 @@ void World::placeWreckage()
             coords = randomNearbyEmptyTile(start_coords, distance);
         } while (coords == axe_coords);
         std::shared_ptr<Lootable> lootable = std::dynamic_pointer_cast<Lootable>(building_library("crate"));
-        lootable->addItem(items[i]);
+        lootable->resize();
         lootable->addItem(item_library.shared("plank"));
+        lootable->getInventory().front().back()->setCount(prng::number(1, 3));
+        lootable->addItem(items[i]);
         //lootable->getInventory().front().front() = std::move(items[i]);
         //lootable->getInventory().front().push_back(item_library.shared("plank"));
-        lootable->getInventory().front().back()->setCount(prng::number(1, 3));
         tile_library[coords.x][coords.y].building = lootable;
         chunks.addBuilding(tile_library[coords.x][coords.y].building.get(), coords);
-        lootable.reset();
         distance += prng::number(0, 2);
     }
 }
@@ -477,7 +479,10 @@ std::vector<std::pair<Floor_Info, sf::FloatRect>> World::getLocalTiles(sf::Vecto
 bool World::useItem(std::shared_ptr<Item> item)
 {
     bool used = true;
-    if (activeTile) {
+    if (item->edible()) {
+        eat(item);
+    }
+    else if (activeTile) {
         switch (item->getType()) {
             case Item_Type::TOOL:
                 useTool(item);
@@ -485,6 +490,8 @@ bool World::useItem(std::shared_ptr<Item> item)
             case Item_Type::SEED:
                 plantCrop(item);
                 break;
+            case Item_Type::PLANT:
+                if (item->edible())
             case Item_Type::VEHICLE:
                 useVehicle(item);
                 break;
@@ -494,13 +501,18 @@ bool World::useItem(std::shared_ptr<Item> item)
             case Item_Type::RAW_MATERIAL:
                 useRawMaterial(item);
                 break;
-
             default:
                 used = false;
                 break;
         }
     }
     return used;
+}
+
+void World::eat(std::shared_ptr<Item> item)
+{
+    energy_diff = item->useFactor();
+    item->take(1);
 }
 
 void World::useRawMaterial(std::shared_ptr<Item> item)
@@ -549,7 +561,7 @@ void World::useVehicle(std::shared_ptr<Item> item)
 void World::useTool(std::shared_ptr<Item> item)
 {
     if (energy > 0) {
-        energy_diff = item->useFactor();
+        energy_diff = -item->useFactor();
         switch (item->getUID()) {
             default:
                 break;
