@@ -328,11 +328,11 @@ void World::placeWreckage()
     items.back()->setCount(1);
     items.push_back(item_library.shared("watering can"));
     items.back()->setCount(1);
-    items.push_back(item_library.shared(1000));
+    items.push_back(item_library.shared(1000)); // carrot seeds
     items.back()->setCount(10);
-    items.push_back(item_library.shared(1001));
+    items.push_back(item_library.shared(1001)); // melon seeds
     items.back()->setCount(10);
-    items.push_back(item_library.shared(1002));
+    items.push_back(item_library.shared(1002)); // cotton seeds
     items.back()->setCount(10);
 
     sf::Vector2i coords;

@@ -12,14 +12,12 @@ Game::Game(sf::View& nview)
     : view { nview }
 {
     player = Player(Database::getPlayerData(), Texture_Manager::get("PLAYER"));
-/*
-    giveItemToPlayer("stone", 15);
-    giveItemToPlayer("wood", 15);
-    giveItemToPlayer("coal", 10);
-    giveItemToPlayer("iron ore", 2);
-    giveItemToPlayer("copper ore", 3);
-    giveItemToPlayer("gold ore", 1);
-*/
+
+    giveItemToPlayer("plank", 50);
+    giveItemToPlayer("wood", 50);
+    giveItemToPlayer("iron bar", 50);
+    giveItemToPlayer("copper bar", 50);
+    giveItemToPlayer("gold bar", 50);
 }
 
 void Game::changeSeason()
