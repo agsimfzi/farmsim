@@ -332,6 +332,8 @@ void World::placeWreckage()
     items.back()->setCount(10);
     items.push_back(item_library.shared(1001));
     items.back()->setCount(10);
+    items.push_back(item_library.shared(1002));
+    items.back()->setCount(10);
 
     sf::Vector2i coords;
 
@@ -770,6 +772,11 @@ void World::removeCrop(sf::Vector2i i)
     if (crops[i.x].size() == 0) {
         crops.erase(i.x);
     }
+}
+
+Season World::getSeason()
+{
+    return season;
 }
 
 void World::tick(sf::Vector2i player_coordinates)

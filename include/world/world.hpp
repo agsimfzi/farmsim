@@ -98,6 +98,8 @@ public:
     void killUnseasonableCrops();
     void removeCrop(sf::Vector2i i);
 
+    Season getSeason();
+
 private:
     bool changeActiveTile(Floor_Type prereq, Floor_Type ntype);
 

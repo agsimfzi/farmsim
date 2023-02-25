@@ -30,7 +30,8 @@ public:
     Player& getPlayer();
     World& getWorld();
 
-    void nextSeason();
+    void changeSeason(); // effects state change
+    void nextSeason();   // performs pertinent operations
 
     void startGame();
 

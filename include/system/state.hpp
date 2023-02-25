@@ -7,6 +7,7 @@ enum class Main_State {
     MENU,
     NEWGAME,
     GAME,
+    SEASON_CHANGE,
     LOADING,
     QUIT,
     NULL_STATE

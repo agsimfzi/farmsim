@@ -22,6 +22,11 @@ Game::Game(sf::View& nview)
 */
 }
 
+void Game::changeSeason()
+{
+    newMain(Main_State::SEASON_CHANGE);
+}
+
 void Game::nextSeason()
 {
     player.energy = player.max_energy;
