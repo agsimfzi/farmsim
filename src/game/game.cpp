@@ -21,6 +21,11 @@ Game::Game(sf::View& nview)
     giveItemToPlayer("iron ore", 100);
     giveItemToPlayer("gold ore", 100);
 
+    giveItemToPlayer("plank", 100);
+    giveItemToPlayer("copper bar", 100);
+    giveItemToPlayer("iron bar", 100);
+    giveItemToPlayer("gold bar", 100);
+
     giveItemToPlayer("wheat seeds", 10);
     giveItemToPlayer("melon", 100);
 }

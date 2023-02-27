@@ -7,9 +7,13 @@
 Building_Library::Building_Library()
 {
     std::map<Machine_Type, std::vector<Reaction>> reactions = Database::getReactions();
+    std::vector<Reaction> seed_reactions;
     std::map<Crafting_Type, std::vector<Reaction>> recipes = Database::getRecipes();
     std::vector<Item_Data> items = Database::getItemPrototypes();
     for (auto& item : items) {
+        if (item.type == Item_Type::SEED) {
+            seed_reactions.push_back(generateSeedReaction(item));
+        }
         if (item.type == Item_Type::BUILDING) {
             std::shared_ptr<Machine> m;
             std::shared_ptr<Building> b;
@@ -31,9 +35,16 @@ Building_Library::Building_Library()
                 case Building::MACHINE:
                     m = std::make_shared<Machine>();
                     derived_subtype = item.subtype.substr(item.subtype.find(':') + 1);
-                    m->reactions = reactions[stringToMachineType(derived_subtype)];
-                    m->countReagants();
                     m->machine_type = stringToMachineType(derived_subtype);
+                    if (m->machine_type == Machine_Type::SEED_EXTRACTOR) {
+                        std::sort(seed_reactions.begin(), seed_reactions.end(),
+                            [] (Reaction& l, Reaction& r) -> bool { return l < r; });
+                        m->reactions = seed_reactions;
+                    }
+                    else {
+                        m->reactions = reactions[stringToMachineType(derived_subtype)];
+                    }
+                    m->countReagants();
                     item.subtype = derived_subtype;
                     b = m;
                     break;
@@ -66,7 +77,7 @@ Building_Library::Building_Library()
             uidShelf[b->uid] = b;
             stringShelf[b->name] = b;
         }
-    }
+    } // item loop
 }
 
 std::shared_ptr<Building> Building_Library::makeBySubtype(Building* b)
@@ -99,4 +110,20 @@ Building::Type Building_Library::findBuildingType(std::string subtype)
     }
 
     return Building::stringToType(subtype);
+}
+
+Reaction Building_Library::generateSeedReaction(Item_Data item)
+{
+    Reaction r;
+    r.name = "Extract " + item.name;
+    Reagant rgt;
+    rgt.count = 1;
+    rgt.name = item.name;
+    std::string extract = " Seeds";
+    rgt.name.resize(item.name.size() - extract.length());
+    r.reagants.push_back(rgt);
+    r.product = item.name;
+    r.length = std::stoi(item.subtype.substr(0, item.subtype.find(';')));
+    r.tag = item.subtype.substr(item.subtype.find(';') + 1);
+    return r;
 }

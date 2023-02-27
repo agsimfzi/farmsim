@@ -39,4 +39,6 @@ private:
     std::shared_ptr<Building> makeBySubtype(Building* b);
 
     Building::Type findBuildingType(std::string subtype);
+
+    Reaction generateSeedReaction(Item_Data item);
 };

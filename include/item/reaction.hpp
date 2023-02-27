@@ -18,4 +18,8 @@ struct Reaction {
     std::string product;
     size_t length = 1;
     std::string tag;
+    bool operator <  (const Reaction& r) { return tag <  r.tag; }
+    bool operator >  (const Reaction& r) { return tag >  r.tag; }
+    bool operator <= (const Reaction& r) { return tag <= r.tag; }
+    bool operator >= (const Reaction& r) { return tag >= r.tag; }
 };
