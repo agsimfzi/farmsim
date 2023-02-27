@@ -6,24 +6,6 @@
 
 //////////////////////////////////////////////////////////////
 
-Nav::Nav(std::string nlabel, sf::Font& font, Main_State ntmain, Menu_State ntmenu)
-    : Button { nlabel, font }
-{
-    target_main = ntmain;
-    target_menu = ntmenu;
-}
-
-Target::Target(std::function<void()> nt)
-    : target { nt }
-{
-}
-
-Option::Option(std::string nlabel, sf::Font& font, std::function<void()> nt)
-    : Button { nlabel, font }
-    , Target(nt)
-{
-}
-
 Logo::Logo(std::string nurl, sf::Vector2f pos, std::string key)
     : url { nurl }
 {

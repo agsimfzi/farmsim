@@ -75,6 +75,9 @@ void Shell::update()
             fpsClock.restart();
             game.prepRenderer();
             break;
+        case Main_State::SEASON_CHANGE:
+            season_changer.update();
+            break;
         default:
             break;
     }
@@ -99,6 +102,9 @@ void Shell::draw()
             window.setView(viewUI);
             window.draw(loadingScreen);
             break;
+        case Main_State::SEASON_CHANGE:
+            window.setView(viewUI);
+            window.draw(season_changer);
         default:
             break;
     }

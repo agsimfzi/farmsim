@@ -17,6 +17,8 @@
 
 #include <util/primordial.hpp>
 
+#include "season_changer.hpp"
+
 /////////////////////////////////////////////////////////////
 /// \brief
 ///
@@ -34,6 +36,8 @@ private:
     sf::View viewUI;
     UI ui { window, game, viewUI };
 
+    Season_Changer season_changer{ game, ui };
+
     Menu* menu = nullptr;
     sf::View viewMenu;
     Menu_Main menu_main;
@@ -42,7 +46,7 @@ private:
     Menu_Input menu_input;
 
     //Input_Handler input{ window, game, ui };
-    Input_Handler input { window, game, ui, Menu_Package(&menu_main, &menu_pause, &menu_settings, &menu_input) };
+    Input_Handler input { window, game, ui, Menu_Package(&menu_main, &menu_pause, &menu_settings, &menu_input), season_changer };
 
     void update();
     void draw();

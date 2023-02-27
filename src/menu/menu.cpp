@@ -68,9 +68,7 @@ void Menu::clickLeft()
         }
     }
     for (auto& option : options) {
-        if (option.isHighlighted()) {
-            Sound_Bus::addSound(Sound_UI::TRIGGER_BUTTON);
-            option.target();
+        if (option.click()) {
             return;
         }
     }
@@ -165,6 +163,11 @@ Menu_Pause::Menu_Pause()
     escape = Main_State::GAME;
 }
 
+void Menu_Pause::back()
+{
+    newMain(prev_main);
+}
+
 Menu_Settings::Menu_Settings()
 {
     sliders[Volume_Type::MUSIC] = Slider("music volume");
@@ -183,17 +186,17 @@ Menu_Settings::Menu_Settings()
     spos.x += 32.f;
     spos.y += 256.f;
 
-    options.push_back(Option("input", font, [&]() { state_menu = Menu_State::KEYS; change_menu = true; }));
+    options.push_back(Button("input", font, [&]() { state_menu = Menu_State::KEYS; change_menu = true; }));
     options.back().setPosition(spos);
 
     spos.y += 128.f;
 
-    options.push_back(Option("save", font, std::bind(&Menu::saveSettings, this)));
+    options.push_back(Button("save", font, std::bind(&Menu::saveSettings, this)));
     options.back().setPosition(spos);
 
     spos.x += 192.f;
 
-    options.push_back(Option("cancel", font, std::bind(&Menu::back, this)));
+    options.push_back(Button("cancel", font, std::bind(&Menu::back, this)));
     options.back().setPosition(spos);
 
     loadSettings();
@@ -254,17 +257,17 @@ Menu_Input::Menu_Input()
 
     spos.x += 512.f + 128.f;
 
-    options.push_back(Option("save", font, std::bind(&Menu_Input::save, this)));
+    options.push_back(Button("save", font, std::bind(&Menu_Input::save, this)));
     options.back().setPosition(spos);
 
     spos.y += 128.f;
 
-    options.push_back(Option("reset", font, std::bind(&Input_Mapper::reset, this)));
+    options.push_back(Button("reset", font, std::bind(&Input_Mapper::reset, this)));
     options.back().setPosition(spos);
 
     spos.y += 128.f;
 
-    options.push_back(Option("cancel", font, std::bind(&Menu_Input::back, this)));
+    options.push_back(Button("cancel", font, std::bind(&Menu_Input::back, this)));
     options.back().setPosition(spos);
 }
 

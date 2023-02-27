@@ -35,6 +35,12 @@ UI::UI(sf::RenderWindow& window, Game& game, sf::View& view)
     player_pos.setOutlineThickness(2.f);
     player_pos.setOutlineColor(Palette::black);
 
+    season_display.setTexture(&Texture_Manager::get("SEASONS"));
+    season_display.setSize(sf::Vector2f(64.f, 32.f));
+    season_display.setOutlineThickness(1.f);
+    season_display.setOutlineColor(Palette::black);
+    season_display.setPosition(sf::Vector2f(1700.f, 404.f));
+
     energy_bar.setPosition(sf::Vector2f(1600.f, 980.f));
 }
 
@@ -270,8 +276,16 @@ void UI::loadInterface(Building* b)
 
 }
 
+void UI::readSeasonChange()
+{
+    sf::IntRect trect(0, 0, 64, 32);
+    trect.left = static_cast<int>(game.getWorld().getSeason()) * 64;
+    season_display.setTextureRect(trect);
+}
+
 void UI::draw(sf::RenderTarget& target, sf::RenderStates states) const
 {
+
     if (overlay_active) {
         target.draw(overlay, states);
     }
@@ -281,11 +295,11 @@ void UI::draw(sf::RenderTarget& target, sf::RenderStates states) const
 
     target.draw(player_pos, states);
 
-    target.draw(*inventory_interface, states);
-
-    target.setView(view);
+    target.draw(season_display, states);
 
     target.draw(energy_bar, states);
+
+    target.draw(*inventory_interface, states); // reaction_interface view
 
     target.draw(minimap, states); // MUST BE LAST AS IT DEFINES ITS OWN VIEW!
 }

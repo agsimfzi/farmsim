@@ -2,6 +2,8 @@
 
 #include <util/primordial.hpp>
 
+#include <resources/palette.hpp>
+
 //////////////////////////////////////////////////////////////
 void Input_Mapper::reset()
 {
@@ -205,9 +207,10 @@ std::vector<Action> Input_Mapper::getActions()
 }
 
 //////////////////////////////////////////////////////////////
-std::map<Input_Mapper::Row::State, sf::Color> Input_Mapper::Row::colors = { { Row::NONE, sf::Color(25, 25, 25) },
-    { Row::HOVER, sf::Color(75, 125, 65) },
-    { Row::SELECT, sf::Color(95, 75, 145) } };
+std::map<Input_Mapper::Row::State, sf::Color> Input_Mapper::Row::colors = {
+    { Row::NONE, Palette::gray_dark },
+    { Row::HOVER, Palette::green },
+    { Row::SELECT, Palette::blue } };
 
 Input_Mapper::Row::Row(const Action& action, const sf::Font& font, unsigned int characterSize, sf::Vector2f size)
     : Action(action)

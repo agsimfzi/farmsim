@@ -19,7 +19,7 @@ Slider::Slider(std::string ntitle)
     container.setOutlineThickness(1);
 
     fill.setSize(sf::Vector2f(0.f, container.getSize().y - (offset * 2.f)));
-    fill.setFillColor(Palette::orange);
+    fill.setFillColor(Palette::blue);
 
     setFill(100.f);
 

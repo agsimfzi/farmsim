@@ -9,26 +9,6 @@
 #include <ui/button.hpp>
 #include <ui/slider.hpp>
 
-/////////////////////////////////////////////////////////////
-/// \brief
-///
-struct Nav : public Button {
-    Nav(std::string nlabel, sf::Font& font, Main_State ntmain, Menu_State ntmenu);
-    Main_State target_main;
-    Menu_State target_menu;
-};
-
-struct Target {
-    Target() { }
-    Target(std::function<void()> nt);
-
-    std::function<void()> target;
-};
-
-struct Option : public Button, public Target {
-    Option(std::string nlabel, sf::Font& font, std::function<void()> nt);
-};
-
 class Logo : public sf::Drawable {
 public:
     Logo() = default;

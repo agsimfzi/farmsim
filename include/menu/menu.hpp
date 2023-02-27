@@ -14,7 +14,7 @@
 /////////////////////////////////////////////////////////////
 /// \brief
 ///
-class Menu : public sf::Drawable, public State_Hook {
+class Menu : public State_Hook, public sf::Drawable {
 public:
     Menu();
     virtual void update(sf::Vector2f mpos);
@@ -28,7 +28,7 @@ public:
     void stopInput();
 
 protected:
-    std::vector<Option> options;
+    std::vector<Button> options;
     std::map<Volume_Type, Slider> sliders;
 
     Main_State escape = Main_State::NULL_STATE;
@@ -60,6 +60,7 @@ private:
 class Menu_Pause : public Menu {
 public:
     Menu_Pause();
+    virtual void back();
 
 protected:
 private:

@@ -15,10 +15,11 @@ void Input_Package::clear()
     keyReleased.clear();
     mouse.clear();
 
-    scroll = std::function<void(float)>([](float) { return; });
+    scroll = [](float) { return; };
+    focus_lost = [](){};
 }
 
-Input_Handler::Input_Handler(sf::RenderWindow& nwindow, Game& game, UI& ui, Menu_Package menu_package)
+Input_Handler::Input_Handler(sf::RenderWindow& nwindow, Game& game, UI& ui, Menu_Package menu_package, Season_Changer& season_changer)
     : window { nwindow }
 {
     Player* player = &game.getPlayer();
@@ -80,7 +81,7 @@ Input_Handler::Input_Handler(sf::RenderWindow& nwindow, Game& game, UI& ui, Menu
         placeActionTrigger(action, press, release);
     }
 
-    p_g.keyReleased[sf::Keyboard::P] = std::bind(&Game::nextSeason, &game);
+    p_g.keyReleased[sf::Keyboard::P] = std::bind(&Game::changeSeason, &game);
 
     sf::Keyboard::Key key = sf::Keyboard::Num1;
 
@@ -136,7 +137,8 @@ Input_Handler::Input_Handler(sf::RenderWindow& nwindow, Game& game, UI& ui, Menu
     //MENU INPUTS
     //
 
-    std::map<Menu_State, Menu*> menus = { { Menu_State::MAIN, menu_package.m_main },
+    std::map<Menu_State, Menu*> menus = {
+        { Menu_State::MAIN, menu_package.m_main },
         { Menu_State::PAUSE, menu_package.m_pause },
         { Menu_State::SETTINGS, menu_package.m_settings },
         { Menu_State::KEYS, menu_package.m_keymap } };
@@ -153,9 +155,17 @@ Input_Handler::Input_Handler(sf::RenderWindow& nwindow, Game& game, UI& ui, Menu
     }
 
     context_menu[Menu_State::KEYS].special = std::bind(&Menu_Input::keyPressed, menu_package.m_keymap, std::placeholders::_1);
+
+    Input_Package& s_c = context[Main_State::SEASON_CHANGE];
+    s_c.mouse[Mouse_Event::LEFT_CLICK].second = std::bind(&Season_Changer::clickLeft, &season_changer);
+
+    s_c.keyReleased[sf::Keyboard::Escape] = [&]() { newMain(Main_State::MENU); };
 }
 
-void Input_Handler::placeActionTrigger(const std::pair<std::string, Action_Trigger>& action, std::function<void()> press, std::function<void()> release)
+void Input_Handler::placeActionTrigger(const std::pair<std::string
+                                     , Action_Trigger>& action
+                                     , std::function<void()> press
+                                     , std::function<void()> release)
 {
     Input_Package& p_g = context[Main_State::GAME];
 

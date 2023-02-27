@@ -9,6 +9,7 @@
 
 #include <menu/menu.hpp>
 
+#include <system/season_changer.hpp>
 #include <system/state_hook.hpp>
 
 #include <ui/ui.hpp>
@@ -22,7 +23,7 @@
 ///
 class Input_Handler : private State_Hook {
 public:
-    Input_Handler(sf::RenderWindow& nwindow, Game& ngame, UI& nui, Menu_Package m);
+    Input_Handler(sf::RenderWindow& nwindow, Game& ngame, UI& nui, Menu_Package m, Season_Changer& season_changer);
 
     void handle();
 

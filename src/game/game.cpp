@@ -35,7 +35,9 @@ void Game::nextSeason()
         tick();
     }
 
-    std::cout << "\nseason change ticks complete!\n";
+    sf::Clock test_timer;
+
+    while (test_timer.getElapsedTime().asSeconds() < 10.f);
 }
 
 void Game::giveItemToPlayer(std::string name, size_t count)

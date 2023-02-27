@@ -53,6 +53,8 @@ public:
     void loadInterface(Building* b);
     void closeInterface();
 
+    void readSeasonChange();
+
 private:
     sf::RenderWindow& window;
     Game& game;
@@ -63,6 +65,8 @@ private:
     sf::Text player_pos;
 
     sf::RectangleShape overlay;
+
+    sf::RectangleShape season_display;
 
     std::unique_ptr<Inventory_Interface> inventory_interface;
 
