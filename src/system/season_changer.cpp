@@ -9,15 +9,19 @@
 Season_Changer::Season_Changer(Game& game, UI& ui)
     : task { std::bind(&Game::nextSeason, &game) }
 {
+    change = [&]() { game.nextSeason(); };
     auto func = [&]() { newMain(Main_State::GAME); state = WAITING; };
-    b_continue = Button("continue", Font_Manager::get(Font::MENU), func);
+    b_continue = Button("continue", Font_Manager::get(Font::MENU), func, 56);
     b_continue.setPosition(sf::Vector2f(1660.f, 960.f));
+
+    uiRead = std::bind(&UI::readSeasonChange, &ui);
 }
 
 void Season_Changer::update()
 {
     switch (state) {
         case WAITING:
+            task = std::packaged_task<void()>(change);
             b_continue.unsetAvailable();
             omen = task.get_future();
             thread = std::thread(std::move(task));
@@ -34,6 +38,7 @@ void Season_Changer::update()
             }
             break;
         case COMPLETE:
+            uiRead();
             break;
         default:
             // ...?

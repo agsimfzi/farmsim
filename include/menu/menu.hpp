@@ -37,6 +37,9 @@ protected:
     std::vector<Logo> logos;
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
 
+    const static unsigned int size_nav = 72;
+    const static unsigned int size_option = 48;
+
 private:
     static std::vector<Nav> nav;
 

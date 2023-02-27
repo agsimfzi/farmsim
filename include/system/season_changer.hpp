@@ -18,6 +18,7 @@ public:
     Season_Changer(Game& game, UI& ui);
     void update();
     void clickLeft();
+    void init();
 
 private:
     Button b_continue;
@@ -35,7 +36,10 @@ private:
 
     std::future<void> omen;
 
+    std::function<void()> change;
     std::packaged_task<void()> task;
+
+    std::function<void()> uiRead;
 
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
 };

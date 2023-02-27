@@ -37,7 +37,7 @@ void Game::nextSeason()
 
     sf::Clock test_timer;
 
-    while (test_timer.getElapsedTime().asSeconds() < 10.f);
+    while (test_timer.getElapsedTime().asSeconds() < 2.f);
 }
 
 void Game::giveItemToPlayer(std::string name, size_t count)

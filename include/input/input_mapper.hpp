@@ -158,6 +158,8 @@ public:
 
     Action asAction();
 
+    float width();
+
 private:
     std::pair<sf::RectangleShape, sf::RectangleShape> cells;
     std::pair<sf::Text, sf::Text> labels;

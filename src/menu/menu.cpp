@@ -20,15 +20,15 @@ Menu::Menu()
 {
     sf::Vector2f pos(256.f, 128.f);
 
-    nav.push_back(Nav("new game", font, Main_State::NEWGAME, Menu_State::PAUSE));
+    nav.push_back(Nav("new game", font, Main_State::NEWGAME, Menu_State::PAUSE, size_nav));
     nav.back().setPosition(pos);
     pos.y += 128.f;
 
-    nav.push_back(Nav("settings", font, Main_State::MENU, Menu_State::SETTINGS));
+    nav.push_back(Nav("settings", font, Main_State::MENU, Menu_State::SETTINGS, size_nav));
     nav.back().setPosition(pos);
     pos.y += 128.f;
 
-    nav.push_back(Nav("quit", font, Main_State::QUIT, Menu_State::NULL_STATE));
+    nav.push_back(Nav("quit", font, Main_State::QUIT, Menu_State::NULL_STATE, size_nav));
     nav.back().setPosition(pos);
 
     logos.push_back(Logo("https://github.com/surfactants/", sf::Vector2f(1100.f, 900.f), "SURFACTANT"));
@@ -183,23 +183,22 @@ Menu_Settings::Menu_Settings()
         slider.second.set(spos, font);
     }
 
-    spos.x += 32.f;
-    spos.y += 256.f;
-
-    options.push_back(Button("input", font, [&]() { state_menu = Menu_State::KEYS; change_menu = true; }));
-    options.back().setPosition(spos);
-
-    spos.y += 128.f;
-
-    options.push_back(Button("save", font, std::bind(&Menu::saveSettings, this)));
-    options.back().setPosition(spos);
-
-    spos.x += 192.f;
-
-    options.push_back(Button("cancel", font, std::bind(&Menu::back, this)));
-    options.back().setPosition(spos);
+    options.push_back(Button("input", font, [&]() { state_menu = Menu_State::KEYS; change_menu = true; }, size_option));
+    options.push_back(Button("save", font, std::bind(&Menu::saveSettings, this), size_option));
+    options.push_back(Button("cancel", font, std::bind(&Menu::back, this), size_option));
 
     loadSettings();
+
+    spos.x += 640.f;
+    spos.y = 128.f;
+
+    size_t n = options.size();
+    for (size_t i = 0; i < n; i++) {
+        spos.y += options[i].getSize().y / 2.f;
+        options[i].setPosition(spos);
+        spos.y += options[i].getSize().y / 2.f;
+        spos.y += 24.f;
+    }
 }
 
 void Menu_Settings::back()
@@ -250,26 +249,7 @@ void Menu::stopInput()
 }
 
 Menu_Input::Menu_Input()
-{
-    sf::Vector2f spos(512.f, 192.f);
-
-    setPosition(spos);
-
-    spos.x += 512.f + 128.f;
-
-    options.push_back(Button("save", font, std::bind(&Menu_Input::save, this)));
-    options.back().setPosition(spos);
-
-    spos.y += 128.f;
-
-    options.push_back(Button("reset", font, std::bind(&Input_Mapper::reset, this)));
-    options.back().setPosition(spos);
-
-    spos.y += 128.f;
-
-    options.push_back(Button("cancel", font, std::bind(&Menu_Input::back, this)));
-    options.back().setPosition(spos);
-}
+{}
 
 void Menu_Input::back()
 {
@@ -309,6 +289,23 @@ void Menu_Input::clickRight()
 void Menu_Input::setActions(const std::map<std::string, Action>& actions)
 {
     Input_Mapper::setActions(font, actions);
+
+    sf::Vector2f spos(512.f, 192.f);
+    setPosition(spos);
+
+    options.push_back(Button("save", font, std::bind(&Menu_Input::save, this), size_option));
+    options.push_back(Button("reset", font, std::bind(&Input_Mapper::reset, this), size_option));
+    options.push_back(Button("cancel", font, std::bind(&Menu_Input::back, this), size_option));
+
+    spos.x += rows.front().width() + 236.f;
+
+    size_t n = options.size();
+    for (size_t i = 0; i < n; i++) {
+        spos.y += options[i].getSize().y / 2.f;
+        options[i].setPosition(spos);
+        spos.y += options[i].getSize().y / 2.f;
+        spos.y += 24.f;
+    }
 }
 
 void Menu_Input::draw(sf::RenderTarget& target, sf::RenderStates states) const

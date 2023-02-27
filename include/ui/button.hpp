@@ -10,8 +10,8 @@
 class Button : public sf::Drawable {
 public:
     Button() = default;
-    Button(std::string nlabel, sf::Font& font);
-    Button(std::string nlabel, sf::Font& font, std::function<void()> target);
+    Button(std::string nlabel, sf::Font& font, unsigned int csize);
+    Button(std::string nlabel, sf::Font& font, std::function<void()> target, unsigned int csize);
 
 
     void update(sf::Vector2f& mpos);
@@ -23,6 +23,8 @@ public:
     void setPosition(sf::Vector2f pos);
     sf::Vector2f getPosition();
 
+    sf::Vector2f getSize();
+
     bool isAvailable();
     void setAvailable();
     void unsetAvailable();
@@ -32,7 +34,7 @@ public:
     std::function<void()> target;
 
 protected:
-    sf::RectangleShape container;
+    sf::RectangleShape frame;
     sf::Text label;
 
     bool highlighted = false;
@@ -48,7 +50,7 @@ protected:
 ///
 struct Nav : public Button {
     Nav() = default;
-    Nav(std::string nlabel, sf::Font& font, Main_State ntmain, Menu_State ntmenu);
+    Nav(std::string nlabel, sf::Font& font, Main_State ntmain, Menu_State ntmenu, unsigned int csize);
     Main_State target_main;
     Menu_State target_menu;
 };

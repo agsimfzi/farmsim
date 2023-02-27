@@ -314,3 +314,8 @@ void Input_Mapper::Row::setTextColor(const sf::Color& color)
     labels.first.setFillColor(color);
     labels.second.setFillColor(color);
 }
+
+float Input_Mapper::Row::width()
+{
+    return (cells.second.getPosition().x + cells.second.getSize().x - cells.first.getPosition().x);
+}

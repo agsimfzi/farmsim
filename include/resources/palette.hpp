@@ -9,7 +9,7 @@ namespace Palette {
 
 // NEUTRAL
 const sf::Color black = sf::Color(10, 10, 10);
-const sf::Color gray_dark = sf::Color(10, 10, 10);
+const sf::Color gray_dark = sf::Color(25, 25, 25);
 const sf::Color white = sf::Color(245, 245, 245);
 const sf::Color gray = sf::Color(90, 90, 90);
 

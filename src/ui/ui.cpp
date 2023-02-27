@@ -40,6 +40,7 @@ UI::UI(sf::RenderWindow& window, Game& game, sf::View& view)
     season_display.setOutlineThickness(1.f);
     season_display.setOutlineColor(Palette::black);
     season_display.setPosition(sf::Vector2f(1700.f, 404.f));
+    readSeasonChange();
 
     energy_bar.setPosition(sf::Vector2f(1600.f, 980.f));
 }
