@@ -8,6 +8,7 @@ enum class Machine_Type {
     SEED_EXTRACTOR,
     SPINNING_WHEEL,
     PRESERVER,
+    MILL,
     NULL_TYPE
 };
 
@@ -27,6 +28,9 @@ inline Machine_Type stringToMachineType(std::string s) {
     }
     else if (s == "PRESERVER") {
         return Machine_Type::PRESERVER;
+    }
+    else if (s == "MILL") {
+        return Machine_Type::MILL;
     }
     else {
         return Machine_Type::NULL_TYPE;
