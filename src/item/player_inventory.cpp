@@ -116,6 +116,8 @@ void Player_Inventory::clearItem(size_t x, size_t y)
 void Player_Inventory::placeItem(size_t x, size_t y, std::shared_ptr<Item> item)
 {
     items[x][y].reset();
+    items[x][y] = item;
+    return;
     if (item) {
         items[x][y] = std::make_shared<Item>(*item);
     }

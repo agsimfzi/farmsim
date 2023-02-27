@@ -2,6 +2,8 @@
 
 #include <util/fmouse.hpp>
 
+#include <iostream>
+
 Machine_Interface::Machine_Interface(Player_Inventory& inventory, sf::View& view, Machine* machine)
     : Inventory_Interface(inventory, view)
     , machine{ machine }
@@ -92,25 +94,15 @@ void Machine_Interface::readExtension()
 
 void Machine_Interface::writeExtension()
 {
-    std::shared_ptr<Item> item;
+    std::shared_ptr<Item> item = nullptr;
     size_t r = inventory.rowCount;
     size_t n = cells[r].size();
     for (size_t i = 0; i < n; i++) {
         item = cells[r][i].getItem();
-        if (item) {
-            machine->setReagant(item, i);
-        }
-        else {
-            machine->clearReagant(i);
-        }
+        machine->setReagant(item, i);
     }
     item = cells.back().front().getItem();
-    if (item) {
-        machine->setProduct(cells.back().front().getItem());
-    }
-    else {
-        machine->clearProduct();
-    }
+    machine->setProduct(item);
 }
 
 bool Machine_Interface::checkReactionInterface(sf::RenderWindow& window)
@@ -170,23 +162,18 @@ void Machine_Interface::shiftClickLeft()
         if (moused.x >= (int)inventory.rowCount) {
             // attempt move whole stack to inventory
             inventory.addItem(i);
-            if (!i) {
-                mousedCell()->clearItem();
-            }
-            else {
+            if (i) {
                 mousedCell()->setItem(i);
             }
             readInventory();
             writeExtension();
         }
-        else if (moused.x >= 0) {
+        else {
             // attempt move whole stack to machine
             size_t remainder = machine->addReagant(i);
             if (remainder > 0) {
                 i->setCount(remainder);
-            }
-            else {
-                mousedCell()->clearItem();
+                mousedCell()->setItem(i);
             }
             writeInventory();
             readExtension();

@@ -72,7 +72,7 @@ void Inventory_Interface::writeInventory()
 
     for (size_t r = 0; r < nr; r++) {
         for (size_t c = 0; c < nc; c++) {
-            cells[r][c].updateCount();
+            //cells[r][c].updateCount();
             inventory.placeItem(r, c, cells[r][c].getItem());
         }
     }
@@ -349,7 +349,7 @@ void Inventory_Interface::startDrag()
 {
     dragStartIndex = moused;
     dragItem = mousedItem();
-    if (dragItem && moused.x >= 0) {
+    if (dragItem) {
         updateDragText();
         dragging = true;
         mousedCell()->clearItem();

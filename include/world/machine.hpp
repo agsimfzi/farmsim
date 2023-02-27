@@ -60,7 +60,7 @@ public:
     void setProduct(std::shared_ptr<Item> item);
 
     std::vector<std::shared_ptr<Item>> activeReagants();
-    std::shared_ptr<Item> activeProduct();
+    std::shared_ptr<Item>& activeProduct();
 
     bool checkReagants(size_t i);
 
@@ -70,6 +70,4 @@ public:
 
 private:
     std::vector<std::string> valid_reagants;
-
-    std::shared_ptr<Item> active_product;
 };

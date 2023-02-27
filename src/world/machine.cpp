@@ -10,8 +10,6 @@ Machine::Machine()
     // REAGANT ROW SIZE IS SET IN ::countReagants()!
     inventory.push_back(std::vector<std::shared_ptr<Item>>());
         inventory.back().resize(1);
-
-    active_product = inventory.back().front();
 }
 
 bool Machine::validReagant(std::string name, int rxn)
@@ -38,12 +36,14 @@ bool Machine::validReagant(std::string name, int rxn)
 void Machine::checkReaction()
 {
     int n = reactions.size();
+    Item* product = activeProduct().get();
     for (int i = 0; i < n; i++) {
-        if (checkReagants(i)) {
+        if (checkReagants(i)
+        && (!product || equalStrings(product->getName(), reactions[i].product))) {
             if (i != current_reaction) {
                 reaction_tick = 0;
+                current_reaction = i;
             }
-            current_reaction = i;
             return;
         }
     }
@@ -52,8 +52,9 @@ void Machine::checkReaction()
 
 bool Machine::checkReagants(size_t i)
 {
-    size_t n;
-    if ((int)i >= 0 && (!active_product || (int)active_product->count() < active_product->stackSize())) {
+    size_t n = 1;
+    Item* product = activeProduct().get();
+    if ((int)i >= 0 && (!product || (int)product->count() < product->stackSize())) {
         std::vector<Reagant> reagants = reactions[i].reagants;
         for (const auto& item : inventory.front()) {
             if (item) {
@@ -74,8 +75,9 @@ bool Machine::checkReagants(size_t i)
 void Machine::tick(Item_Library& item_library)
 {
     if (current_reaction >= 0) {
-        if (!active_product
-        || equalStrings(active_product->getName(), reactions[current_reaction].product)) {
+        Item* product = activeProduct().get();
+        if (!product
+        || equalStrings(product->getName(), reactions[current_reaction].product)) {
             size_t count = 1;
             if (machine_type == Machine_Type::SEED_EXTRACTOR) {
                 count += prng::boolean(0.5);
@@ -83,12 +85,11 @@ void Machine::tick(Item_Library& item_library)
             }
             reaction_tick++;
             if (reaction_tick >= reactions[current_reaction].length) {
-                if (!active_product) {
-                    active_product = std::make_shared<Item>(*item_library(reactions[current_reaction].product));
-                    active_product->setCount(count);
+                if (!product) {
+                    inventory.back().back() = std::make_shared<Item>(*item_library(reactions[current_reaction].product));
                 }
                 else {
-                    active_product->setCount(active_product->count() + count);
+                    product->setCount(product->count() + count);
                 }
 
                 for (auto& active_reagant : inventory.front()) {
@@ -123,15 +124,13 @@ void Machine::endReaction()
 
 void Machine::clearReagant(size_t i)
 {
-    if (i >= 0 && i < inventory.front().size() && inventory.front()[i]) {
-        inventory.front()[i].reset();
-    }
+    inventory.front()[i].reset();
     checkReaction();
 }
 
 void Machine::clearProduct()
 {
-    active_product.reset();
+    inventory.back().back().reset();
     checkReaction();
 }
 
@@ -140,9 +139,9 @@ std::vector<std::shared_ptr<Item>> Machine::activeReagants()
     return inventory.front();
 }
 
-std::shared_ptr<Item> Machine::activeProduct()
+std::shared_ptr<Item>& Machine::activeProduct()
 {
-    return active_product;
+    return inventory.back().back();
 }
 
 size_t Machine::addReagant(std::shared_ptr<Item> item)
@@ -156,7 +155,6 @@ size_t Machine::addReagant(std::shared_ptr<Item> item)
                 if (inventory.front()[i]->getUID() == item->getUID()) {
                     inventory.front()[i]->add(item->count());
                     remainder = 0;
-                    checkReaction();
                     break;
                 }
             }
@@ -167,27 +165,21 @@ size_t Machine::addReagant(std::shared_ptr<Item> item)
         if (first_empty_index >= 0) {
             inventory.front()[first_empty_index] = std::make_shared<Item>(*item);
             remainder = 0;
-            checkReaction();
         }
     }
+    checkReaction();
     return remainder;
 }
 
 void Machine::setReagant(std::shared_ptr<Item> item, size_t i)
 {
-    if (item) {
-        inventory.front()[i].reset();
-        inventory.front()[i] = item;
-        checkReaction();
-    }
+    inventory.front()[i] = item;
+    checkReaction();
 }
 
 void Machine::setProduct(std::shared_ptr<Item> item)
 {
-    inventory.back().front().reset();
-    if (item) {
-        inventory.back().front() = item;
-    }
+    inventory.back().back() = item;
     checkReaction();
 }
 
