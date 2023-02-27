@@ -81,8 +81,6 @@ Input_Handler::Input_Handler(sf::RenderWindow& nwindow, Game& game, UI& ui, Menu
         placeActionTrigger(action, press, release);
     }
 
-    p_g.keyReleased[sf::Keyboard::P] = std::bind(&Game::changeSeason, &game);
-
     sf::Keyboard::Key key = sf::Keyboard::Num1;
 
     for (unsigned int i = 0; i < 9; i++) {

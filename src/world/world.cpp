@@ -724,10 +724,10 @@ void World::plantCrop(std::shared_ptr<Item> item)
     std::cout << "attempting to plant crop...\n";
     // no need for a redundant check of activeTile, as that is handled in ::interact()
     sf::Vector2i t = *activeTile;
-    Floor* f = chunks.floor(*activeTile);
     Crop crop = *crop_library.get(item->getUID());
     if (plantableTile(t) && crop.checkSeason(season)) {
         item->take(1);
+        Floor* f = chunks.floor(*activeTile);
 
         auto unwater = [&](sf::Vector2i c)
         {
@@ -738,8 +738,8 @@ void World::plantCrop(std::shared_ptr<Item> item)
 
         crops[t.x][t.y] = crop;
         crops[t.x][t.y].place(t, f->getPosition());
-        tileToLibrary(t);
         f->planted = true;
+        tileToLibrary(t);
     }
 
 }

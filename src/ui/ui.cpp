@@ -5,6 +5,7 @@
 #include <resources/texture_manager.hpp>
 
 #include <util/fmouse.hpp>
+#include <util/primordial.hpp>
 #include <util/shift_pressed.hpp>
 
 //////////////////////////////////////////////////////////////
@@ -259,6 +260,11 @@ void UI::checkBuilding()
                     inventory_interface->loadReactions(b->reactions, game.getItemLibrary());
                     inventory_interface->open = true;
                     break;
+                case Building::FURNITURE:
+                    if (equalStrings(b->name, "bed")) {
+                        game.changeSeason();
+                    }
+                    return;
             }
             inventory_interface->open = true;
             overlay_active = true;
