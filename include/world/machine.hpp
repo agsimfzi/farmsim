@@ -9,6 +9,7 @@ enum class Machine_Type {
     SPINNING_WHEEL,
     PRESERVER,
     MILL,
+    OVEN,
     NULL_TYPE
 };
 
@@ -31,6 +32,9 @@ inline Machine_Type stringToMachineType(std::string s) {
     }
     else if (s == "MILL") {
         return Machine_Type::MILL;
+    }
+    else if (s == "OVEN") {
+        return Machine_Type::OVEN;
     }
     else {
         return Machine_Type::NULL_TYPE;
