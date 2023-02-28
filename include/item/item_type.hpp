@@ -10,6 +10,7 @@ enum class Item_Type {
     BUILDING,
     VEHICLE,
     RAW_MATERIAL,
+    WAND,
     NULL_TYPE
 };
 
@@ -41,6 +42,9 @@ inline Item_Type stringToItemType(std::string s)
     }
     else if (s == "VEHICLE") {
         return Item_Type::VEHICLE;
+    }
+    else if (s == "WAND") {
+        return Item_Type::WAND;
     }
     else {
         return Item_Type::NULL_TYPE;
