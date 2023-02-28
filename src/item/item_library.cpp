@@ -97,7 +97,13 @@ Item* Item_Library::item(size_t uid)
 
 std::shared_ptr<Item> Item_Library::shared(size_t uid)
 {
-    return std::make_shared<Item>(*uidShelf[uid]);
+    if (uidShelf.contains(uid)) {
+        return std::make_shared<Item>(*uidShelf[uid]);
+    }
+    else {
+        std::cout << "FAILED TO FIND ITEM OF NAME " << name << '\n';
+        return nullptr;
+    }
 }
 
 std::shared_ptr<Item> Item_Library::shared(std::string name)
