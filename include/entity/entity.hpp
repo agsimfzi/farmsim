@@ -33,7 +33,7 @@ public:
 
     sf::Vector2f getVelocity();
 
-    sf::Vector2i getCoordinates(float tileSize);
+    sf::Vector2i getCoordinates(float tile_size);
 
     void move();
     sf::Vector2f move(std::vector<sf::FloatRect> walls, float deltaTime);

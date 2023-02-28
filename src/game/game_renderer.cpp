@@ -45,7 +45,7 @@ void Game_Renderer::load(World& world, Player& player)
         drawables[3].push_back(&player);
     }
 
-    sf::Vector2i p(player.getCoordinates(Tile::tileSize));
+    sf::Vector2i p(player.getCoordinates(Tile::tile_size));
     sf::Vector2i distance(18, 12);
     sf::Vector2i start = p - distance;
     sf::Vector2i end = p + distance;

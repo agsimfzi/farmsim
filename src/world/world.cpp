@@ -101,7 +101,7 @@ void World::interact(Player& player, Player_Inventory& player_inventory)
         std::shared_ptr<Vehicle> pv = player.getVehicle();
         if (pv) { // CHECK FOR VEHICLE DISMOUNT
             if (emptyTile(info)
-            && (emptyTile(player.getCoordinates(Tile::tileSize)) || pv->type == Vehicle::BOAT)) {
+            && (emptyTile(player.getCoordinates(Tile::tile_size)) || pv->type == Vehicle::BOAT)) {
                 player.setVehicle(nullptr);
                 player.setPosition(f->getPosition());
                 vehicles.push_back(pv);
@@ -143,7 +143,7 @@ void World::interact(Player& player, Player_Inventory& player_inventory)
                     std::shared_ptr<Item> i = std::make_shared<Item>(*item_library.item(crops[t.x][t.y].harvestUID()));
                     player_inventory.addItem(i);
                     if (i) {
-                        chunks.addItem(i, player.getCoordinates(Tile::tileSize));
+                        chunks.addItem(i, player.getCoordinates(Tile::tile_size));
                     }
 
                     removeCrop(t);
@@ -166,10 +166,10 @@ sf::Vector2i World::worldMax()
 sf::Vector2i* World::checkMouseTarget(sf::Vector2f mpos, sf::Vector2i playerCoords)
 {
     // future: pass player coordinates + tool distance
-    mpos += sf::Vector2f(sign(mpos.x) * (Tile::tileSize / 2.f), sign(mpos.y) * (Tile::tileSize / 2.f));
+    mpos += sf::Vector2f(sign(mpos.x) * (Tile::tile_size / 2.f), sign(mpos.y) * (Tile::tile_size / 2.f));
     sf::Vector2i coords;
-    coords.x = mpos.x / Tile::tileSize;
-    coords.y = mpos.y / Tile::tileSize;
+    coords.x = mpos.x / Tile::tile_size;
+    coords.y = mpos.y / Tile::tile_size;
 
     // check for tile at coordinates
     if (inRange(coords, playerCoords) && chunks.floor(coords)) {
@@ -243,7 +243,7 @@ void World::makeBiomes()
                     info.tree = true;
                 }
             }
-            info.texture_pos = sf::Vector2i(0, (static_cast<int>(info.floor)) * roundFloat(Tile::tileSize));
+            info.texture_pos = sf::Vector2i(0, (static_cast<int>(info.floor)) * roundFloat(Tile::tile_size));
             info.detail_pos = sf::Vector2i(0, 0);
         }
     }
@@ -299,7 +299,7 @@ void World::autotile(sf::Vector2i start, sf::Vector2i end, Detail_Type type)
             Detail* d = chunks.detail(c);
             if (d && d->type == type) {
                 sf::Vector2i pos(autotileX(c, d->type), 0);
-                sf::Vector2i size(Tile::tileSize, Tile::tileSize);
+                sf::Vector2i size(Tile::tile_size, Tile::tile_size);
                 d->setTextureRect(sf::IntRect(pos, size));
             }
             if (tile_library[x][y].detail == type) {
@@ -405,7 +405,7 @@ int World::autotileX(bool n, bool w, bool s, bool e)
         sum += 8;
     }
 
-    return (sum * roundFloat(Tile::tileSize));
+    return (sum * roundFloat(Tile::tile_size));
 }
 
 bool World::adjacentDetailMatch(sf::Vector2i i, Detail_Type type)

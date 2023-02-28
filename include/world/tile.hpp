@@ -14,7 +14,7 @@ public:
     Tile() = default;
     Tile(sf::Vector2i ncoord, const sf::Texture& texture);
 
-    const static float tileSize;
+    const static float tile_size;
     sf::Vector2i coordinates;
 };
 

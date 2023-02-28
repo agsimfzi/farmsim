@@ -64,7 +64,7 @@ sf::Vector2i Chunk_Loader::findChunk(sf::Vector2i coords)
 
 sf::Vector2i Chunk_Loader::findChunk(sf::Vector2f pos)
 {
-    return findChunk(sf::Vector2i(pos / Tile::tileSize));
+    return findChunk(sf::Vector2i(pos / Tile::tile_size));
 }
 
 Chunk* Chunk_Loader::chunk(sf::Vector2i i)

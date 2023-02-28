@@ -85,7 +85,7 @@ void Game::update(float deltaTime)
     if (player.getVehicle()) {
         v = player.getVehicle()->type;
     }
-    sf::Vector2i c = player.getCoordinates(Tile::tileSize);
+    sf::Vector2i c = player.getCoordinates(Tile::tile_size);
     switch (v) {
         case Vehicle::NULL_TYPE:
             local_blocks = world.getLocalImpassableTiles(c);
@@ -225,7 +225,7 @@ Item_Library& Game::getItemLibrary()
 void Game::tick()
 {
     player.tick();
-    world.tick(player.getCoordinates(Tile::tileSize));
+    world.tick(player.getCoordinates(Tile::tile_size));
 }
 
 void Game::draw(sf::RenderTarget& target, sf::RenderStates states) const

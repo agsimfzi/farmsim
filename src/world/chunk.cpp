@@ -13,7 +13,7 @@ Chunk::Chunk(sf::Vector2i start, sf::Vector2i size, Map_Tile<Floor_Info>& info)
             sf::Vector2i c(x, y);
             c += start;
             if (info[c.x][c.y].floor == Floor_Type::NULL_TYPE) {
-                info[c.x][c.y].texture_pos = sf::Vector2i(0, (static_cast<int>(info[x][y].floor)) * roundFloat(Tile::tileSize));
+                info[c.x][c.y].texture_pos = sf::Vector2i(0, (static_cast<int>(info[x][y].floor)) * roundFloat(Tile::tile_size));
                 info[c.x][c.y].detail_pos = sf::Vector2i(0, 0);
             }
             std::string tkey = "FLOOR";
@@ -23,11 +23,11 @@ Chunk::Chunk(sf::Vector2i start, sf::Vector2i size, Map_Tile<Floor_Info>& info)
             f->planted = i.planted;
             f->detail = i.detail;
             f->setType(i.floor);
-            f->setTextureRect(sf::IntRect(i.texture_pos, sf::Vector2i(Tile::tileSize, Tile::tileSize)));
+            f->setTextureRect(sf::IntRect(i.texture_pos, sf::Vector2i(Tile::tile_size, Tile::tile_size)));
 
             if (i.detail != Detail_Type::NULL_TYPE) {
                 tkey = detailTypeToString(i.detail);
-                details[c.x][c.y] = std::make_shared<Detail>(c, i.detail, Texture_Manager::get(tkey), sf::IntRect(i.detail_pos, sf::Vector2i(Tile::tileSize, Tile::tileSize)));
+                details[c.x][c.y] = std::make_shared<Detail>(c, i.detail, Texture_Manager::get(tkey), sf::IntRect(i.detail_pos, sf::Vector2i(Tile::tile_size, Tile::tile_size)));
             }
             if (i.tree) {
                 tkey = "TREES";
@@ -42,14 +42,14 @@ Chunk::Chunk(sf::Vector2i start, sf::Vector2i size, Map_Tile<Floor_Info>& info)
             }
         }
     }
-    sf::Vector2f f_offset(Tile::tileSize / 2.f, Tile::tileSize / 2.f);
-    f_bounds = sf::FloatRect(sf::Vector2f(start) - f_offset, sf::Vector2f(size) * Tile::tileSize);
+    sf::Vector2f f_offset(Tile::tile_size / 2.f, Tile::tile_size / 2.f);
+    f_bounds = sf::FloatRect(sf::Vector2f(start) - f_offset, sf::Vector2f(size) * Tile::tile_size);
     i_bounds = sf::IntRect(start, size);
 
     sf::Vector2f frame_pos(floor[start.x][start.y]->getPosition());
     frame_pos -= f_offset;
     sf::Vector2f frame_size(size);
-    frame_size *= Tile::tileSize;
+    frame_size *= Tile::tile_size;
     frame.setPosition(frame_pos);
     frame.setSize(frame_size);
     frame.setFillColor(sf::Color::Transparent);
@@ -161,13 +161,13 @@ void Chunk::addBuilding(Building* building, sf::Vector2i c)
     sprite.setTexture(Texture_Manager::get(texture));
 
     sf::Vector2i pos;
-    pos.x = (sheet_id % 10) * 64;
-    pos.y = (sheet_id / 10) * 64;
-    sf::Vector2i size(64, 64);
+    sf::Vector2i size(48, 64);
+    pos.x = (sheet_id % 10) * size.x;
+    pos.y = (sheet_id / 10) * size.y;
     sprite.setTextureRect(sf::IntRect(pos, size));
     sprite.setOrigin(sf::Vector2f(size) / 2.f);
     sf::Vector2f p(c);
-    p *= Tile::tileSize;
+    p *= Tile::tile_size;
     sprite.setPosition(p);
     buildings[c.x][c.y] = std::make_shared<sf::Sprite>(sprite);
 }

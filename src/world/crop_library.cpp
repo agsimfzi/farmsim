@@ -24,12 +24,12 @@ Crop_Library::Crop_Library()
 
         sprite.setTexture(Texture_Manager::get(texture));
 
-        sprite.setOrigin(sf::Vector2f(Tile::tileSize / 2.f, d.y_size - Tile::tileSize / 2.f));
+        sprite.setOrigin(sf::Vector2f(Tile::tile_size / 2.f, d.y_size - Tile::tile_size / 2.f));
 
         sf::Vector2i pos;
-        pos.x = (d.uid % 100) * 64;
+        sf::Vector2i size(48, d.y_size);
+        pos.x = (d.uid % 100) * size.x;
         pos.y = 0;
-        sf::Vector2i size(64, d.y_size);
         sprite.setTextureRect(sf::IntRect(pos, size));
         sprite.setOrigin(sf::Vector2f(size) / 2.f);
         c.setSprite(sprite);

@@ -5,10 +5,10 @@
 Tree::Tree(sf::Vector2i coordinates, const sf::Texture& texture)
 {
     setTexture(texture);
-    sf::Vector2f origin(getGlobalBounds().width / 2, getGlobalBounds().height - (Tile::tileSize / 2.f));
+    sf::Vector2f origin(getGlobalBounds().width / 2, getGlobalBounds().height - (Tile::tile_size / 2.f));
     setOrigin(origin);
     sf::Vector2f pos(coordinates);
-    pos *= Tile::tileSize;
+    pos *= Tile::tile_size;
     setPosition(pos);
 }
 

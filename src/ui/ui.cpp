@@ -20,7 +20,7 @@ UI::UI(sf::RenderWindow& window, Game& game, sf::View& view)
     auto drop = [&](std::shared_ptr<Item> i)
         {
             i->can_pickup = false;
-            game.getWorld().getChunks().addItem(i, game.getPlayer().getCoordinates(Tile::tileSize));
+            game.getWorld().getChunks().addItem(i, game.getPlayer().getCoordinates(Tile::tile_size));
         };
 
     inventory_interface->loadDrop(drop);
@@ -57,22 +57,22 @@ void UI::update()
         inventory_interface->update(window);
     }
 
-    std::string p = std::to_string(game.getPlayer().getCoordinates(Tile::tileSize).x)
+    std::string p = std::to_string(game.getPlayer().getCoordinates(Tile::tile_size).x)
                   + ','
-                  + std::to_string(game.getPlayer().getCoordinates(Tile::tileSize).y);
+                  + std::to_string(game.getPlayer().getCoordinates(Tile::tile_size).y);
 
     player_pos.setString(p);
 
-    sf::Vector2i* coords = game.getWorld().checkMouseTarget(fMouse(window, game.getView()), game.getPlayer().getCoordinates(Tile::tileSize));
+    sf::Vector2i* coords = game.getWorld().checkMouseTarget(fMouse(window, game.getView()), game.getPlayer().getCoordinates(Tile::tile_size));
     if (coords) {
-        sf::Vector2i c = window.mapCoordsToPixel(sf::Vector2f(*coords) * Tile::tileSize, game.getView());
+        sf::Vector2i c = window.mapCoordsToPixel(sf::Vector2f(*coords) * Tile::tile_size, game.getView());
         player_target.set(c);
     }
     else {
         player_target.active = false;
     }
 
-    minimap.update(game.getPlayer().getCoordinates(Tile::tileSize));
+    minimap.update(game.getPlayer().getCoordinates(Tile::tile_size));
 
     int nrg = game.playerEnergy();
     if (last_player_energy != nrg) {
