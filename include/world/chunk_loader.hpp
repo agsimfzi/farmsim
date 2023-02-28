@@ -10,7 +10,7 @@
 #include "direction.hpp"
 #include "tile_info.hpp"
 
-class Chunk_Loader : public sf::Drawable {
+class Chunk_Loader {
 public:
     Chunk_Loader() = delete;
     Chunk_Loader(Map_Tile<Floor_Info>& info);
@@ -58,6 +58,4 @@ private:
 
     bool validChunkIndex(sf::Vector2i i);
     bool validChunkIndex(int x, int y);
-
-    virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
 };

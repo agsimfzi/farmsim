@@ -943,18 +943,3 @@ bool World::passableTile(Floor_Info& info)
 {
     return (emptyTile(info));
 }
-
-void World::draw(sf::RenderTarget& target, sf::RenderStates states) const
-{
-    target.draw(chunks, states);
-
-    for (const auto& r : crops) {
-        for (const auto& c : r.second) {
-            target.draw(c.second, states);
-        }
-    }
-
-    for (const auto& v : vehicles) {
-        target.draw(*v, states);
-    }
-}

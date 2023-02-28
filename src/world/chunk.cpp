@@ -209,35 +209,3 @@ sf::RectangleShape& Chunk::getFrame()
 {
     return frame;
 }
-
-void Chunk::draw(sf::RenderTarget& target, sf::RenderStates states) const
-{
-    for (int x = i_bounds.left; x < i_bounds.left + i_bounds.width; x++) {
-        for (int y = i_bounds.top; y < i_bounds.top + i_bounds.height; y++) {
-            target.draw(*floor.at(x).at(y), states);
-            if (details.contains(x) && details.at(x).contains(y)) {
-                target.draw(*details.at(x).at(y), states);
-            }
-        }
-    }
-
-    for (int x = i_bounds.left; x < i_bounds.left + i_bounds.width; x++) {
-        for (int y = i_bounds.top; y < i_bounds.top + i_bounds.height; y++) {
-            if (trees.contains(x) && trees.at(x).contains(y) && trees.at(x).at(y)) {
-                target.draw(*trees.at(x).at(y), states);
-            }
-            else if (rocks.contains(x) && rocks.at(x).contains(y) && rocks.at(x).at(y)) {
-                target.draw(*rocks.at(x).at(y), states);
-            }
-            else if (buildings.contains(x) && buildings.at(x).contains(y) && buildings.at(x).at(y)) {
-                target.draw(*buildings.at(x).at(y), states);
-            }
-        }
-    }
-
-    for (const auto& i : items) {
-        target.draw(*i, states);
-    }
-
-    target.draw(frame, states);
-}

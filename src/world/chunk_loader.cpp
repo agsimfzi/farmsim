@@ -260,16 +260,3 @@ void Chunk_Loader::checkPickup(Player_Inventory& inventory, Player& player, bool
         chunks[p.first.x][p.first.y]->addItem(p.second, p.second->getSprite().getPosition());
     }
 }
-
-void Chunk_Loader::draw(sf::RenderTarget& target, sf::RenderStates states) const
-{
-    for (int x = -1; x <= 1; x++) {
-        for (int y = -1; y <= 1; y++) {
-            if (chunks.contains(current.x + x)
-            && chunks.at(current.x + x).contains(current.y + y)
-            && chunks.at(current.x + x).at(current.y + y)) {
-                target.draw(*chunks.at(current.x + x).at(current.y + y), states);
-            }
-        }
-    }
-}

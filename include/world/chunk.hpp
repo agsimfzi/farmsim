@@ -11,7 +11,7 @@
 #include "tile.hpp"
 #include "tree.hpp"
 
-class Chunk : public sf::Drawable{
+class Chunk {
 public:
     Chunk() = default;
     Chunk(sf::Vector2i start , sf::Vector2i size , Map_Tile<Floor_Info>& info);
@@ -56,6 +56,4 @@ private:
     Map_Tile<std::shared_ptr<Rock>> rocks;
     Map_Tile<std::shared_ptr<sf::Sprite>> buildings;
     std::vector<std::shared_ptr<Item>> items;
-
-    virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
 };
