@@ -26,6 +26,7 @@
 #include <sqlite3.h>
 
 #include <world/building.hpp>
+#include <world/building_data.hpp>
 #include <world/crafting.hpp>
 #include <world/machine.hpp>
 #include <world/crop_data.hpp>
@@ -43,6 +44,8 @@ public:
 
     static void saveSettings(Settings_Package p);
     static Settings_Package getSettings();
+
+    static std::map<size_t, Building_Animation_Data> getBuildingAnimationData();
 
     static void getTextures(std::map<std::string, sf::Texture>& t);
 

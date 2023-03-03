@@ -21,12 +21,20 @@ public:
     Animated_Sprite() = default;
 
     Animated_Sprite(sf::Texture& ntexture,
-        sf::Vector2i nsize,
+        sf::Vector2i size,
         std::map<K, unsigned int> counts,
-        std::map<K, int> thresholds)
-        : size { nsize }
+        std::map<K, int> thresholds
+        , sf::Vector2i start = sf::Vector2i(0, 0)
+        , bool directionless = false)
+        : size { size }
+        , start { start }
     {
-        loadCounts(counts);
+        if (!directionless) {
+            loadCounts(counts);
+        }
+        else {
+            loadDirectionlessCounts(counts);
+        }
         loadThresholds(thresholds);
         setTexture(ntexture);
         direction = Direction::N;
@@ -64,7 +72,7 @@ public:
         return direction;
     }
 
-    void update()
+    virtual void update()
     {
         if (frameTimer.getElapsedTime().asMilliseconds() >= frameThreshold) {
             frameTimer.restart();
@@ -90,6 +98,12 @@ public:
         return size;
     }
 
+    void setUnrepeat(K k) {
+        for (auto& d : animations[k]) {
+            d.second.repeats = false;
+        }
+    }
+
 private:
     sf::Vector2i size; /**< frame size for setTextureRect()   */
 
@@ -102,31 +116,50 @@ private:
     sf::Clock frameTimer;
     int frameThreshold { 250 };
 
+    sf::Vector2i start;
+
+    sf::Vector2i pos;
+
     std::map<K, std::map<Direction, Animation>> animations;
 
-    void loadCounts(std::map<K, unsigned int> times)
+    void loadCounts(std::map<K, unsigned int> counts)
     {
         const int dlimit = static_cast<int>(Direction::NULL_DIRECTION);
-        for (auto& t : times) {
+        for (auto& t : counts) {
             for (unsigned int i = 0; i < dlimit; ++i) {
-                sf::Vector2i start(0, static_cast<int>(t.first) * (size.y * 5));
+                sf::Vector2i pos(0, static_cast<int>(t.first) * (size.y * 5));
                 Direction d = static_cast<Direction>(i);
 
-                sf::Vector2i aSize = size;
+                sf::Vector2i a_size = size;
 
                 int dFactor = 1;
 
                 if (d > Direction::S) {
-                    aSize.x *= -1;
-                    start.x += size.x;
+                    a_size.x *= -1;
+                    pos.x += size.x;
                     dFactor = static_cast<int>(mirrorDirection(d));
                 }
                 else
                     dFactor = static_cast<int>(d);
 
-                start.y += (dFactor * size.y);
+                pos.y += (dFactor * size.y);
 
-                animations[t.first][d] = Animation(start, aSize, t.second);
+                pos += start;
+
+                animations[t.first][d] = Animation(pos, a_size, t.second);
+            }
+        }
+    }
+
+    void loadDirectionlessCounts(std::map<K, unsigned int> counts)
+    {
+        const int dlimit = static_cast<int>(Direction::NULL_DIRECTION);
+        for (auto& t : counts) {
+            sf::Vector2i pos(start);
+            pos.y += static_cast<int>(t.first) * size.y;
+            for (unsigned int i = 0; i < dlimit; ++i) {
+                Direction d = static_cast<Direction>(i);
+                animations[t.first][d] = Animation(pos, size, t.second);
             }
         }
     }

@@ -9,8 +9,8 @@
 #include <world/container.hpp>
 #include <world/crafting.hpp>
 #include <world/furniture.hpp>
-#include <world/machine.hpp>
 #include <world/lootable.hpp>
+#include <world/machine.hpp>
 //#include <world/structure.hpp>
 
 #include <iostream>

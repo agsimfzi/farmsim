@@ -42,4 +42,5 @@ inline Crafting_Type stringToCraftingType(std::string s) {
 class Crafting : public Building {
 public:
     Crafting();
+    Crafting(Building_Animation_Data ad);
 };

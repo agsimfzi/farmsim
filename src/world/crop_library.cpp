@@ -24,7 +24,7 @@ Crop_Library::Crop_Library()
 
         sprite.setTexture(Texture_Manager::get(texture));
 
-        sprite.setOrigin(sf::Vector2f(Tile::tile_size / 2.f, d.y_size - Tile::tile_size / 2.f));
+        sprite.setOrigin(sf::Vector2f(24.f, 40.f));
 
         sf::Vector2i pos;
         sf::Vector2i size(48, d.y_size);

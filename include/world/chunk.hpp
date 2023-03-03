@@ -16,6 +16,8 @@ public:
     Chunk() = default;
     Chunk(sf::Vector2i start , sf::Vector2i size , Map_Tile<Floor_Info>& info);
 
+    void update();
+
     bool contains(sf::Vector2f pos);
     bool contains(sf::Vector2i coords);
 
@@ -23,7 +25,7 @@ public:
     Detail* getDetail(sf::Vector2i i);
     Tree* getTree(sf::Vector2i i);
     Rock* getRock(sf::Vector2i i);
-    sf::Sprite* getBuilding(sf::Vector2i i);
+    std::shared_ptr<Building> getBuilding(sf::Vector2i i);
 
     void eraseDetail(sf::Vector2i i);
     void eraseTree(sf::Vector2i i);
@@ -32,7 +34,7 @@ public:
 
     std::vector<std::shared_ptr<Item>>& getItems();
 
-    void addBuilding(Building* b, sf::Vector2i c);
+    void addBuilding(std::shared_ptr<Building> b, sf::Vector2i c);
     void addItem(std::shared_ptr<Item> item, sf::Vector2f pos);
 
     const sf::Vector2i start;
@@ -42,7 +44,7 @@ public:
     Map_Tile<std::shared_ptr<Detail>>& getDetails();
     Map_Tile<std::shared_ptr<Tree>>& getTrees();
     Map_Tile<std::shared_ptr<Rock>>& getRocks();
-    Map_Tile<std::shared_ptr<sf::Sprite>>& getBuildings();
+    Map_Tile<std::shared_ptr<Building>>& getBuildings();
 
     sf::RectangleShape& getFrame();
 
@@ -54,6 +56,6 @@ private:
     Map_Tile<std::shared_ptr<Detail>> details;
     Map_Tile<std::shared_ptr<Tree>> trees;
     Map_Tile<std::shared_ptr<Rock>> rocks;
-    Map_Tile<std::shared_ptr<sf::Sprite>> buildings;
+    Map_Tile<std::shared_ptr<Building>> buildings;
     std::vector<std::shared_ptr<Item>> items;
 };

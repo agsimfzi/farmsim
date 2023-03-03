@@ -46,7 +46,7 @@ void Game_Renderer::load(World& world, Player& player)
     }
 
     sf::Vector2i p(player.getCoordinates(Tile::tile_size));
-    sf::Vector2i distance(18, 12);
+    sf::Vector2i distance(20, 12);
     sf::Vector2i start = p - distance;
     sf::Vector2i end = p + distance;
 
@@ -67,9 +67,9 @@ void Game_Renderer::load(World& world, Player& player)
                 drawables[2].push_back(r);
             }
             else {
-                sf::Sprite* b = loader.building(i);
+                std::shared_ptr<Building> b = loader.building(i);
                 if (b) {
-                    drawables[2].push_back(b);
+                    drawables[2].push_back(&b->sprite);
                 }
                 else if (crops.contains(x) && crops[x].contains(y)) {
                     drawables[2].push_back(&crops[x][y]);

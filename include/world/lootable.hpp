@@ -7,8 +7,6 @@
 class Lootable : public Building {
 public:
     Lootable();
-    void resize();
+    Lootable(Building_Animation_Data ad);
     void addItem(std::shared_ptr<Item> item);
-
-private:
 };

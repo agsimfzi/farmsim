@@ -38,7 +38,7 @@ Chunk::Chunk(sf::Vector2i start, sf::Vector2i size, Map_Tile<Floor_Info>& info)
                 rocks[c.x][c.y] = std::make_shared<Rock>(c, Texture_Manager::get(tkey));
             }
             else if (i.building) {
-                addBuilding(i.building.get(), c);
+                addBuilding(i.building, c);
             }
         }
     }
@@ -55,6 +55,17 @@ Chunk::Chunk(sf::Vector2i start, sf::Vector2i size, Map_Tile<Floor_Info>& info)
     frame.setFillColor(sf::Color::Transparent);
     frame.setOutlineThickness(2.f);
     frame.setOutlineColor(sf::Color::Red);
+}
+
+void Chunk::update()
+{
+    for (auto& r : buildings) {
+        for (auto& c : r.second) {
+            if (c.second) {
+                c.second->updateSprite();
+            }
+        }
+    }
 }
 
 bool Chunk::contains(sf::Vector2f pos)
@@ -104,13 +115,9 @@ Rock* Chunk::getRock(sf::Vector2i i)
     return r;
 }
 
-sf::Sprite* Chunk::getBuilding(sf::Vector2i i)
+std::shared_ptr<Building> Chunk::getBuilding(sf::Vector2i i)
 {
-    sf::Sprite* b = nullptr;
-    if (buildings.contains(i.x) && buildings[i.x].contains(i.y)) {
-        b = buildings[i.x][i.y].get();
-    }
-    return b;
+    return buildings[i.x][i.y];
 }
 
 void Chunk::eraseDetail(sf::Vector2i i)
@@ -146,30 +153,10 @@ std::vector<std::shared_ptr<Item>>& Chunk::getItems()
     return items;
 }
 
-void Chunk::addBuilding(Building* building, sf::Vector2i c)
+void Chunk::addBuilding(std::shared_ptr<Building> b, sf::Vector2i c)
 {
-    sf::Sprite sprite;
-
-    std::string texture = Building::typeToString(building->type);
-
-    size_t sheet_id = building->uid % 1000;
-
-    texture += std::to_string(sheet_id / 100);
-
-    sheet_id %= 100;
-
-    sprite.setTexture(Texture_Manager::get(texture));
-
-    sf::Vector2i pos;
-    sf::Vector2i size(48, 64);
-    pos.x = (sheet_id % 10) * size.x;
-    pos.y = (sheet_id / 10) * size.y;
-    sprite.setTextureRect(sf::IntRect(pos, size));
-    sprite.setOrigin(sf::Vector2f(size) / 2.f);
-    sf::Vector2f p(c);
-    p *= Tile::tile_size;
-    sprite.setPosition(p);
-    buildings[c.x][c.y] = std::make_shared<sf::Sprite>(sprite);
+    b->sprite.setPosition(floor[c.x][c.y]->getPosition());
+    buildings[c.x][c.y] = b;
 }
 
 void Chunk::addItem(std::shared_ptr<Item> item, sf::Vector2f pos)
@@ -200,7 +187,7 @@ Map_Tile<std::shared_ptr<Rock>>& Chunk::getRocks()
     return rocks;
 }
 
-Map_Tile<std::shared_ptr<sf::Sprite>>& Chunk::getBuildings()
+Map_Tile<std::shared_ptr<Building>>& Chunk::getBuildings()
 {
     return buildings;
 }

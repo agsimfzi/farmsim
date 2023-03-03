@@ -64,6 +64,7 @@ void World::reset()
 void World::update(Player_Inventory& player_inventory, Player& player, float deltaTime)
 {
     checkPickup(player_inventory, player, deltaTime);
+    chunks.update();
 
 // MOVE THIS LOGIC INTERNAL TO PLAYER
     if (energy_diff < 0) {
@@ -344,14 +345,14 @@ void World::placeWreckage()
             coords = randomNearbyEmptyTile(start_coords, distance);
         } while (coords == axe_coords);
         std::shared_ptr<Lootable> lootable = std::dynamic_pointer_cast<Lootable>(building_library("crate"));
-        lootable->resize();
+        //lootable->resize();
         lootable->addItem(item_library.shared("plank"));
         lootable->getInventory().front().back()->setCount(prng::number(1, 3));
         lootable->addItem(items[i]);
         //lootable->getInventory().front().front() = std::move(items[i]);
         //lootable->getInventory().front().push_back(item_library.shared("plank"));
         tile_library[coords.x][coords.y].building = lootable;
-        chunks.addBuilding(tile_library[coords.x][coords.y].building.get(), coords);
+        chunks.addBuilding(tile_library[coords.x][coords.y].building, coords);
         distance += prng::number(0, 2);
     }
 }
@@ -532,7 +533,7 @@ void World::useBuilding(std::shared_ptr<Item> item)
     Floor_Info& info = tile_library[t.x][t.y];
     if (buildableTile(info)) { // PLACE BUILDING
         info.building = building_library(item->getUID());
-        chunks.addBuilding(info.building.get(), t);
+        chunks.addBuilding(info.building, t);
         item->take(1);
         if (info.building->type == Building::MACHINE) {
             machines.push_back(std::dynamic_pointer_cast<Machine>(info.building));

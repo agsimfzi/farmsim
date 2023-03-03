@@ -68,15 +68,11 @@ todo.hpp
 *.srctrldb
 *.srctrlprj
 
-
 # database loading
 /db/
 
 # music
 /soundtrack/
-
-# dependencies
-magic_enum.hpp
 
 # text files
 *.txt

@@ -2,6 +2,8 @@
 
 #include <system/database.hpp>
 
+#include <world/building_data.hpp>
+
 #include <util/vector2_stream.hpp>
 
 Building_Library::Building_Library()
@@ -9,6 +11,7 @@ Building_Library::Building_Library()
     std::map<Machine_Type, std::vector<Reaction>> reactions = Database::getReactions();
     std::vector<Reaction> seed_reactions;
     std::map<Crafting_Type, std::vector<Reaction>> recipes = Database::getRecipes();
+    std::map<size_t, Building_Animation_Data> animation_data = Database::getBuildingAnimationData();
     std::vector<Item_Data> items = Database::getItemPrototypes();
     for (auto& item : items) {
         if (item.type == Item_Type::SEED) {
@@ -18,22 +21,24 @@ Building_Library::Building_Library()
             std::shared_ptr<Machine> m;
             std::shared_ptr<Building> b;
             Building::Type t = findBuildingType(item.subtype);
+            Building_Animation_Data ad = animation_data[item.uid];
             std::string derived_subtype; // for buildings with complex substrings (crafting/machines)
+            ad.tkey = Building::typeToString(t) + std::to_string((item.uid % 1000) / 100) + "-WORLD";
             switch (t) {
                 case Building::CONTAINER:
-                    b = std::make_shared<Container>();
+                    b = std::make_shared<Container>(ad);
                     break;
                 case Building::CRAFTING:
-                    b = std::make_shared<Crafting>();
+                    b = std::make_shared<Crafting>(ad);
                     derived_subtype = item.subtype.substr(item.subtype.find(':') + 1);
                     b->reactions = recipes[stringToCraftingType(derived_subtype)];
                     item.subtype = derived_subtype;
                     break;
                 case Building::FURNITURE:
-                    b = std::make_shared<Furniture>();
+                    b = std::make_shared<Furniture>(ad);
                     break;
                 case Building::MACHINE:
-                    m = std::make_shared<Machine>();
+                    m = std::make_shared<Machine>(ad);
                     derived_subtype = item.subtype.substr(item.subtype.find(':') + 1);
                     m->machine_type = stringToMachineType(derived_subtype);
                     if (m->machine_type == Machine_Type::SEED_EXTRACTOR) {
@@ -49,13 +54,13 @@ Building_Library::Building_Library()
                     b = m;
                     break;
                 case Building::LOOTABLE:
-                    b = std::make_shared<Lootable>();
+                    b = std::make_shared<Lootable>(ad);
                     break;
                 case Building::STRUCTURE:
-                    //b = std::make_shared<Structure>();
+                    //b = std::make_shared<Structure>(ad);
                     break;
                 default:
-                    b = std::make_shared<Building>();
+                    b = std::make_shared<Building>(ad);
                     break;
             }
 

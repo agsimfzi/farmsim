@@ -12,6 +12,16 @@ Machine::Machine()
         inventory.back().resize(1);
 }
 
+Machine::Machine(Building_Animation_Data ad)
+    : Building(ad)
+{
+    interface = true;
+    inventory.push_back(std::vector<std::shared_ptr<Item>>());
+    // REAGANT ROW SIZE IS SET IN ::countReagants()!
+    inventory.push_back(std::vector<std::shared_ptr<Item>>());
+        inventory.back().resize(1);
+}
+
 bool Machine::validReagant(std::string name, int rxn)
 {
     if (rxn == -1) {
@@ -43,6 +53,7 @@ void Machine::checkReaction()
             if (i != current_reaction) {
                 reaction_tick = 0;
                 current_reaction = i;
+                sprite.setAnimationState(Building_State::STARTING);
             }
             return;
         }
@@ -120,6 +131,9 @@ void Machine::endReaction()
 {
     current_reaction = -1;
     reaction_tick = 0;
+    if (sprite.getState() != Building_State::IDLE) {
+        sprite.setAnimationState(Building_State::ENDING);
+    }
 }
 
 void Machine::clearReagant(size_t i)

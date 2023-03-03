@@ -3,10 +3,10 @@
 Lootable::Lootable()
 {
     inventory.resize(1);
-    inventory.back().resize(1);
 }
 
-void Lootable::resize()
+Lootable::Lootable(Building_Animation_Data ad)
+    : Building(ad)
 {
     inventory.resize(1);
 }

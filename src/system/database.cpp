@@ -324,6 +324,63 @@ std::vector<Item_Data> Database::getItemPrototypes()
     return items;
 }
 
+std::map<size_t, Building_Animation_Data> Database::getBuildingAnimationData()
+{
+    std::map<size_t, Building_Animation_Data> data;
+
+    open();
+
+    sqlite3_stmt* statement;
+
+    std::string sql = "SELECT * FROM 'BUILDINGS';";
+
+    rc = sqlite3_prepare_v2(db, sql.c_str(), sql.length(), &statement, NULL);
+
+    while ((rc = sqlite3_step(statement)) == SQLITE_ROW) {
+        Building_Animation_Data d;
+        int column = 0;
+
+        d.uid = sqlite3_column_int(statement, column++);
+
+    //animation counts
+        // idle_count int
+        // starting_count int
+        // running_count int
+        // ending_count int
+        d.counts[Building_State::IDLE] = static_cast<unsigned int>(sqlite3_column_int(statement, column++));
+        d.counts[Building_State::STARTING] = static_cast<unsigned int>(sqlite3_column_int(statement, column++));
+        d.counts[Building_State::RUNNING] = static_cast<unsigned int>(sqlite3_column_int(statement, column++));
+        d.counts[Building_State::ENDING] = static_cast<unsigned int>(sqlite3_column_int(statement, column++));
+
+
+    //animation thresholds
+        // idle_threshold int
+        // starting_threshold int
+        // running_thresholdint
+        // ending_threshold int
+        d.thresholds[Building_State::IDLE] = sqlite3_column_int(statement, column++);
+        d.thresholds[Building_State::STARTING] = sqlite3_column_int(statement, column++);
+        d.thresholds[Building_State::RUNNING] = sqlite3_column_int(statement, column++);
+        d.thresholds[Building_State::ENDING] = sqlite3_column_int(statement, column++);
+
+    // start data
+        // start_x int
+        // start_y int
+        int x = sqlite3_column_int(statement, column++);
+        int y = sqlite3_column_int(statement, column++);
+        d.start = sf::Vector2i(x, y);
+
+    // texture key
+        d.tkey = reinterpret_cast<const char*>(sqlite3_column_text(statement, column++));
+
+        data[d.uid] = d;
+    }
+
+    close();
+
+    return data;
+}
+
 std::vector<Crop_Data> Database::getCropPrototypes()
 {
     std::vector<Crop_Data> crops;

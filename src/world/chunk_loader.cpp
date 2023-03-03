@@ -2,6 +2,7 @@
 
 #include <util/primordial.hpp>
 
+
 Chunk_Loader::Chunk_Loader(Map_Tile<Floor_Info>& info)
     : info { info }
 {}
@@ -142,9 +143,9 @@ Rock* Chunk_Loader::rock(sf::Vector2i i)
     return r;
 }
 
-sf::Sprite* Chunk_Loader::building(sf::Vector2i i)
+std::shared_ptr<Building> Chunk_Loader::building(sf::Vector2i i)
 {
-    sf::Sprite* b = nullptr;
+    std::shared_ptr<Building> b = nullptr;
     sf::Vector2i c = findChunk(i);
     if (validChunkIndex(c)) {
         b = chunks[c.x][c.y]->getBuilding(i);
@@ -184,7 +185,7 @@ void Chunk_Loader::eraseBuilding(sf::Vector2i i)
     }
 }
 
-void Chunk_Loader::addBuilding(Building* b, sf::Vector2i coords)
+void Chunk_Loader::addBuilding(std::shared_ptr<Building> b, sf::Vector2i coords)
 {
     sf::Vector2i ci = findChunk(coords);
     if (chunks.contains(ci.x) && chunks[ci.x].contains(ci.y)) {
@@ -258,5 +259,18 @@ void Chunk_Loader::checkPickup(Player_Inventory& inventory, Player& player, bool
 
     for (auto& p : to_move) {
         chunks[p.first.x][p.first.y]->addItem(p.second, p.second->getSprite().getPosition());
+    }
+}
+
+void Chunk_Loader::update()
+{
+    for (int x = -1; x <= 1; x++) {
+        for (int y = -1; y <= 1; y++) {
+            sf::Vector2i i(x, y);
+            i += current;
+            if (validChunkIndex(i)) {
+                chunks[i.x][i.y]->update();
+            }
+        }
     }
 }

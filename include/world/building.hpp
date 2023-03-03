@@ -4,14 +4,20 @@
 
 #include <memory>
 
+#include <animation/animated_sprite.hpp>
+
 #include <item/item.hpp>
 #include <item/item_library.hpp>
 #include <item/reaction.hpp>
+
+#include "building_data.hpp"
 
 class Building {
 public:
     Building() = default;
     virtual ~Building() = default;
+
+    Building(Building_Animation_Data ad);
 
     std::string name;
     size_t uid;
@@ -29,7 +35,7 @@ public:
         NULL_TYPE
     };
 
-    short int health = 30;
+    Animated_Sprite<Building_State> sprite;
 
     Type type;
     std::string subtype;
@@ -39,6 +45,8 @@ public:
     std::vector<std::vector<std::shared_ptr<Item>>>& getInventory();
 
     bool empty();
+
+    short int health = 30;
 
     static inline Type stringToType(std::string s)
     {
@@ -96,4 +104,6 @@ public:
     bool interface = false;
 
     std::vector<std::vector<std::shared_ptr<Item>>> inventory;
+
+    void updateSprite();
 };

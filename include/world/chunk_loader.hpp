@@ -27,7 +27,7 @@ public:
 
     std::vector<Chunk*> localChunks();
 
-    const sf::Vector2i chunk_size{ 16, 16 };
+    const sf::Vector2i chunk_size{ 24, 24 };
     sf::Vector2i world_min;
     sf::Vector2i world_max;
 
@@ -37,18 +37,19 @@ public:
     Detail* detail(sf::Vector2i i);
     Tree* tree(sf::Vector2i i);
     Rock* rock(sf::Vector2i i);
-    sf::Sprite* building(sf::Vector2i i);
+    std::shared_ptr<Building> building(sf::Vector2i i);
 
     void eraseDetail(sf::Vector2i i);
     void eraseTree(sf::Vector2i i);
     void eraseRock(sf::Vector2i i);
     void eraseBuilding(sf::Vector2i i);
 
-    void addBuilding(Building* b, sf::Vector2i coords);
+    void addBuilding(std::shared_ptr<Building> b, sf::Vector2i coords);
     void addItem(std::shared_ptr<Item> item, sf::Vector2i coords);
 
     void checkPickup(Player_Inventory& inventory, Player& player, bool pickup_all, float deltaTime);
 
+    void update();
 private:
     void moveChunks(Direction d);
     sf::Vector2i current{ 0, 0 };

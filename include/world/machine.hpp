@@ -6,7 +6,7 @@ enum class Machine_Type {
     FURNACE,
     TABLE_SAW,
     SEED_EXTRACTOR,
-    SPINNING_WHEEL,
+    LOOM,
     PRESERVER,
     MILL,
     OVEN,
@@ -24,8 +24,8 @@ inline Machine_Type stringToMachineType(std::string s) {
     else if (s == "SEED_EXTRACTOR") {
         return Machine_Type::SEED_EXTRACTOR;
     }
-    else if (s == "SPINNING_WHEEL") {
-        return Machine_Type::SPINNING_WHEEL;
+    else if (s == "LOOM") {
+        return Machine_Type::LOOM;
     }
     else if (s == "PRESERVER") {
         return Machine_Type::PRESERVER;
@@ -44,6 +44,7 @@ inline Machine_Type stringToMachineType(std::string s) {
 class Machine : public Building {
 public:
     Machine();
+    Machine(Building_Animation_Data ad);
 
     bool validReagant(std::string name, int rxn = -1);
 
