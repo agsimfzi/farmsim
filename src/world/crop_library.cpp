@@ -24,14 +24,15 @@ Crop_Library::Crop_Library()
 
         sprite.setTexture(Texture_Manager::get(texture));
 
-        sprite.setOrigin(sf::Vector2f(24.f, 40.f));
-
         sf::Vector2i pos;
         sf::Vector2i size(48, d.y_size);
         pos.x = (d.uid % 100) * size.x;
         pos.y = 0;
         sprite.setTextureRect(sf::IntRect(pos, size));
-        sprite.setOrigin(sf::Vector2f(size) / 2.f);
+        sf::Vector2f origin;
+        origin.x = size.x / 2;
+        origin.y = size.y - (Tile::tile_size / 2.f);
+        sprite.setOrigin(origin);
         c.setSprite(sprite);
 
         //std::unique_ptr<Item> iptr =

@@ -137,10 +137,12 @@ private:
 
     bool pickup_all = false;
 
-    void autotile(sf::Vector2i start, sf::Vector2i end, Detail_Type type);
-    int autotileX(sf::Vector2i i, Detail_Type type);
+    void autotile(sf::Vector2i start, sf::Vector2i end, Floor_Type type);
+    int autotileX(sf::Vector2i i, Floor_Type type);
     int autotileX(bool n, bool w, bool s, bool e);
+
     bool adjacentDetailMatch(sf::Vector2i i, Detail_Type type);
+    bool adjacentFloorMatch(sf::Vector2i i, Floor_Type type);
     bool adjacentBiomeMatch(sf::Vector2i i, Biome type);
     bool validLibraryTile(int x, int y);
 

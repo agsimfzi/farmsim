@@ -18,15 +18,8 @@ Reaction_Panel::Reaction_Panel(Reaction& rxn, Item_Library& item_library, sf::Ve
     product = item_library.shared(rxn.product);
     sf::Vector2f product_pos(pos);
     product_pos += (frame_size / 2.f);
-    //product_pos.x += size_x;
-    //product_pos += sf::Vector2f(-33.f, 33.f);
     product->setPosition(product_pos);
-/*
-    name.setString(rxn.product);
-    name.setFont(Font_Manager::get(Font::UI));
-    name.setFillColor(Palette::black);
-    name.setCharacterSize(18);
-*/
+
     sf::Vector2f name_pos(pos);
     name_pos.x += 12.f;
     name_pos.y += (frame_size.y - (name.getLocalBounds().top + name.getLocalBounds().height)) / 2.f;
@@ -124,6 +117,7 @@ void Reaction_Interface::load(std::vector<Reaction> rxn
         }
         c_pos.x += 74.f;
     }
+
     size.x += scrollbar.getSize().x;
     setView(pos, size);
     setScrollable(full_size_y);

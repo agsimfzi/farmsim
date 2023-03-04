@@ -11,6 +11,18 @@ Tree::Tree(sf::Vector2i coordinates, const sf::Texture& texture, Tree::Type type
     setPosition(pos);
 }
 
+std::string Tree::typeToString(Tree::Type t)
+{
+    switch (t) {
+        case PINE:
+            return "PINE";
+        case BIRCH:
+            return "BIRCH";
+        default:
+            return "";
+    }
+}
+
 bool Tree::dead()
 {
     return health <= 0;

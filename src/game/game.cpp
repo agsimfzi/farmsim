@@ -13,7 +13,8 @@ Game::Game(sf::View& nview)
 {
     player = Player(Database::getPlayerData(), Texture_Manager::get("PLAYER"));
 
-    giveItemToPlayer("wood", 100);
+    giveItemToPlayer("pine wood", 100);
+    giveItemToPlayer("birch wood", 100);
 
     giveItemToPlayer("stone", 100);
     giveItemToPlayer("coal", 500);
@@ -21,7 +22,8 @@ Game::Game(sf::View& nview)
     giveItemToPlayer("iron ore", 100);
     giveItemToPlayer("gold ore", 100);
 
-    giveItemToPlayer("plank", 100);
+    giveItemToPlayer("pine plank", 100);
+    giveItemToPlayer("birch plank", 100);
     giveItemToPlayer("copper bar", 100);
     giveItemToPlayer("iron bar", 100);
     giveItemToPlayer("gold bar", 100);
@@ -96,7 +98,7 @@ void Game::update(float deltaTime)
             local_tiles = world.getLocalTiles(c);
             n = local_tiles.size();
             for (size_t i = 0; i < n; i++) {
-                if (local_tiles[i].first.detail != Detail_Type::WATER) {
+                if (local_tiles[i].first.floor != Floor_Type::WATER) {
                     local_blocks.push_back(local_tiles[i].second);
                 }
             }

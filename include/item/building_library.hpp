@@ -25,7 +25,6 @@ public:
         if (stringShelf.contains(name)) {
             std::cout << "returning " << stringShelf[name]->name << '\n';
             return makeBySubtype(stringShelf[name].get());
-            //return std::make_shared<Building>(*stringShelf[name]);
         }
 
         std::cout << "FAILED TO FIND BUILDING OF NAME " << name << '\n';
@@ -41,4 +40,5 @@ private:
     Building::Type findBuildingType(std::string subtype);
 
     Reaction generateSeedReaction(Item_Data item);
+    Reaction generateWoodReaction(Item_Data item);
 };

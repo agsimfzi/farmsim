@@ -2,8 +2,6 @@
 
 #include <util/fmouse.hpp>
 
-#include <iostream>
-
 Machine_Interface::Machine_Interface(Player_Inventory& inventory, sf::View& view, Machine* machine)
     : Inventory_Interface(inventory, view)
     , machine{ machine }

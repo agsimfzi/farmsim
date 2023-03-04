@@ -224,8 +224,7 @@ void World::makeBiomes()
                 info.floor = Floor_Type::NULL_TYPE;
             }
             else if (info.biome == Biome::OCEAN || info.biome == Biome::LAKE || info.biome == Biome::RIVER) {
-                info.floor = Floor_Type::SAND;
-                info.detail = Detail_Type::WATER;
+                info.floor = Floor_Type::WATER;
             }
             else if (info.biome == Biome::BEACH) {
                 info.floor = Floor_Type::SAND;
@@ -242,8 +241,7 @@ void World::makeBiomes()
                 }
             }
             else if (info.biome == Biome::CALDERA) {
-                info.floor = Floor_Type::BASALT;
-                info.detail = Detail_Type::LAVA;
+                info.floor = Floor_Type::LAVA;
             }
             else {
                 info.floor = Floor_Type::DIRT;
@@ -261,8 +259,8 @@ void World::makeBiomes()
             info.detail_pos = sf::Vector2i(0, 0);
         }
     }
-    autotile(world_min, world_max, Detail_Type::WATER);
-    autotile(world_min, world_max, Detail_Type::LAVA);
+    autotile(world_min, world_max, Floor_Type::WATER);
+    autotile(world_min, world_max, Floor_Type::LAVA);
 
     start_coords = biome_gen.getStartCoordinates();
 
@@ -285,15 +283,16 @@ void World::makeGrass()
             && !(tile_library[x][y].tree != Tree::Type::NULL_TYPE)
             && grass[x][y]) {
                 if (tile_library[x][y].biome == Biome::FOREST && prng::boolean(0.5f)) {
-                        grass[x][y] = false;
+                    grass[x][y] = false;
                     continue;
                 }
-                tile_library[x][y].detail = Detail_Type::GRASS;
-                tile_library[x][y].detail_pos.x = autotileX(sf::Vector2i(x, y), Detail_Type::GRASS);
+                tile_library[x][y].floor = Floor_Type::GRASS;
+                tile_library[x][y].texture_pos.x = autotileX(sf::Vector2i(x, y), Floor_Type::GRASS);
+                tile_library[x][y].texture_pos.y = static_cast<int>(Floor_Type::GRASS) * Tile::tile_size;
             }
         }
     }
-    autotile(world_min, world_max, Detail_Type::GRASS);
+    autotile(world_min, world_max, Floor_Type::GRASS);
     std::cout << "\n\ngrass made!\n";
 }
 
@@ -308,20 +307,14 @@ sf::Vector2f World::startPosition()
     return chunks.floor(start_coords)->getPosition();
 }
 
-void World::autotile(sf::Vector2i start, sf::Vector2i end, Detail_Type type)
+void World::autotile(sf::Vector2i start, sf::Vector2i end, Floor_Type type)
 {
     for (int x = start.x; x <= end.x; x++) {
         for (int y = start.y; y <= end.y; y++) {
-            sf::Vector2i c(x, y);
-            Detail* d = chunks.detail(c);
-            if (d && d->type == type) {
-                sf::Vector2i pos(autotileX(c, d->type), 0);
-                sf::Vector2i size(Tile::tile_size, Tile::tile_size);
-                d->setTextureRect(sf::IntRect(pos, size));
-            }
-            if (tile_library[x][y].detail == type) {
+            if (tile_library[x][y].floor == type) {
                 Floor_Info& info = tile_library[x][y];
-                info.detail_pos.x = autotileX(c, type);
+                sf::Vector2i c(x, y);
+                info.texture_pos.x = autotileX(c, type);
             }
         }
     }
@@ -361,12 +354,7 @@ void World::placeWreckage()
             coords = randomNearbyEmptyTile(start_coords, distance);
         } while (coords == axe_coords);
         std::shared_ptr<Lootable> lootable = std::dynamic_pointer_cast<Lootable>(building_library("crate"));
-        //lootable->resize();
-        lootable->addItem(item_library.shared("plank"));
-        lootable->getInventory().front().back()->setCount(prng::number(1, 3));
         lootable->addItem(items[i]);
-        //lootable->getInventory().front().front() = std::move(items[i]);
-        //lootable->getInventory().front().push_back(item_library.shared("plank"));
         tile_library[coords.x][coords.y].building = lootable;
         chunks.addBuilding(tile_library[coords.x][coords.y].building, coords);
         distance += prng::number(0, 2);
@@ -396,12 +384,12 @@ sf::Vector2i World::randomNearbyEmptyTile(sf::Vector2i i, int distance)
     return t;
 }
 
-int World::autotileX(sf::Vector2i i, Detail_Type type)
+int World::autotileX(sf::Vector2i i, Floor_Type type)
 {
-    bool n = adjacentDetailMatch(i + sf::Vector2i(0, -1), type);
-    bool w = adjacentDetailMatch(i + sf::Vector2i(-1, 0), type);
-    bool s = adjacentDetailMatch(i + sf::Vector2i(0, 1), type);
-    bool e = adjacentDetailMatch(i + sf::Vector2i(1, 0), type);
+    bool n = adjacentFloorMatch(i + sf::Vector2i(0, -1), type);
+    bool w = adjacentFloorMatch(i + sf::Vector2i(-1, 0), type);
+    bool s = adjacentFloorMatch(i + sf::Vector2i(0, 1), type);
+    bool e = adjacentFloorMatch(i + sf::Vector2i(1, 0), type);
 
     return autotileX(n, w, s, e);
 }
@@ -434,6 +422,11 @@ bool World::adjacentDetailMatch(sf::Vector2i i, Detail_Type type)
 bool World::adjacentBiomeMatch(sf::Vector2i i, Biome type)
 {
     return (validLibraryTile(i.x, i.y) && tile_library[i.x][i.y].biome == type);
+}
+
+bool World::adjacentFloorMatch(sf::Vector2i i, Floor_Type type)
+{
+    return (validLibraryTile(i.x, i.y) && tile_library[i.x][i.y].floor == type);
 }
 
 bool World::validLibraryTile(int x, int y)
@@ -563,7 +556,7 @@ void World::useVehicle(std::shared_ptr<Item> item)
         default:
             break;
         case 10000: // boat
-            if (tile_library[activeTile->x][activeTile->y].detail == Detail_Type::WATER) {
+            if (tile_library[activeTile->x][activeTile->y].floor == Floor_Type::WATER) {
                 vehicles.push_back(std::make_shared<Vehicle>(chunks.floor(*activeTile)->getPosition(), vehicle_library(Vehicle::BOAT)));
                 item->take(1);
             }
@@ -612,28 +605,20 @@ int World::energyDiff()
 
 void World::hoe()
 {
-    sf::Vector2i t = *activeTile;
-    if (tile_library[t.x][t.y].floor == Floor_Type::DIRT && emptyTile(t)) {
-        Floor* f = chunks.floor(*activeTile);
-        if (f->detail == Detail_Type::GRASS) {
-            f->detail = Detail_Type::NULL_TYPE;
-            chunks.eraseDetail(f->coordinates);
-            tile_library[t.x][t.y].detail = Detail_Type::NULL_TYPE;
-            autotile(t - sf::Vector2i(1, 1), t + sf::Vector2i(1, 1), Detail_Type::GRASS);
+    if (!changeActiveTile(Floor_Type::GRASS, Floor_Type::DIRT)) {
+        if (!changeActiveTile(Floor_Type::DIRT, Floor_Type::TILLED)) {
+            sf::Vector2i t = *activeTile;
+            if (tile_library[t.x][t.y].floor == Floor_Type::TILLED
+            || tile_library[t.x][t.y].floor == Floor_Type::WATERED) {
+                removeCrop(t);
+            }
         }
-        else {
-            f->setType(Floor_Type::TILLED);
-            tileToLibrary(t);
-        }
-    }
-    else if (tile_library[t.x][t.y].planted) {
-        removeCrop(t);
     }
 }
 
 void World::water(std::shared_ptr<Item> item)
 {
-    if (tile_library[activeTile->x][activeTile->y].detail == Detail_Type::WATER) {
+    if (tile_library[activeTile->x][activeTile->y].floor == Floor_Type::WATER) {
         item->resetUses();
     }
     else if (item->usePercent() > 0) {
@@ -654,7 +639,8 @@ void World::axe(int factor)
             // create stump
             info.tree = Tree::Type::NULL_TYPE;
             chunks.eraseTree(t);
-            Item* i = item_library.item("wood");
+            std::string type = tree->typeToString(tree->type);
+            Item* i = item_library.item(type + " wood");
             size_t count = prng::number(7, 13);
             std::shared_ptr<Item> item = std::make_shared<Item>(*i);
             item->setCount(count);
@@ -926,8 +912,8 @@ bool World::emptyTile(Floor_Info& info)
     return (!(info.tree != Tree::Type::NULL_TYPE)
          && !info.rock
          && !info.building
-         && info.detail != Detail_Type::WATER
-         && info.detail != Detail_Type::LAVA
+         && info.floor != Floor_Type::WATER
+         && info.floor != Floor_Type::LAVA
          && info.biome != Biome::NULL_TYPE);
 }
 

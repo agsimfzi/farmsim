@@ -12,6 +12,8 @@ public:
         NULL_TYPE
     };
 
+    static std::string typeToString(Tree::Type t);
+
     Tree() = default;
     Tree(sf::Vector2i coordinates, const sf::Texture& texture, Tree::Type type);
 

@@ -6,12 +6,9 @@
 
 #include <world/tile.hpp>
 
-#include <util/vector2_stream.hpp>
-
 Building::Building(Building_Animation_Data ad)
 {
     sf::Vector2i size(48, 64);
-    std::cout << "loading sprite of " << ad.uid << ", with start " << ad.start << ", tkey " << ad.tkey << "!\n";
     sprite = Animated_Sprite<Building_State>(Texture_Manager::get(ad.tkey), size, ad.counts, ad.thresholds, ad.start, true);
     sf::Vector2f origin;
     origin.x = size.x / 2;

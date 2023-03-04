@@ -5,8 +5,6 @@
 
 #include <util/primordial.hpp>
 
-#include <util/vector2_stream.hpp>
-
 Tooltip::Tooltip(std::shared_ptr<Item> item)
 {
     name.setString(item->getName());

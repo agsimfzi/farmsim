@@ -4,18 +4,21 @@
 
 #include <world/building_data.hpp>
 
+#include <util/primordial.hpp>
 #include <util/vector2_stream.hpp>
 
 Building_Library::Building_Library()
 {
     std::map<Machine_Type, std::vector<Reaction>> reactions = Database::getReactions();
-    std::vector<Reaction> seed_reactions;
     std::map<Crafting_Type, std::vector<Reaction>> recipes = Database::getRecipes();
     std::map<size_t, Building_Animation_Data> animation_data = Database::getBuildingAnimationData();
     std::vector<Item_Data> items = Database::getItemPrototypes();
     for (auto& item : items) {
         if (item.type == Item_Type::SEED) {
-            seed_reactions.push_back(generateSeedReaction(item));
+            reactions[Machine_Type::SEED_EXTRACTOR].push_back(generateSeedReaction(item));
+        }
+        else if (equalStrings(item.subtype, "WOOD")) {
+            reactions[Machine_Type::TABLE_SAW].push_back(generateWoodReaction(item));
         }
         if (item.type == Item_Type::BUILDING) {
             std::shared_ptr<Machine> m;
@@ -41,14 +44,7 @@ Building_Library::Building_Library()
                     m = std::make_shared<Machine>(ad);
                     derived_subtype = item.subtype.substr(item.subtype.find(':') + 1);
                     m->machine_type = stringToMachineType(derived_subtype);
-                    if (m->machine_type == Machine_Type::SEED_EXTRACTOR) {
-                        std::sort(seed_reactions.begin(), seed_reactions.end(),
-                            [] (Reaction& l, Reaction& r) -> bool { return l < r; });
-                        m->reactions = seed_reactions;
-                    }
-                    else {
-                        m->reactions = reactions[stringToMachineType(derived_subtype)];
-                    }
+                    m->reactions = reactions[stringToMachineType(derived_subtype)];
                     m->countReagants();
                     item.subtype = derived_subtype;
                     b = m;
@@ -130,5 +126,21 @@ Reaction Building_Library::generateSeedReaction(Item_Data item)
     r.product = item.name;
     r.length = std::stoi(item.subtype.substr(0, item.subtype.find(';')));
     r.tag = item.subtype.substr(item.subtype.find(';') + 1);
+    return r;
+}
+
+Reaction Building_Library::generateWoodReaction(Item_Data item)
+{
+    Reaction r;
+    std::string variant = item.name.substr(0, item.name.find(' '));
+    std::string product = variant + " plank";
+    r.product = product;
+    r.name = "Make " + product;
+    Reagant rgt;
+    rgt.count = 1;
+    rgt.name = item.name;
+    r.reagants.push_back(rgt);
+    r.length = item.use_factor;
+    r.tag = 1;
     return r;
 }
