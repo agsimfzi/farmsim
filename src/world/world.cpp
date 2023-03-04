@@ -31,8 +31,9 @@ World::World(Item_Library& item_library)
     std::cout << "WORLD BOUNDS CALCULATED:\n\t" << world_min << " to " << world_max << "!\n";
 }
 
-void World::nextSeason()
+void World::nextSeason(Player& player)
 {
+    chunks.clear();
     std::cout << "\n\nSEASON CHANGE, FROM " << seasonToString(season);
     int s = static_cast<int>(season);
     s++;
@@ -42,6 +43,9 @@ void World::nextSeason()
     season = static_cast<Season>(s);
     std::cout << " TO " << seasonToString(season) << "!\n";
     killUnseasonableCrops();
+    seasonalIteration();
+    chunks.check(player.getCoordinates(Tile::tile_size), season);
+    // reset all timers
 }
 
 void World::killUnseasonableCrops()
@@ -51,6 +55,15 @@ void World::killUnseasonableCrops()
             if (!c.second.checkSeason(season)) {
                 c.second.kill();
             }
+        }
+    }
+}
+
+void World::seasonalIteration()
+{
+    for (int x = world_min.x; x <= world_max.x; x++) {
+        for (int y = world_min.y; y <= world_max.y; y++) {
+            Floor_Info& info = tile_library[x][y];
         }
     }
 }
@@ -241,7 +254,7 @@ void World::makeBiomes()
                 else if (((info.biome == Biome::FOREST && prng::boolean(0.2f))
                 || (info.biome == Biome::GRASSLAND && prng::boolean(0.003f)))
                 && !adjacentTree(coords)) {
-                    info.tree = true;
+                    info.tree = static_cast<Tree::Type>(prng::boolean());
                 }
             }
             info.texture_pos = sf::Vector2i(0, (static_cast<int>(info.floor)) * roundFloat(Tile::tile_size));
@@ -267,7 +280,10 @@ void World::makeGrass()
     Automaton_Cells grass = grass_maker.iterate();
     for (int x = world_min.x; x <= world_max.x; x++) {
         for (int y = world_min.y; y <= world_max.y; y++) {
-            if (validLibraryTile(x, y) && tile_library[x][y].floor == Floor_Type::DIRT && !tile_library[x][y].tree && grass[x][y]) {
+            if (validLibraryTile(x, y)
+            && tile_library[x][y].floor == Floor_Type::DIRT
+            && !(tile_library[x][y].tree != Tree::Type::NULL_TYPE)
+            && grass[x][y]) {
                 if (tile_library[x][y].biome == Biome::FOREST && prng::boolean(0.5f)) {
                         grass[x][y] = false;
                     continue;
@@ -283,7 +299,7 @@ void World::makeGrass()
 
 void World::finalize()
 {
-    chunks.check(start_coords);
+    chunks.check(start_coords, season);
     placeWreckage();
 }
 
@@ -630,13 +646,13 @@ void World::axe(int factor)
 {
     sf::Vector2i t = *activeTile;
     Floor_Info& info = tile_library[t.x][t.y];
-    if (info.tree) {
+    if (info.tree != Tree::Type::NULL_TYPE) {
         Tree* tree = chunks.tree(t);
         tree->hit(factor);
         if (tree->dead()) {
             // create logs on ground
             // create stump
-            info.tree = false;
+            info.tree = Tree::Type::NULL_TYPE;
             chunks.eraseTree(t);
             Item* i = item_library.item("wood");
             size_t count = prng::number(7, 13);
@@ -799,7 +815,7 @@ void World::tick(sf::Vector2i player_coordinates)
         }
     }
 
-    chunks.check(player_coordinates);
+    chunks.check(player_coordinates, season);
 }
 
 void World::setInteracting(bool interacting)
@@ -892,7 +908,7 @@ bool World::adjacentTree(sf::Vector2i i)
 {
     for (int x = -1; x <= 1; x++) {
         for (int y = -1; y <= 1; y++) {
-            if (tile_library[i.x + x][i.y + y].tree) {
+            if (tile_library[i.x + x][i.y + y].tree != Tree::Type::NULL_TYPE) {
                 return true;
             }
         }
@@ -907,12 +923,12 @@ bool World::emptyTile(sf::Vector2i i)
 
 bool World::emptyTile(Floor_Info& info)
 {
-    return (!info.tree
-            && !info.rock
-            && !info.building
-            && info.detail != Detail_Type::WATER
-            && info.detail != Detail_Type::LAVA
-            && info.biome != Biome::NULL_TYPE);
+    return (!(info.tree != Tree::Type::NULL_TYPE)
+         && !info.rock
+         && !info.building
+         && info.detail != Detail_Type::WATER
+         && info.detail != Detail_Type::LAVA
+         && info.biome != Biome::NULL_TYPE);
 }
 
 bool World::buildableTile(sf::Vector2i i)

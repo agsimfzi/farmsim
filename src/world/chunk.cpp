@@ -4,7 +4,7 @@
 
 #include <util/primordial.hpp>
 
-Chunk::Chunk(sf::Vector2i start, sf::Vector2i size, Map_Tile<Floor_Info>& info)
+Chunk::Chunk(sf::Vector2i start, sf::Vector2i size, Map_Tile<Floor_Info>& info, Season s)
     : start { start }
     , end { start + size }
 {
@@ -29,9 +29,10 @@ Chunk::Chunk(sf::Vector2i start, sf::Vector2i size, Map_Tile<Floor_Info>& info)
                 tkey = detailTypeToString(i.detail);
                 details[c.x][c.y] = std::make_shared<Detail>(c, i.detail, Texture_Manager::get(tkey), sf::IntRect(i.detail_pos, sf::Vector2i(Tile::tile_size, Tile::tile_size)));
             }
-            if (i.tree) {
+            if (i.tree != Tree::Type::NULL_TYPE) {
                 tkey = "TREES";
-                trees[c.x][c.y] = std::make_shared<Tree>(c, Texture_Manager::get(tkey));
+                trees[c.x][c.y] = std::make_shared<Tree>(c, Texture_Manager::get(tkey), i.tree);
+                trees[c.x][c.y]->setSeason(s);
             }
             else if (i.rock) {
                 tkey = "ROCKS";

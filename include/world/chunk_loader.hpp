@@ -15,9 +15,9 @@ public:
     Chunk_Loader() = delete;
     Chunk_Loader(Map_Tile<Floor_Info>& info);
 
-    void load();
+    void load(Season s);
 
-    void check(sf::Vector2i player_coordinates);
+    void check(sf::Vector2i player_coordinates, Season s);
 
     const Map_Tile<std::unique_ptr<Chunk>>& getChunks() const;
     sf::Vector2i findChunk(sf::Vector2i coords);

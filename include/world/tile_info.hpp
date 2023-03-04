@@ -15,7 +15,7 @@ struct Floor_Info {
     Detail_Type detail{ Detail_Type::NULL_TYPE };
     sf::Vector2i texture_pos;
     sf::Vector2i detail_pos;
-    bool tree = false;
+    Tree::Type tree { Tree::Type::NULL_TYPE };
     bool rock = false;
     std::shared_ptr<Building> building = nullptr;
 };

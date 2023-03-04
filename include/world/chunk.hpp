@@ -11,10 +11,12 @@
 #include "tile.hpp"
 #include "tree.hpp"
 
+#include "season.hpp"
+
 class Chunk {
 public:
     Chunk() = default;
-    Chunk(sf::Vector2i start , sf::Vector2i size , Map_Tile<Floor_Info>& info);
+    Chunk(sf::Vector2i start , sf::Vector2i size , Map_Tile<Floor_Info>& info, Season s);
 
     void update();
 

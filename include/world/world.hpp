@@ -94,7 +94,7 @@ public:
 
     Building_Library& getBuildingLibrary();
 
-    void nextSeason();
+    void nextSeason(Player& player);
     void killUnseasonableCrops();
     void removeCrop(sf::Vector2i i);
 
@@ -167,4 +167,6 @@ private:
     void eat(std::shared_ptr<Item> item);
 
     sf::Vector2i randomNearbyEmptyTile(sf::Vector2i i, int distance = 1);
+
+    void seasonalIteration();
 };

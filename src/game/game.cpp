@@ -28,6 +28,8 @@ Game::Game(sf::View& nview)
 
     giveItemToPlayer("wheat seeds", 10);
     giveItemToPlayer("melon", 100);
+
+    giveItemToPlayer("bed");
 }
 
 void Game::changeSeason()
@@ -38,7 +40,7 @@ void Game::changeSeason()
 void Game::nextSeason()
 {
     player.energy = player.max_energy;
-    world.nextSeason();
+    world.nextSeason(player);
 
     const static size_t ticks = 1000;
     for (size_t i = 0; i < ticks; i++) {

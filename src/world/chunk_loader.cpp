@@ -7,7 +7,7 @@ Chunk_Loader::Chunk_Loader(Map_Tile<Floor_Info>& info)
     : info { info }
 {}
 
-void Chunk_Loader::load()
+void Chunk_Loader::load(Season s)
 {
     for (int x = -1; x <= 1; x++) {
         for (int y = -1; y <= 1; y++) {
@@ -19,13 +19,13 @@ void Chunk_Loader::load()
                 start.x += world_min.x;
                 start.y *= chunk_size.y;
                 start.y += world_min.y;
-                chunks[i.x][i.y] = std::make_unique<Chunk>(start, chunk_size, info);
+                chunks[i.x][i.y] = std::make_unique<Chunk>(start, chunk_size, info, s);
             }
         }
     }
 }
 
-void Chunk_Loader::check(sf::Vector2i player_coordinates)
+void Chunk_Loader::check(sf::Vector2i player_coordinates, Season s)
 {
     if (!validChunkIndex(current) || !chunks[current.x][current.y]->contains(player_coordinates)) {
         sf::Vector2i new_current = findChunk(player_coordinates);
@@ -46,7 +46,7 @@ void Chunk_Loader::check(sf::Vector2i player_coordinates)
 
         current = new_current;
 
-        load();
+        load(s);
     }
 }
 
