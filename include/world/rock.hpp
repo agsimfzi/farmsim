@@ -2,14 +2,36 @@
 
 #include <SFML/Graphics.hpp>
 
-class Rock : public sf::Sprite {
+#include "rock_data.hpp"
+
+class Rock : private Rock_Data {
 public:
+    enum Type {
+        GRANITE,
+        LIMESTONE,
+        BASALT,
+        COPPER,
+        IRON,
+        GOLD,
+        NULL_TYPE
+    };
+
     Rock() = default;
-    Rock(sf::Vector2i coordinates, const sf::Texture& texture);
+    Rock(sf::Vector2i coordinates, const sf::Texture& texture, const Rock::Type type, Rock_Data d);
 
     bool dead();
     void hit(int dmg);
     void resetHealth();
+
+    const Type type;
+
+    std::string getName();
+    std::string product();
+    unsigned int quantity();
+
+    static Rock::Type stringToType(std::string s);
+
+    sf::Sprite sprite;
 
 private:
     sf::Vector2i coordinates;

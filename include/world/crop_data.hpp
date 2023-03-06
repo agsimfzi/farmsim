@@ -19,4 +19,11 @@ public:
     int y_size;
 
     std::map<Season, bool> seasons;
+
+    bool m_regrows;
+
+    unsigned int quantity_min;
+    unsigned int quantity_max;
+
+    bool m_passable = true;
 };

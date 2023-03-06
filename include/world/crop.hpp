@@ -30,6 +30,13 @@ public:
 
     std::function<void(sf::Vector2i)> unwater;
 
+    unsigned int getQuantity();
+
+    void harvestRegrowable();
+
+    bool passable();
+    bool regrows();
+
 private:
     sf::Sprite sprite;
 

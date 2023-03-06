@@ -26,7 +26,7 @@ public:
     Floor* getFloor(sf::Vector2i i);
     Detail* getDetail(sf::Vector2i i);
     Tree* getTree(sf::Vector2i i);
-    Rock* getRock(sf::Vector2i i);
+    sf::Sprite* getRock(sf::Vector2i i);
     std::shared_ptr<Building> getBuilding(sf::Vector2i i);
 
     void eraseDetail(sf::Vector2i i);
@@ -45,7 +45,7 @@ public:
     Map_Tile<std::shared_ptr<Floor>>& getFloor();
     Map_Tile<std::shared_ptr<Detail>>& getDetails();
     Map_Tile<std::shared_ptr<Tree>>& getTrees();
-    Map_Tile<std::shared_ptr<Rock>>& getRocks();
+    Map_Tile<sf::Sprite>& getRocks();
     Map_Tile<std::shared_ptr<Building>>& getBuildings();
 
     sf::RectangleShape& getFrame();
@@ -57,7 +57,7 @@ private:
     Map_Tile<std::shared_ptr<Floor>> floor;
     Map_Tile<std::shared_ptr<Detail>> details;
     Map_Tile<std::shared_ptr<Tree>> trees;
-    Map_Tile<std::shared_ptr<Rock>> rocks;
+    Map_Tile<sf::Sprite> rocks;
     Map_Tile<std::shared_ptr<Building>> buildings;
     std::vector<std::shared_ptr<Item>> items;
 };

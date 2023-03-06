@@ -30,6 +30,7 @@
 #include <world/crafting.hpp>
 #include <world/machine.hpp>
 #include <world/crop_data.hpp>
+#include <world/rock_data.hpp>
 #include <world/tile.hpp>
 #include <world/vehicle_data.hpp>
 
@@ -58,6 +59,8 @@ public:
     static std::vector<Item_Data> getItemPrototypes();
 
     static std::vector<Crop_Data> getCropPrototypes();
+
+    static std::vector<Rock_Data> getRockData();
 
     static std::map<Machine_Type, std::vector<Reaction>> getReactions();
 

@@ -36,7 +36,7 @@ public:
     Floor* floor(sf::Vector2i i);
     Detail* detail(sf::Vector2i i);
     Tree* tree(sf::Vector2i i);
-    Rock* rock(sf::Vector2i i);
+    sf::Sprite* rock(sf::Vector2i i);
     std::shared_ptr<Building> building(sf::Vector2i i);
 
     void eraseDetail(sf::Vector2i i);

@@ -35,11 +35,6 @@
 /src_old/
 /doxygen/
 
-# database
-/src/sqlite/
-/include/sqlite/
-data.db
-
 # textures
 /textures/
 

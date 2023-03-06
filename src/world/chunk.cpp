@@ -29,14 +29,14 @@ Chunk::Chunk(sf::Vector2i start, sf::Vector2i size, Map_Tile<Floor_Info>& info, 
                 tkey = detailTypeToString(i.detail);
                 details[c.x][c.y] = std::make_shared<Detail>(c, i.detail, Texture_Manager::get(tkey), sf::IntRect(i.detail_pos, sf::Vector2i(Tile::tile_size, Tile::tile_size)));
             }
-            if (i.tree != Tree::Type::NULL_TYPE) {
+            if (i.tree != Tree::NULL_TYPE) {
                 tkey = "TREES";
                 trees[c.x][c.y] = std::make_shared<Tree>(c, Texture_Manager::get(tkey), i.tree);
                 trees[c.x][c.y]->setSeason(s);
             }
             else if (i.rock) {
                 tkey = "ROCKS";
-                rocks[c.x][c.y] = std::make_shared<Rock>(c, Texture_Manager::get(tkey));
+                rocks[c.x][c.y] = i.rock->sprite;
             }
             else if (i.building) {
                 addBuilding(i.building, c);
@@ -107,11 +107,11 @@ Tree* Chunk::getTree(sf::Vector2i i)
     return t;
 }
 
-Rock* Chunk::getRock(sf::Vector2i i)
+sf::Sprite* Chunk::getRock(sf::Vector2i i)
 {
-    Rock* r = nullptr;
+    sf::Sprite* r = nullptr;
     if (rocks.contains(i.x) && rocks[i.x].contains(i.y)) {
-        r = rocks[i.x][i.y].get();
+        r = &rocks[i.x][i.y];
     }
     return r;
 }
@@ -183,7 +183,7 @@ Map_Tile<std::shared_ptr<Tree>>& Chunk::getTrees()
     return trees;
 }
 
-Map_Tile<std::shared_ptr<Rock>>& Chunk::getRocks()
+Map_Tile<sf::Sprite>& Chunk::getRocks()
 {
     return rocks;
 }

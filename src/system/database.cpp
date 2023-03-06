@@ -403,6 +403,9 @@ std::vector<Crop_Data> Database::getCropPrototypes()
         // stage_count
         // y_size
         // seasons
+        // regrows
+        // quantity_min
+        // quantity_max
 
         Crop_Data c;
 
@@ -413,6 +416,10 @@ std::vector<Crop_Data> Database::getCropPrototypes()
         c.stage_count = sqlite3_column_int(statement, column++);
         c.y_size = sqlite3_column_int(statement, column++);
         std::string seasons = reinterpret_cast<const char*>(sqlite3_column_text(statement, column++));
+        c.m_regrows = sqlite3_column_int(statement, column++);
+        c.quantity_min = sqlite3_column_int(statement, column++);
+        c.quantity_max = sqlite3_column_int(statement, column++);
+        c.m_passable = sqlite3_column_int(statement, column++);
 
         for (int i = 0; i < 4; i++) {
             Season s = static_cast<Season>(i);
@@ -426,6 +433,34 @@ std::vector<Crop_Data> Database::getCropPrototypes()
     close();
 
     return crops;
+}
+
+std::vector<Rock_Data> Database::getRockData()
+{
+    std::vector<Rock_Data> data;
+
+    open();
+
+    sqlite3_stmt* statement;
+
+    std::string sql = "SELECT * FROM 'ROCKS'";
+
+    rc = sqlite3_prepare_v2(db, sql.c_str(), sql.length(), &statement, NULL);
+
+    while ((rc = sqlite3_step(statement)) == SQLITE_ROW) {
+        int column = 0;
+
+        Rock_Data d;
+
+        d.name = reinterpret_cast<const char*>(sqlite3_column_text(statement, column++));
+        d.m_product = reinterpret_cast<const char*>(sqlite3_column_text(statement, column++));
+        d.quantity_min = sqlite3_column_int(statement, column++);
+        d.quantity_max = sqlite3_column_int(statement, column++);
+
+        data.push_back(d);
+    }
+
+    return data;
 }
 
 std::map<Machine_Type, std::vector<Reaction>> Database::getReactions()

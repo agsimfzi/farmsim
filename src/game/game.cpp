@@ -16,7 +16,6 @@ Game::Game(sf::View& nview)
     giveItemToPlayer("pine wood", 100);
     giveItemToPlayer("birch wood", 100);
 
-    giveItemToPlayer("stone", 100);
     giveItemToPlayer("coal", 500);
     giveItemToPlayer("copper ore", 100);
     giveItemToPlayer("iron ore", 100);
@@ -28,8 +27,19 @@ Game::Game(sf::View& nview)
     giveItemToPlayer("iron bar", 100);
     giveItemToPlayer("gold bar", 100);
 
-    giveItemToPlayer("wheat seeds", 10);
     giveItemToPlayer("melon", 100);
+
+    giveItemToPlayer("granite", 100);
+    giveItemToPlayer("limestone", 100);
+    giveItemToPlayer("basalt", 100);
+
+    giveItemToPlayer(1100, 100);
+    giveItemToPlayer(1101, 100);
+    giveItemToPlayer(1102, 100);
+
+    giveItemToPlayer(1200, 100);
+    giveItemToPlayer(1201, 100);
+    giveItemToPlayer(1202, 100);
 
     giveItemToPlayer("bed");
 }

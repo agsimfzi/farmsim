@@ -1,5 +1,7 @@
 #include <world/crop.hpp>
 
+#include <util/prng.hpp>
+
 const float Crop::stage_threshold = 100.f;
 
 Crop::Crop(Crop_Data d)
@@ -85,6 +87,30 @@ void Crop::kill()
 bool Crop::dead()
 {
     return (stage == stage_count + 1);
+}
+
+unsigned int Crop::getQuantity()
+{
+    return prng::number(quantity_min, quantity_max);
+}
+
+void Crop::harvestRegrowable()
+{
+    sf::IntRect tr = sprite.getTextureRect();
+    tr.top -= y_size;
+    sprite.setTextureRect(tr);
+    growth = 0.f;
+    stage--;
+}
+
+bool Crop::regrows()
+{
+    return m_regrows;
+}
+
+bool Crop::passable()
+{
+    return m_passable;
 }
 
 void Crop::draw(sf::RenderTarget& target, sf::RenderStates states) const

@@ -4,6 +4,7 @@
 
 #include "biome.hpp"
 #include "building.hpp"
+#include "rock.hpp"
 #include "tile_type.hpp"
 #include "tree.hpp"
 
@@ -16,6 +17,6 @@ struct Floor_Info {
     sf::Vector2i texture_pos;
     sf::Vector2i detail_pos;
     Tree::Type tree { Tree::Type::NULL_TYPE };
-    bool rock = false;
-    std::shared_ptr<Building> building = nullptr;
+    std::shared_ptr<Rock> rock { nullptr };
+    std::shared_ptr<Building> building { nullptr };
 };

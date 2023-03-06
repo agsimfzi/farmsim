@@ -62,7 +62,7 @@ void Game_Renderer::load(World& world, Player& player)
                 drawables[0].push_back(d);
             }
 
-            Rock* r = loader.rock(i);
+            sf::Sprite* r = loader.rock(i);
             if (r) {
                 drawables[2].push_back(r);
             }

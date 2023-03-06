@@ -133,9 +133,9 @@ Tree* Chunk_Loader::tree(sf::Vector2i i)
     return t;
 }
 
-Rock* Chunk_Loader::rock(sf::Vector2i i)
+sf::Sprite* Chunk_Loader::rock(sf::Vector2i i)
 {
-    Rock* r = nullptr;
+    sf::Sprite* r = nullptr;
     sf::Vector2i c = findChunk(i);
     if (validChunkIndex(c)) {
         r = chunks[c.x][c.y]->getRock(i);

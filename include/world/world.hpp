@@ -133,6 +133,8 @@ private:
 
     std::vector<std::shared_ptr<Vehicle>> vehicles;
 
+    std::map<Rock::Type, Rock_Data> rock_data;
+
     sf::Vector2i start_coords;
 
     bool pickup_all = false;

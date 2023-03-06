@@ -47,6 +47,8 @@ Crop_Library::Crop_Library()
         std::cout << "\tsummer: " << d.seasons[Season::SUMMER] << '\n';
         std::cout << "\tautumn: " << d.seasons[Season::AUTUMN] << '\n';
         std::cout << "\twinter: " << d.seasons[Season::WINTER] << '\n';
+        std::cout << "\tpassable: " << d.m_passable << '\n';
+        std::cout << "\tregrows: " << d.m_regrows << '\n';
     }
 }
 

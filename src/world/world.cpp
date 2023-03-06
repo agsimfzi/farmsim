@@ -28,6 +28,12 @@ World::World(Item_Library& item_library)
     chunks.world_min = world_min;
     chunks.world_max = world_max;
 
+    std::vector<Rock_Data> rd = Database::getRockData();
+    for (auto& d : rd) {
+        Rock::Type t = Rock::stringToType(d.name);
+        rock_data[t] = d;
+    }
+
     std::cout << "WORLD BOUNDS CALCULATED:\n\t" << world_min << " to " << world_max << "!\n";
 }
 
@@ -153,14 +159,22 @@ void World::interact(Player& player, Player_Inventory& player_inventory)
                 if (!crops[t.x].contains(t.y)) {
                     std::cout << "FAILED TO FIND CROP AT TILE " << t << '\n';
                 }
-                else if (crops[t.x][t.y].fullyGrown()) {
-                    std::shared_ptr<Item> i = std::make_shared<Item>(*item_library.item(crops[t.x][t.y].harvestUID()));
-                    player_inventory.addItem(i);
-                    if (i) {
-                        chunks.addItem(i, player.getCoordinates(Tile::tile_size));
+                else {
+                    Crop& crop = crops[t.x][t.y];
+                    if (crop.fullyGrown()) {
+                        std::shared_ptr<Item> i = std::make_shared<Item>(*item_library.item(crops[t.x][t.y].harvestUID()));
+                        i->setCount(crop.getQuantity());
+                        player_inventory.addItem(i);
+                        if (i) {
+                            chunks.addItem(i, player.getCoordinates(Tile::tile_size));
+                        }
+                        if (crop.regrows()) {
+                            crop.harvestRegrowable();
+                        }
+                        else {
+                            removeCrop(t);
+                        }
                     }
-
-                    removeCrop(t);
                 }
             } // END HARVEST
         }
@@ -220,6 +234,9 @@ void World::makeBiomes()
             info.biome = biomes[x][y];
             info.detail_pos = sf::Vector2i(0, 0);
 
+            Rock::Type rock = Rock::NULL_TYPE;
+            Tree::Type tree = Tree::NULL_TYPE;
+
             if (info.biome == Biome::NULL_TYPE) {
                 info.floor = Floor_Type::NULL_TYPE;
             }
@@ -228,16 +245,16 @@ void World::makeBiomes()
             }
             else if (info.biome == Biome::BEACH) {
                 info.floor = Floor_Type::SAND;
-
-                if (prng::boolean(0.0005f)) {
-                    info.rock = true;
-                }
+                // palm trees
             }
             else if (info.biome == Biome::VOLCANO) {
                 info.floor = Floor_Type::BASALT;
 
-                if (prng::boolean(0.004f)) {
-                    info.rock = true;
+                if (prng::boolean(0.008f)) {
+                    rock = Rock::BASALT;
+                }
+                else if (prng::boolean(0.006f)) {
+                    rock = Rock::GOLD;
                 }
             }
             else if (info.biome == Biome::CALDERA) {
@@ -246,17 +263,46 @@ void World::makeBiomes()
             else {
                 info.floor = Floor_Type::DIRT;
 
-                if (prng::boolean(0.002f)) {
-                    info.rock = true;
+                if (info.biome == Biome::GRASSLAND) {
+                    if (prng::boolean(0.003f)) {
+                        tree = Tree::BIRCH;
+                    }
+                    else if (prng::boolean(0.003f)) {
+                        rock = Rock::LIMESTONE;
+                    }
+                    else if (prng::boolean(0.002f)) {
+                        if (prng::boolean(.6f)) {
+                            rock = Rock::COPPER;
+                        }
+                        else {
+                            rock = Rock::IRON;
+                        }
+                    }
                 }
-                else if (((info.biome == Biome::FOREST && prng::boolean(0.2f))
-                || (info.biome == Biome::GRASSLAND && prng::boolean(0.003f)))
-                && !adjacentTree(coords)) {
-                    info.tree = static_cast<Tree::Type>(prng::boolean());
+                else if (info.biome == Biome::FOREST) {
+                    if (prng::boolean(0.2f)) {
+                        tree = Tree::PINE;
+                    }
+                    else if (prng::boolean(0.002f)) {
+                        rock = Rock::GRANITE;
+                    }
+                    else if (prng::boolean(0.001f)) {
+                        if (prng::boolean(.7f)) {
+                            rock = Rock::COPPER;
+                        }
+                        else {
+                            rock = Rock::IRON;
+                        }
+                    }
                 }
             }
             info.texture_pos = sf::Vector2i(0, (static_cast<int>(info.floor)) * roundFloat(Tile::tile_size));
             info.detail_pos = sf::Vector2i(0, 0);
+
+            info.tree = tree;
+            if (rock != Rock::NULL_TYPE) {
+                info.rock = std::make_shared<Rock>(coords, Texture_Manager::get("ROCKS"), rock, rock_data[rock]);
+            }
         }
     }
     autotile(world_min, world_max, Floor_Type::WATER);
@@ -605,14 +651,17 @@ int World::energyDiff()
 
 void World::hoe()
 {
+    sf::Vector2i t = *activeTile;
     if (!changeActiveTile(Floor_Type::GRASS, Floor_Type::DIRT)) {
         if (!changeActiveTile(Floor_Type::DIRT, Floor_Type::TILLED)) {
-            sf::Vector2i t = *activeTile;
             if (tile_library[t.x][t.y].floor == Floor_Type::TILLED
             || tile_library[t.x][t.y].floor == Floor_Type::WATERED) {
                 removeCrop(t);
             }
         }
+    }
+    else {
+        autotile(t - sf::Vector2i(1, 1), t + sf::Vector2i(1, 1), Floor_Type::GRASS);
     }
 }
 
@@ -668,11 +717,10 @@ void World::pick(int factor)
     && !changeActiveTile(Floor_Type::WATERED, Floor_Type::DIRT)) {
         sf::Vector2i t = *activeTile;
         if (tile_library[t.x][t.y].rock) {
-            Rock* rock = chunks.rock(t);
+            Rock* rock = tile_library[t.x][t.y].rock.get();
             if (rock) {
                 rock->hit(factor);
                 if (rock->dead()) {
-                    tile_library[t.x][t.y].rock = false;
 
                     if (prng::boolean()) { // INDEPENDENT COAL-SPAWN CHANCE
                         std::shared_ptr<Item> item = std::make_shared<Item>(*item_library.item("coal"));
@@ -680,26 +728,12 @@ void World::pick(int factor)
                         chunks.addItem(item, t);
                     }
 
-                    chunks.eraseRock(t);
-                    std::string key = "stone";
-                    size_t count = prng::number(2, 4);
-                    unsigned int ore_roll = prng::number(0u, 100u);
-                    if (ore_roll < 15) {
-                        key = "copper ore";
-                        count = prng::number(3, 4);
-                    }
-                    else if (ore_roll < 27) {
-                        key = "iron ore";
-                        count = prng::number(2, 3);
-                    }
-                    else if (ore_roll < 36) {
-                        key = "gold ore";
-                        count = prng::number(1, 2);
-                    }
-                    std::shared_ptr<Item> item = std::make_shared<Item>(*item_library.item(key));
-                    item->setCount(count);
-                    chunks.addItem(item, t);
+                    std::shared_ptr<Item> i = item_library.shared(rock->product());
+                    i->setCount(rock->quantity());
+                    chunks.addItem(i, t);
 
+                    tile_library[t.x][t.y].rock = nullptr;
+                    chunks.eraseRock(t);
                 }
             }
         }
@@ -944,5 +978,10 @@ bool World::passableTile(sf::Vector2i i)
 
 bool World::passableTile(Floor_Info& info)
 {
-    return (emptyTile(info));
+    bool passable = emptyTile(info);
+    if (info.planted && !crops[info.coordinates.x][info.coordinates.y].passable())
+    {
+        passable = false;
+    }
+    return passable;
 }
