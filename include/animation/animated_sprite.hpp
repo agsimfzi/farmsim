@@ -6,20 +6,27 @@
 
 #include <map>
 
-#include <entity/entity_state.hpp>
-
 #include <world/direction.hpp>
 
 #include "animation/animation.hpp"
 
 /////////////////////////////////////////////////////////////
-/// \brief
+/// \brief A template class for animated sf::Sprite objects. The template type is the state.
 ///
 template <typename K>
 class Animated_Sprite : public sf::Sprite {
 public:
     Animated_Sprite() = default;
 
+/// FULL CONSTRUCTOR ///
+/// \brief initializes the sprite using animation data and textureRect parameters
+///
+/// \param size: textureRect size
+/// \param counts: the number of frames per animation state
+/// \param thresholds: the length of each frame per animation state
+/// \param start: initial textureRect position
+/// \param directionless: determines whether direction is factored in to a sprite. for calculating state-derived offsets.
+///
     Animated_Sprite(sf::Texture& ntexture,
         sf::Vector2i size,
         std::map<K, unsigned int> counts,
@@ -43,53 +50,71 @@ public:
         updateFrame();
     }
 
-    void setAnimationState(K nstate)
+/// setAnimationState ///
+/// \brief applies a new animation state, resetting the old state and restarting the frame timer.
+///
+/// \param state: the new state
+///
+    void setAnimationState(K state)
     {
-        if (state != nstate) {
+        if (this->state != state) {
             animations[state][direction].reset();
-            state = nstate;
+            this->state = state;
             setTextureRect(animations[state][direction].firstFrame());
-            frameThreshold = animations[state][direction].threshold;
-            frameTimer.restart();
+            frame_threshold = animations[state][direction].threshold;
+            frame_timer.restart();
         }
     }
 
+/// getState ///
+/// \brief returns the active state
+///
+/// \return state
+///
     K getState()
     {
         return state;
     }
 
-    void setDirection(Direction ndirection)
+/// setDirection ///
+/// \brief changes the current sprite direction, transitioning the animation in the process.
+///
+/// \param direction: the new direction
+///
+    void setDirection(Direction direction)
     {
-        if (direction != ndirection) {
-            setTextureRect(animations[state][ndirection].transitionTo(animations[state][direction].transitionFrom()));
-            direction = ndirection;
+        if (this->direction != direction) {
+            setTextureRect(animations[state][direction].transitionTo(animations[state][this->direction].transitionFrom()));
+            this->direction = direction;
         }
     }
 
+/// getDirection ///
+/// \brief returns the current sprite direction.
+///
+/// \return current direction
+///
     Direction getDirection()
     {
         return direction;
     }
 
-    virtual void update()
+/// update ///
+/// \brief checks that the frame_timer has reached its threshold and, if so, advances the animation
+///
+    void update()
     {
-        if (frameTimer.getElapsedTime().asMilliseconds() >= frameThreshold) {
-            frameTimer.restart();
+        if (frame_timer.getElapsedTime().asMilliseconds() >= frame_threshold) {
+            frame_timer.restart();
             updateFrame();
         }
     }
 
-    bool done()
-    {
-        return (lastFrame() && frameTimer.getElapsedTime().asMilliseconds() >= frameThreshold);
-    }
-
-    bool lastFrame()
-    {
-        return animations[state][direction].lastFrame();
-    }
-
+/// getSize ///
+/// \brief returns the textureRect's size
+///
+/// \param globalBounds -> size
+///
     sf::Vector2f getSize()
     {
         sf::Vector2f size;
@@ -98,30 +123,54 @@ public:
         return size;
     }
 
-    void setUnrepeat(K k) {
+/// unsetRepeat ///
+/// \brief Flags the provided state as non-repeating
+///
+/// \param k: state to flag
+///
+    void unsetRepeat(K k) {
         for (auto& d : animations[k]) {
             d.second.repeats = false;
         }
     }
 
+/// done ///
+/// \brief Checks that a non-repeating animation is complete
+///
+/// \return lastFrame and threshold exceeded
+///
+    bool done()
+    {
+        return (lastFrame() && frame_timer.getElapsedTime().asMilliseconds() >= frame_threshold);
+    }
+
+/// lastFrame ///
+/// \brief Animation::lastFrame() for current state
+///
+/// \return current state frame is last frame
+///
+    bool lastFrame()
+    {
+        return animations[state][direction].lastFrame();
+    }
+
 private:
-    sf::Vector2i size; /**< frame size for setTextureRect()   */
+    sf::Vector2i size; /**< textureRect size */
+    sf::Vector2i start; /**< initial textureRect position */
 
-    int animationY {}; /**< offset of specific animation from the start of the spritesheet    */
-    int directionY {}; /**< offset of specific direction from animationY                      */
+    K state {}; /**< current sprite state */
+    Direction direction {}; /**< current sprite direction */
 
-    K state {};
-    Direction direction {};
+    sf::Clock frame_timer; /**<  Tracks the time since the start of the current frame. */
+    int frame_threshold { 250 }; /**< Tracks the time at which the next frame is loaded */
 
-    sf::Clock frameTimer;
-    int frameThreshold { 250 };
+    std::map<K, std::map<Direction, Animation>> animations; /**< Animations by state and direction */
 
-    sf::Vector2i start;
-
-    sf::Vector2i pos;
-
-    std::map<K, std::map<Direction, Animation>> animations;
-
+/// loadCounts ///
+/// \brief Loads the frame count for each animation state.
+///
+/// \param counts: std::map keyed to state, containing unsigned integer frame counts.
+///
     void loadCounts(std::map<K, unsigned int> counts)
     {
         const int dlimit = static_cast<int>(Direction::NULL_DIRECTION);
@@ -151,6 +200,11 @@ private:
         }
     }
 
+/// loadDirectionlessCounts ///
+/// \brief Loads the frame count for each animation state in a directionless context.
+///
+/// \param counts: std::map keyed to state, containing unsigned integer frame counts.
+///
     void loadDirectionlessCounts(std::map<K, unsigned int> counts)
     {
         const int dlimit = static_cast<int>(Direction::NULL_DIRECTION);
@@ -164,6 +218,11 @@ private:
         }
     }
 
+/// loadThresholds ///
+/// \brief Loads the frame time thresholds for each animation state.
+///
+/// \param counts: std::map keyed to state, containing integer frame thresholds.
+///
     void loadThresholds(std::map<K, int> thresholds)
     {
         for (auto& a : animations) {
@@ -173,6 +232,9 @@ private:
         }
     }
 
+/// loadDirectionlessCounts ///
+/// \brief retrieves and applies the next animation frame
+///
     void updateFrame()
     {
         setTextureRect(animations[state][direction].nextFrame());

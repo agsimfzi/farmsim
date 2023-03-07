@@ -14,9 +14,9 @@ Building::Building(Building_Animation_Data ad)
     origin.x = size.x / 2;
     origin.y = size.y - (Tile::tile_size / 2);
     sprite.setOrigin(origin);
-    sprite.setUnrepeat(Building_State::IDLE);
-    sprite.setUnrepeat(Building_State::STARTING);
-    sprite.setUnrepeat(Building_State::ENDING);
+    sprite.unsetRepeat(Building_State::IDLE);
+    sprite.unsetRepeat(Building_State::STARTING);
+    sprite.unsetRepeat(Building_State::ENDING);
     sprite.setAnimationState(Building_State::IDLE);
     sprite.update();
 }
