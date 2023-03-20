@@ -12,6 +12,16 @@ public:
     Player();
     Player(Entity_Data e, sf::Texture& texture);
 
+    void update() override;
+
+    void tick();
+
+    int getEnergy();
+    int maxEnergy();
+    void addEnergy(size_t factor);
+    void takeEnergy(size_t factor);
+    void setMaxEnergy();
+
     Direction hMove;
     Direction vMove;
 
@@ -27,17 +37,11 @@ public:
     void rightStart();
     void rightEnd();
 
-    void update() override;
+private:
+    unsigned int equipped = 0;
 
     int energy{ 1000 };
     int max_energy{ 1000 };
-
-    void tick();
-
-    void resetItemUseIndex();
-
-private:
-    unsigned int equipped = 0;
 
     size_t energy_add_index = 0;
     size_t energy_add_threshold = 15;
@@ -52,4 +56,6 @@ private:
     float still_timer_threshold = 3.f;
 
     void checkEnergyFactor();
+
+    void resetItemUseIndex();
 };

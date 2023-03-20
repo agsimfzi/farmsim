@@ -10,6 +10,12 @@ Player::Player(Entity_Data e, sf::Texture& texture)
     : Entity(e, texture)
 {}
 
+void Player::update()
+{
+    Entity::update();
+    checkEnergyFactor();
+}
+
 void Player::tick()
 {
     energy_add_index++;
@@ -18,18 +24,41 @@ void Player::tick()
         item_use_index++;
         if (item_use_index >= item_use_threshold) {
             item_use_index = item_use_threshold;
-            energy += energy_restore * energy_restore_factor;
-            if (energy > max_energy) {
-                energy = max_energy;
-            }
+            addEnergy(energy_restore * energy_restore_factor);
         }
     }
 }
 
-void Player::update()
+int Player::getEnergy()
 {
-    Entity::update();
-    checkEnergyFactor();
+    return energy;
+}
+
+int Player::maxEnergy()
+{
+    return max_energy;
+}
+
+void Player::addEnergy(size_t factor)
+{
+    energy += factor;
+    if (energy > max_energy) {
+        energy = max_energy;
+    }
+}
+
+void Player::takeEnergy(size_t factor)
+{
+    energy -= factor;
+    if (energy < 0) {
+        energy = 0;
+    }
+    resetItemUseIndex();
+}
+
+void Player::setMaxEnergy()
+{
+    energy = max_energy;
 }
 
 void Player::checkEnergyFactor()

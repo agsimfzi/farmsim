@@ -10,7 +10,7 @@
 
 #include "animation/animation.hpp"
 
-/////////////////////////////////////////////////////////////
+/// Animated_Sprite ///
 /// \brief A template class for animated sf::Sprite objects. The template type is the state.
 ///
 template <typename K>

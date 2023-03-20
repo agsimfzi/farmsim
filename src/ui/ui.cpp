@@ -93,6 +93,7 @@ void UI::scroll(float delta)
         // parse "reverse inventory_interface scroll" setting (invert delta's sign)
         if (inventory_interface->scroll(delta, window)) {
             game.getInventory().setEquipped(inventory_interface->getEquippedIndex());
+            game.releaseLeft();
         }
     }
 }
@@ -103,6 +104,7 @@ void UI::numRelease(int num)
         inventory_interface->setEquippedIndex(num);
 
         game.getInventory().setEquipped(inventory_interface->getEquippedIndex());
+        game.releaseLeft();
     }
 }
 

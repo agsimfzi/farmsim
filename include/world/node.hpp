@@ -8,7 +8,6 @@
 struct Node {
     Node(sf::Vector2i ncoord)
         : coordinates { ncoord }
-    {
-    }
+    {}
     sf::Vector2i coordinates;
 };

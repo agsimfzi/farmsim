@@ -85,22 +85,6 @@ void World::update(Player_Inventory& player_inventory, Player& player, float del
     checkPickup(player_inventory, player, deltaTime);
     chunks.update();
 
-// MOVE THIS LOGIC INTERNAL TO PLAYER
-    if (energy_diff < 0) {
-        player.energy += energyDiff();
-        player.resetItemUseIndex();
-        if (player.energy < 0) {
-            player.energy = 0;
-        }
-    }
-    else if (energy_diff > 0) {
-        player.energy += energyDiff();
-        if (player.energy > player.max_energy) {
-            player.energy = player.max_energy;
-        }
-    }
-    energy = player.energy;
-
     /*
     for (auto& m : machines) {
         //m->update();
@@ -114,9 +98,9 @@ void World::update(Player_Inventory& player_inventory, Player& player, float del
 
 void World::interact(Player& player, Player_Inventory& player_inventory)
 {
-    if (activeTile) {
-        sf::Vector2i t = *activeTile;
-        Floor* f = chunks.floor(*activeTile);
+    if (active_tile) {
+        sf::Vector2i t = *active_tile;
+        Floor* f = chunks.floor(*active_tile);
         Floor_Info& info = tile_library[t.x][t.y];
         std::shared_ptr<Vehicle> pv = player.getVehicle();
         if (pv) { // CHECK FOR VEHICLE DISMOUNT
@@ -201,13 +185,13 @@ sf::Vector2i* World::checkMouseTarget(sf::Vector2f mpos, sf::Vector2i playerCoor
 
     // check for tile at coordinates
     if (inRange(coords, playerCoords) && chunks.floor(coords)) {
-        activeTile = std::make_unique<sf::Vector2i>(coords);
+        active_tile = std::make_unique<sf::Vector2i>(coords);
     }
-    else if (activeTile) {
-        activeTile = nullptr;
+    else if (active_tile) {
+        active_tile = nullptr;
     }
 
-    return activeTile.get();
+    return active_tile.get();
 }
 
 bool World::inRange(sf::Vector2i c1, sf::Vector2i c2)
@@ -399,7 +383,7 @@ void World::placeWreckage()
         do {
             coords = randomNearbyEmptyTile(start_coords, distance);
         } while (coords == axe_coords);
-        std::shared_ptr<Lootable> lootable = std::dynamic_pointer_cast<Lootable>(building_library("crate"));
+        std::shared_ptr<Lootable> lootable = std::dynamic_pointer_cast<Lootable>((*building_library)("crate"));
         lootable->addItem(items[i]);
         tile_library[coords.x][coords.y].building = lootable;
         chunks.addBuilding(tile_library[coords.x][coords.y].building, coords);
@@ -409,7 +393,7 @@ void World::placeWreckage()
 
 Building_Library& World::getBuildingLibrary()
 {
-    return building_library;
+    return *building_library;
 }
 
 sf::Vector2i World::randomNearbyEmptyTile(sf::Vector2i i, int distance)
@@ -490,6 +474,11 @@ Map_Tile<Crop>& World::getCrops()
     return crops;
 }
 
+std::vector<std::shared_ptr<Machine>>& World::getMachines()
+{
+    return machines;
+}
+
 std::vector<std::shared_ptr<Vehicle>>& World::getVehicles()
 {
     return vehicles;
@@ -531,267 +520,25 @@ std::vector<std::pair<Floor_Info, sf::FloatRect>> World::getLocalTiles(sf::Vecto
     }
 
     return local_tiles;
-
 }
 
-bool World::useItem(std::shared_ptr<Item> item)
+void World::addCrop(sf::Vector2i c, Crop crop)
 {
-    bool used = true;
-    if (item->edible()) {
-        eat(item);
-    }
-    else if (activeTile) {
-        switch (item->getType()) {
-            case Item_Type::TOOL:
-                useTool(item);
-                break;
-            case Item_Type::SEED:
-                plantCrop(item);
-                break;
-            case Item_Type::PLANT:
-                if (item->edible())
-            case Item_Type::VEHICLE:
-                useVehicle(item);
-                break;
-            case Item_Type::BUILDING:
-                useBuilding(item);
-                break;
-            case Item_Type::RAW_MATERIAL:
-                useRawMaterial(item);
-                break;
-            default:
-                used = false;
-                break;
-        }
-    }
-    return used;
-}
-
-void World::eat(std::shared_ptr<Item> item)
-{
-    energy_diff = item->useFactor();
-    item->take(1);
-}
-
-void World::useRawMaterial(std::shared_ptr<Item> item)
-{
-    Floor_Info& info = tile_library[activeTile->x][activeTile->y];
-    if (info.building && info.building->type == Building::MACHINE) {
-        auto m = std::dynamic_pointer_cast<Machine>(info.building);
-        m->addReagant(item);
-    }
-}
-
-void World::useBuilding(std::shared_ptr<Item> item)
-{
-    sf::Vector2i t = *activeTile;
-    Floor_Info& info = tile_library[t.x][t.y];
-    if (buildableTile(info)) { // PLACE BUILDING
-        info.building = building_library(item->getUID());
-        chunks.addBuilding(info.building, t);
-        item->take(1);
-        if (info.building->type == Building::MACHINE) {
-            machines.push_back(std::dynamic_pointer_cast<Machine>(info.building));
-        }
-    }
-}
-
-void World::useVehicle(std::shared_ptr<Item> item)
-{
-    switch (item->getUID()) {
-        default:
-            break;
-        case 10000: // boat
-            if (tile_library[activeTile->x][activeTile->y].floor == Floor_Type::WATER) {
-                vehicles.push_back(std::make_shared<Vehicle>(chunks.floor(*activeTile)->getPosition(), vehicle_library(Vehicle::BOAT)));
-                item->take(1);
-            }
-            break;
-        case 10001: // boat
-            if (emptyTile(*activeTile)) {
-                vehicles.push_back(std::make_shared<Vehicle>(chunks.floor(*activeTile)->getPosition(), vehicle_library(Vehicle::BROOM)));
-                item->take(1);
-            }
-            break;
-    }
-}
-
-void World::useTool(std::shared_ptr<Item> item)
-{
-    if (energy > 0) {
-        energy_diff = -item->useFactor();
-        switch (item->getUID()) {
-            default:
-                break;
-            case 0: // hoe
-                hoe();
-                break;
-            case 1: // watering can
-                water(item);
-                break;
-            case 2: // axe
-                axe(item->useFactor());
-                break;
-            case 3: // pick
-                pick(item->useFactor());
-                break;
-            case 4: // hammer
-                hammer();
-                break;
-        }
-    }
-}
-
-int World::energyDiff()
-{
-    int d = energy_diff;
-    energy_diff = 0;
-    return d;
-}
-
-void World::hoe()
-{
-    sf::Vector2i t = *activeTile;
-    if (!changeActiveTile(Floor_Type::GRASS, Floor_Type::DIRT)) {
-        if (!changeActiveTile(Floor_Type::DIRT, Floor_Type::TILLED)) {
-            if (tile_library[t.x][t.y].floor == Floor_Type::TILLED
-            || tile_library[t.x][t.y].floor == Floor_Type::WATERED) {
-                removeCrop(t);
-            }
-        }
-    }
-    else {
-        autotile(t - sf::Vector2i(1, 1), t + sf::Vector2i(1, 1), Floor_Type::GRASS);
-    }
-}
-
-void World::water(std::shared_ptr<Item> item)
-{
-    if (tile_library[activeTile->x][activeTile->y].floor == Floor_Type::WATER) {
-        item->resetUses();
-    }
-    else if (item->usePercent() > 0) {
-        item->reduceUses();
-        changeActiveTile(Floor_Type::TILLED, Floor_Type::WATERED);
-    }
-}
-
-void World::axe(int factor)
-{
-    sf::Vector2i t = *activeTile;
-    Floor_Info& info = tile_library[t.x][t.y];
-    if (info.tree != Tree::Type::NULL_TYPE) {
-        Tree* tree = chunks.tree(t);
-        tree->hit(factor);
-        if (tree->dead()) {
-            // create logs on ground
-            // create stump
-            info.tree = Tree::Type::NULL_TYPE;
-            chunks.eraseTree(t);
-            std::string type = tree->typeToString(tree->type);
-            Item* i = item_library.item(type + " wood");
-            size_t count = prng::number(7, 13);
-            std::shared_ptr<Item> item = std::make_shared<Item>(*i);
-            item->setCount(count);
-            chunks.addItem(item, t);
-        }
-    }
-    else if (info.building) {
-        std::shared_ptr<Building> b = info.building;
-        if (b->type == Building::LOOTABLE) {
-            b->health -= factor;
-            if (b->health <= 0) {
-                for (auto& i : b->getInventory().front()) {
-                    chunks.addItem(i, t);
-                }
-                info.building.reset();
-                chunks.eraseBuilding(t);
-            }
-        }
-    }
-}
-
-void World::pick(int factor)
-{
-    if (!changeActiveTile(Floor_Type::TILLED, Floor_Type::DIRT)
-    && !changeActiveTile(Floor_Type::WATERED, Floor_Type::DIRT)) {
-        sf::Vector2i t = *activeTile;
-        if (tile_library[t.x][t.y].rock) {
-            Rock* rock = tile_library[t.x][t.y].rock.get();
-            if (rock) {
-                rock->hit(factor);
-                if (rock->dead()) {
-
-                    if (prng::boolean()) { // INDEPENDENT COAL-SPAWN CHANCE
-                        std::shared_ptr<Item> item = std::make_shared<Item>(*item_library.item("coal"));
-                        item->setCount(prng::number(3, 7));
-                        chunks.addItem(item, t);
-                    }
-
-                    std::shared_ptr<Item> i = item_library.shared(rock->product());
-                    i->setCount(rock->quantity());
-                    chunks.addItem(i, t);
-
-                    tile_library[t.x][t.y].rock = nullptr;
-                    chunks.eraseRock(t);
-                }
-            }
-        }
-    }
-}
-
-void World::hammer()
-{
-    if (activeTile) {
-        sf::Vector2i t = *activeTile;
-        Building* b = tile_library[t.x][t.y].building.get();
-        if (b) {
-            if (!b->destructible  && !b->empty()) {
-                return;
-            }
-            chunks.addItem(std::make_shared<Item>(*item_library(b->uid)), t);
-            tile_library[t.x][t.y].building = nullptr;
-            chunks.eraseBuilding(t);
-        }
-    }
-}
-
-void World::plantCrop(std::shared_ptr<Item> item)
-{
-    std::cout << "attempting to plant crop...\n";
-    // no need for a redundant check of activeTile, as that is handled in ::interact()
-    sf::Vector2i t = *activeTile;
-    Crop crop = *crop_library.get(item->getUID());
-    if (plantableTile(t) && crop.checkSeason(season)) {
-        item->take(1);
-        Floor* f = chunks.floor(*activeTile);
-
-        auto unwater = [&](sf::Vector2i c)
-        {
-            chunks.floor(c)->setType(Floor_Type::TILLED);
-            tileToLibrary(c);
-        };
-        crop.unwater = unwater;
-
-        crops[t.x][t.y] = crop;
-        crops[t.x][t.y].place(t, f->getPosition());
-        f->planted = true;
-        tileToLibrary(t);
-    }
-
+    crops[active_tile->x][active_tile->y] = crop;
+    crops[active_tile->x][active_tile->y].place(c, chunks.floor(c)->getPosition());
 }
 
 bool World::changeActiveTile(Floor_Type prereq, Floor_Type ntype)
 {
     bool change = false;
 
-    if (activeTile) {
-        Floor* f = chunks.floor(*activeTile);
+    if (active_tile) {
+        Floor* f = chunks.floor(*active_tile);
         change = (f->type == prereq);
         if (change) {
             if (f->planted && ntype != Floor_Type::WATERED) {
                 f->planted = false;
-                removeCrop(*activeTile);
+                removeCrop(*active_tile);
             }
             f->setType(ntype);
             tileToLibrary(f);
@@ -799,6 +546,11 @@ bool World::changeActiveTile(Floor_Type prereq, Floor_Type ntype)
     }
 
     return change;
+}
+
+void World::setBuildingLibrary(Building_Library* b)
+{
+    building_library = b;
 }
 
 void World::removeCrop(sf::Vector2i i)
@@ -847,8 +599,8 @@ Floor* World::activeFloor(sf::Vector2i i)
 {
     Floor* f = nullptr;
 
-    if (activeTile) {
-        f = chunks.floor(*activeTile);
+    if (active_tile) {
+        f = chunks.floor(*active_tile);
     }
 
     return f;
@@ -874,10 +626,15 @@ void World::stopPickupAll()
     pickup_all = false;
 }
 
+sf::Vector2i* World::activeTile()
+{
+    return active_tile.get();
+}
+
 void World::setActiveBuilding()
 {
-    if (activeTile) {
-        sf::Vector2i t = *activeTile;
+    if (active_tile) {
+        sf::Vector2i t = *active_tile;
         Building* b = tile_library[t.x][t.y].building.get();
         if (b) {
             active_building = b;

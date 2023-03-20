@@ -36,7 +36,6 @@ public:
     void finalize();
 
     Map_Tile<Crop>& getCrops();
-    std::vector<std::shared_ptr<Vehicle>>& getVehicles();
 
     std::vector<sf::FloatRect> getLocalImpassableTiles(sf::Vector2i p);
     std::vector<std::pair<Floor_Info, sf::FloatRect>> getLocalTiles(sf::Vector2i p);
@@ -44,23 +43,6 @@ public:
     void update(Player_Inventory& inventory, Player& player, float deltaTime);
 
     sf::Vector2i* checkMouseTarget(sf::Vector2f mpos, sf::Vector2i playerCoords);
-
-    bool useItem(std::shared_ptr<Item> item);
-
-    void useTool(std::shared_ptr<Item> item);
-    void hoe();
-    void water(std::shared_ptr<Item> item);
-    void axe(int factor);
-    void pick(int factor);
-    void hammer();
-
-    void useVehicle(std::shared_ptr<Item> item);
-
-    void plantCrop(std::shared_ptr<Item> item);
-
-    void useBuilding(std::shared_ptr<Item> item);
-
-    void useRawMaterial(std::shared_ptr<Item> item);
 
     void tick(sf::Vector2i player_coordinates);
 
@@ -100,18 +82,40 @@ public:
 
     Season getSeason();
 
-private:
+    sf::Vector2i* activeTile();
+
+    void addCrop(sf::Vector2i c, Crop crop);
+
+    std::vector<std::shared_ptr<Machine>>& getMachines();
+    std::vector<std::shared_ptr<Vehicle>>& getVehicles();
+
+    void tileToLibrary(sf::Vector2i i);
+    void tileToLibrary(Floor* f);
+
+    bool emptyTile(sf::Vector2i i);
+    bool emptyTile(Floor_Info& info);
+
+    bool buildableTile(sf::Vector2i i);
+    bool plantableTile(sf::Vector2i i);
+    bool passableTile(sf::Vector2i i);
+
+    bool buildableTile(Floor_Info& info);
+    bool plantableTile(Floor_Info& info);
+    bool passableTile(Floor_Info& info);
+
+    void autotile(sf::Vector2i start, sf::Vector2i end, Floor_Type type);
+
     bool changeActiveTile(Floor_Type prereq, Floor_Type ntype);
 
-    int energy_diff = -1;
-    int energy;
+    void setBuildingLibrary(Building_Library* b);
 
+private:
     Building* active_building{ nullptr };
 
     Item_Library& item_library;
-    Building_Library building_library;
+    Building_Library* building_library = nullptr;
     Crop_Library crop_library;
-    Vehicle_Library vehicle_library;
+    //Vehicle_Library vehicle_library;
 
     Map_Tile<Floor_Info> tile_library;
     Chunk_Loader chunks { tile_library };
@@ -127,7 +131,7 @@ private:
 
     bool inRange(sf::Vector2i c1, sf::Vector2i c2);
 
-    std::unique_ptr<sf::Vector2i> activeTile;
+    std::unique_ptr<sf::Vector2i> active_tile;
 
     std::vector<std::shared_ptr<Machine>> machines;
 
@@ -139,7 +143,6 @@ private:
 
     bool pickup_all = false;
 
-    void autotile(sf::Vector2i start, sf::Vector2i end, Floor_Type type);
     int autotileX(sf::Vector2i i, Floor_Type type);
     int autotileX(bool n, bool w, bool s, bool e);
 
@@ -148,21 +151,7 @@ private:
     bool adjacentBiomeMatch(sf::Vector2i i, Biome type);
     bool validLibraryTile(int x, int y);
 
-    void tileToLibrary(sf::Vector2i i);
-    void tileToLibrary(Floor* f);
-
     bool adjacentTree(sf::Vector2i i);
-
-    bool emptyTile(sf::Vector2i i);
-    bool emptyTile(Floor_Info& info);
-
-    bool buildableTile(sf::Vector2i i);
-    bool plantableTile(sf::Vector2i i);
-    bool passableTile(sf::Vector2i i);
-
-    bool buildableTile(Floor_Info& info);
-    bool plantableTile(Floor_Info& info);
-    bool passableTile(Floor_Info& info);
 
     void checkBuildings();
 

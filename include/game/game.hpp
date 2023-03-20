@@ -20,6 +20,7 @@
 
 #include "game_renderer.hpp"
 #include "game_state.hpp"
+#include "use_item.hpp"
 
 class Game : private State_Hook, public sf::Drawable {
 public:
@@ -79,6 +80,8 @@ private:
     sf::Clock tick_clock;
 
     Game_Renderer renderer;
+
+    Use_Item use_item{ world, player, item_library };
 
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
 };

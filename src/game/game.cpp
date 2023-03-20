@@ -51,7 +51,7 @@ void Game::changeSeason()
 
 void Game::nextSeason()
 {
-    player.energy = player.max_energy;
+    player.setMaxEnergy();
     world.nextSeason(player);
 
     const static size_t ticks = 1000;
@@ -132,6 +132,8 @@ void Game::update(float deltaTime)
 
     view.setCenter(player.getPosition());
 
+    use_item.update(player_inventory.equippedItem());
+
     prepRenderer();
 }
 
@@ -164,15 +166,12 @@ void Game::startGame()
 
 void Game::clickLeft()
 {
-    std::shared_ptr<Item> equipped = player_inventory.equippedItem();
-    if (equipped) {
-        world.useItem(equipped);
-    }
+    use_item.start(player_inventory.equippedItem());
 }
 
 void Game::releaseLeft()
 {
-    // whatever...
+    use_item.stop();
 }
 
 void Game::clickRight()
@@ -195,6 +194,7 @@ void Game::escape()
 void Game::stopInput()
 {
     player.stop();
+    use_item.stop();
 }
 
 Game_State Game::getState()
@@ -223,12 +223,12 @@ sf::View& Game::getView()
 
 float Game::energyPercent()
 {
-    return (static_cast<float>(player.energy) / static_cast<float>(player.max_energy));
+    return (static_cast<float>(player.getEnergy()) / static_cast<float>(player.maxEnergy()));
 }
 
 int Game::playerEnergy()
 {
-    return player.energy;
+    return player.getEnergy();
 }
 
 Item_Library& Game::getItemLibrary()
