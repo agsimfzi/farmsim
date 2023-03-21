@@ -1,14 +1,8 @@
 #pragma once
 
-#include <memory>
-
 #include <entity/player.hpp>
 
-#include <item/item_library.hpp>
-
-#include <world/crop_library.hpp>
-#include <world/vehicle_library.hpp>
-#include <world/vehicle_library.hpp>
+#include <item/library.hpp>
 
 #include <world/world.hpp>
 
@@ -23,20 +17,18 @@ public:
 /// FULL CONSTRUCTOR ///
 /// \brief loads references and stores item use functions in the map
 ///
-/// \param world A reference to the world, for changing the world (and adding items to it)
-/// \param player A reference to the player, for reading/changing energy
-/// \param item_library A reference to the item library, for creating new items
+/// \param library A reference to the game-level prototype library
 ///
-    Use_Item(World& world, Player& player, Item_Library& item_library);
+    Use_Item(World& world, Player& player, Library& library);
 
-/// NAME ///
+/// UPDATE ///
 /// \brief Uses the item, if ready.
 ///
 /// \param equipped The player's equipped item.
 ///
     void update(std::shared_ptr<Item> equipped);
 
-/// NAME ///
+/// START ///
 /// \brief Sets an active flag, uses the item, and initializes the use threshold by item type.
 ///
 /// \param equipped The player's equipped item
@@ -63,10 +55,7 @@ private:
     Player& player; /**< for tracking/changing player energy */
     sf::Vector2i* target = nullptr; /**< tracks the currently moused tile */
 
-    Item_Library& item_library; /**< store item prototypes. reference to the game-level item library */
-    Crop_Library crop_library; /**< stores crop prototypes */
-    Building_Library building_library; /**< stores building prototypes */
-    Vehicle_Library vehicle_library; /**< stores vehicle prototypes */
+    Library& library; /**< store prototypes for items, buildings, crops, and vehicles. */
 
     Map_Tile<Floor_Info>& tile_library; /**< stores tile information. reference to the world-level tile library */
     std::vector<std::shared_ptr<Machine>>& machines; /**< for adding machines. reference to world-level machines */

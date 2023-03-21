@@ -7,7 +7,7 @@
 
 const float Reaction_Panel::outline_thickness = 1.f;
 
-Reaction_Panel::Reaction_Panel(Reaction& rxn, Item_Library& item_library, sf::Vector2f pos)
+Reaction_Panel::Reaction_Panel(Reaction& rxn, Library& library, sf::Vector2f pos)
 {
     sf::Vector2f frame_size(66.f, 66.f);
     frame.setSize(frame_size);
@@ -15,7 +15,7 @@ Reaction_Panel::Reaction_Panel(Reaction& rxn, Item_Library& item_library, sf::Ve
     frame.setOutlineColor(Palette::inventory_outline);
     frame.setPosition(pos);
 
-    product = item_library.shared(rxn.product);
+    product = library.item(rxn.product);
     sf::Vector2f product_pos(pos);
     product_pos += (frame_size / 2.f);
     product->setPosition(product_pos);
@@ -26,7 +26,7 @@ Reaction_Panel::Reaction_Panel(Reaction& rxn, Item_Library& item_library, sf::Ve
     name.setPosition(name_pos);
 
     for (auto& r : rxn.reagants) {
-        reagants.push_back(item_library.shared(r.name));
+        reagants.push_back(library.item(r.name));
     }
 
     unsetAvailable();
@@ -79,7 +79,7 @@ void Reaction_Panel::draw(sf::RenderTarget& target, sf::RenderStates states) con
 
 void Reaction_Interface::load(std::vector<Reaction> rxn
                             , Player_Inventory& inventory
-                            , Item_Library& item_library
+                            , Library& library
                             , sf::Vector2f pos)
 {
     scrollbar.setSize(sf::Vector2f(12.f, 12.f));
@@ -104,7 +104,7 @@ void Reaction_Interface::load(std::vector<Reaction> rxn
             c_pos.x = sx;
             c_pos.y += 74.f;
         }
-        panels.push_back(Reaction_Panel(r, item_library, c_pos));
+        panels.push_back(Reaction_Panel(r, library, c_pos));
         if (c_pos.x + 70.f > size.x) {
             size.x = c_pos.x + 70.f;
         }

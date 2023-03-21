@@ -74,46 +74,12 @@ Item_Library::Item_Library()
 
         std::shared_ptr<Item> iptr = std::make_shared<Item>(i);
 
-        stringShelf[item.name] = iptr;
-        uidShelf[item.uid] = iptr;
+        string_shelf[item.name] = iptr;
+        uid_shelf[item.uid] = iptr;
 
         std::cout << "item " << item.name << " (" << item.uid << ") added, subtype " << item.subtype
                   << ", use factor " << item.use_factor
                   << " from sheet " << texture << " ("
                   << pos << " x " << size << ")\n";
-    }
-}
-
-Item* Item_Library::item(std::string name)
-{
-    std::transform(name.begin(), name.end(), name.begin(), ::tolower);
-    return stringShelf[name].get();
-}
-
-Item* Item_Library::item(size_t uid)
-{
-    return uidShelf[uid].get();
-}
-
-std::shared_ptr<Item> Item_Library::shared(size_t uid)
-{
-    if (uidShelf.contains(uid)) {
-        return std::make_shared<Item>(*uidShelf[uid]);
-    }
-    else {
-        std::cout << "FAILED TO FIND ITEM OF UID " << uid << '\n';
-        return nullptr;
-    }
-}
-
-std::shared_ptr<Item> Item_Library::shared(std::string name)
-{
-    std::transform(name.begin(), name.end(), name.begin(), ::tolower);
-    if (stringShelf.contains(name)) {
-        return std::make_shared<Item>(*stringShelf[name]);
-    }
-    else {
-        std::cout << "FAILED TO FIND ITEM OF NAME " << name << '\n';
-        return nullptr;
     }
 }

@@ -467,9 +467,9 @@ void Inventory_Interface::mousedIndex()
     moused = sf::Vector2i(-1, -1);
 }
 
-void Inventory_Interface::loadReactions(std::vector<Reaction> reactions, Item_Library& item_library)
+void Inventory_Interface::loadReactions(std::vector<Reaction> reactions, Library& library)
 {
-    reaction_interface.load(reactions, inventory, item_library, reaction_pos);
+    reaction_interface.load(reactions, inventory, library, reaction_pos);
 }
 
 std::shared_ptr<Item> Inventory_Interface::mousedItem()

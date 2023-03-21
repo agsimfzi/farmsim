@@ -46,7 +46,7 @@ public:
     bool clickRight();
     bool releaseRight();
 
-    void checkBuilding();
+    void useBuilding();
 
     void loadDefaultReactions();
 

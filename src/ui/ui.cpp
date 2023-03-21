@@ -93,7 +93,7 @@ void UI::scroll(float delta)
         // parse "reverse inventory_interface scroll" setting (invert delta's sign)
         if (inventory_interface->scroll(delta, window)) {
             game.getInventory().setEquipped(inventory_interface->getEquippedIndex());
-            game.releaseLeft();
+            game.stopInput();
         }
     }
 }
@@ -104,7 +104,7 @@ void UI::numRelease(int num)
         inventory_interface->setEquippedIndex(num);
 
         game.getInventory().setEquipped(inventory_interface->getEquippedIndex());
-        game.releaseLeft();
+        game.stopInput();
     }
 }
 
@@ -129,7 +129,7 @@ void UI::resize(sf::Vector2u windowSize)
 
 void UI::loadDefaultReactions()
 {
-    inventory_interface->loadReactions(game.getWorld().getBuildingLibrary()("null_crafting")->reactions, game.getItemLibrary());
+    inventory_interface->loadReactions(game.getLibrary().building("null_crafting")->reactions, game.getLibrary());
 }
 
 void UI::toggleInventory()
@@ -238,7 +238,7 @@ bool UI::releaseRight()
     return parsed;
 }
 
-void UI::checkBuilding()
+void UI::useBuilding()
 {
     if (!overlay_active) {
         game.getWorld().setActiveBuilding();
@@ -254,12 +254,12 @@ void UI::checkBuilding()
                     break;
                 case Building::CRAFTING:
                     inventory_interface = std::make_unique<Inventory_Interface>(Inventory_Interface(game.getInventory(), view));
-                    inventory_interface->loadReactions(b->reactions, game.getItemLibrary());
+                    inventory_interface->loadReactions(b->reactions, game.getLibrary());
                     inventory_interface->open = true;
                     break;
                 case Building::MACHINE:
                     inventory_interface = std::make_unique<Machine_Interface>(game.getInventory(), view, dynamic_cast<Machine*>(b));
-                    inventory_interface->loadReactions(b->reactions, game.getItemLibrary());
+                    inventory_interface->loadReactions(b->reactions, game.getLibrary());
                     inventory_interface->open = true;
                     break;
                 case Building::FURNITURE:

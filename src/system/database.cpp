@@ -138,6 +138,7 @@ std::vector<Vehicle_Data> Database::getVehicles()
         //name text
         //speed double
         d.name = reinterpret_cast<const char*>(sqlite3_column_text(statement, column++));
+        std::transform(d.name.begin(), d.name.end(), d.name.begin(), ::tolower);
         d.speed_factor = sqlite3_column_double(statement, column++);
 
         //size data
@@ -200,6 +201,7 @@ Entity_Data Database::readEntity(sqlite3_stmt* statement)
     //description text
     //speed double
     d.name = reinterpret_cast<const char*>(sqlite3_column_text(statement, column++));
+    std::transform(d.name.begin(), d.name.end(), d.name.begin(), ::tolower);
     d.description = reinterpret_cast<const char*>(sqlite3_column_text(statement, column++));
     d.speed = sqlite3_column_double(statement, column++);
 
@@ -411,6 +413,7 @@ std::vector<Crop_Data> Database::getCropPrototypes()
 
         c.uid = sqlite3_column_int(statement, column++);
         c.name = reinterpret_cast<const char*>(sqlite3_column_text(statement, column++));
+        std::transform(c.name.begin(), c.name.end(), c.name.begin(), ::tolower);
         c.growth_coef = sqlite3_column_double(statement, column++);
         c.water_factor = sqlite3_column_double(statement, column++);
         c.stage_count = sqlite3_column_int(statement, column++);
@@ -453,7 +456,9 @@ std::vector<Rock_Data> Database::getRockData()
         Rock_Data d;
 
         d.name = reinterpret_cast<const char*>(sqlite3_column_text(statement, column++));
+        std::transform(d.name.begin(), d.name.end(), d.name.begin(), ::tolower);
         d.m_product = reinterpret_cast<const char*>(sqlite3_column_text(statement, column++));
+        std::transform(d.m_product.begin(), d.m_product.end(), d.m_product.begin(), ::tolower);
         d.quantity_min = sqlite3_column_int(statement, column++);
         d.quantity_max = sqlite3_column_int(statement, column++);
 
@@ -486,10 +491,14 @@ std::map<Machine_Type, std::vector<Reaction>> Database::getReactions()
         std::string tag;
 
         name = reinterpret_cast<const char*>(sqlite3_column_text(statement, column++));
+        std::transform(name.begin(), name.end(), name.begin(), ::tolower);
         reagant_string = reinterpret_cast<const char*>(sqlite3_column_text(statement, column++));
+        std::transform(reagant_string.begin(), reagant_string.end(), reagant_string.begin(), ::tolower);
         product = reinterpret_cast<const char*>(sqlite3_column_text(statement, column++));
+        std::transform(product.begin(), product.end(), product.begin(), ::tolower);
         length = sqlite3_column_int(statement, column++);
         location = reinterpret_cast<const char*>(sqlite3_column_text(statement, column++));
+        std::transform(location.begin(), location.end(), location.begin(), ::tolower);
         tag = reinterpret_cast<const char*>(sqlite3_column_text(statement, column++));
 
         Machine_Type loc_type = stringToMachineType(location);
@@ -542,9 +551,13 @@ std::map<Crafting_Type, std::vector<Reaction>> Database::getRecipes()
         std::string tag;
 
         name = reinterpret_cast<const char*>(sqlite3_column_text(statement, column++));
+        std::transform(name.begin(), name.end(), name.begin(), ::tolower);
         reagant_string = reinterpret_cast<const char*>(sqlite3_column_text(statement, column++));
+        std::transform(reagant_string.begin(), reagant_string.end(), reagant_string.begin(), ::tolower);
         product = reinterpret_cast<const char*>(sqlite3_column_text(statement, column++));
+        std::transform(product.begin(), product.end(), product.begin(), ::tolower);
         location = reinterpret_cast<const char*>(sqlite3_column_text(statement, column++));
+        std::transform(location.begin(), location.end(), location.begin(), ::tolower);
         tag = reinterpret_cast<const char*>(sqlite3_column_text(statement, column++));
 
         Crafting_Type loc_type = stringToCraftingType(location);

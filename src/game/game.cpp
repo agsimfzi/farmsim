@@ -66,22 +66,16 @@ void Game::nextSeason()
 
 void Game::giveItemToPlayer(std::string name, size_t count)
 {
-    Item* i = item_library(name);
-    if (i) {
-        std::shared_ptr<Item> it = std::make_shared<Item>(*i);
-        it->setCount(count);
-        player_inventory.addItem(it);
-    }
+    std::shared_ptr<Item> i = library.item(name);
+    i->setCount(count);
+    player_inventory.addItem(i);
 }
 
 void Game::giveItemToPlayer(size_t uid, size_t count)
 {
-    Item* i = item_library(uid);
-    if (i) {
-        std::shared_ptr<Item> it = std::make_shared<Item>(*i);
-        it->setCount(count);
-        player_inventory.addItem(it);
-    }
+    std::shared_ptr<Item> i = library.item(uid);
+    i->setCount(count);
+    player_inventory.addItem(i);
 }
 
 void Game::update(float deltaTime)
@@ -176,13 +170,12 @@ void Game::releaseLeft()
 
 void Game::clickRight()
 {
-    world.interact(player, player_inventory);
-    // world.setInteracting(true);
+    interact.start();
 }
 
 void Game::releaseRight()
 {
-    // world.setInteracting(false);
+    interact.stop();
 }
 
 void Game::escape()
@@ -195,6 +188,7 @@ void Game::stopInput()
 {
     player.stop();
     use_item.stop();
+    interact.stop();
 }
 
 Game_State Game::getState()
@@ -231,9 +225,9 @@ int Game::playerEnergy()
     return player.getEnergy();
 }
 
-Item_Library& Game::getItemLibrary()
+Library& Game::getLibrary()
 {
-    return item_library;
+    return library;
 }
 
 void Game::tick()

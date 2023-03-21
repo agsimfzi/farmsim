@@ -2,6 +2,8 @@
 
 #include "building.hpp"
 
+#include <item/item_library.hpp>
+
 enum class Machine_Type {
     FURNACE,
     TABLE_SAW,

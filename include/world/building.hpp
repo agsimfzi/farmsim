@@ -7,7 +7,6 @@
 #include <animation/animated_sprite.hpp>
 
 #include <item/item.hpp>
-#include <item/item_library.hpp>
 #include <item/reaction.hpp>
 
 #include "building_data.hpp"

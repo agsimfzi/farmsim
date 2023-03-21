@@ -4,7 +4,7 @@
 
 #include <memory>
 
-#include <item/item_library.hpp>
+#include <item/library.hpp>
 #include <item/player_inventory.hpp>
 #include <item/reaction.hpp>
 
@@ -14,7 +14,7 @@
 class Reaction_Panel : public sf::Drawable {
 public:
     Reaction_Panel() = delete;
-    Reaction_Panel(Reaction& rxn, Item_Library& item_library, sf::Vector2f pos);
+    Reaction_Panel(Reaction& rxn, Library& library, sf::Vector2f pos);
 
     ~Reaction_Panel();
 
@@ -51,7 +51,7 @@ public:
 
     void load(std::vector<Reaction> reactions
             , Player_Inventory& inventory
-            , Item_Library& item_library
+            , Library& library
             , sf::Vector2f pos);
 
     void check(Player_Inventory& inventory);

@@ -11,7 +11,10 @@ class Crop_Library {
 public:
     Crop_Library();
 
-    Crop* get(size_t uid);
+    Crop operator ()(size_t uid)
+    {
+        return *shelf[uid].get();
+    }
 
 private:
     std::map<size_t, std::unique_ptr<Crop>> shelf;

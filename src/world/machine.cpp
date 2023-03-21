@@ -97,7 +97,7 @@ void Machine::tick(Item_Library& item_library)
             reaction_tick++;
             if (reaction_tick >= reactions[current_reaction].length) {
                 if (!product) {
-                    inventory.back().back() = std::make_shared<Item>(*item_library(reactions[current_reaction].product));
+                    inventory.back().back() = item_library(reactions[current_reaction].product);
                 }
                 else {
                     product->setCount(product->count() + count);

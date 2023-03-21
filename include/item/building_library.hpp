@@ -18,17 +18,14 @@
 class Building_Library {
 public:
     Building_Library();
-    std::shared_ptr<Building> operator ()(size_t uid) { return makeBySubtype(uidShelf[uid].get()); }
+    std::shared_ptr<Building> operator ()(size_t uid)
+    {
+        return makeBySubtype(uidShelf[uid].get());
+    }
     std::shared_ptr<Building> operator ()(std::string name)
     {
         std::transform(name.begin(), name.end(), name.begin(), ::tolower);
-        if (stringShelf.contains(name)) {
-            std::cout << "returning " << stringShelf[name]->name << '\n';
-            return makeBySubtype(stringShelf[name].get());
-        }
-
-        std::cout << "FAILED TO FIND BUILDING OF NAME " << name << '\n';
-        return nullptr;
+        return makeBySubtype(stringShelf[name].get());
     }
 
 private:

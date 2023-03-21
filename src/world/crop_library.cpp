@@ -51,11 +51,3 @@ Crop_Library::Crop_Library()
         std::cout << "\tregrows: " << d.m_regrows << '\n';
     }
 }
-
-Crop* Crop_Library::get(size_t uid)
-{
-    if (!shelf.contains(uid)) {
-        std::cout << "FAILED TO FIND CROP " << uid << "!\n";
-    }
-    return shelf[uid].get();
-}

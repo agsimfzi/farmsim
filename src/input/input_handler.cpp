@@ -74,7 +74,7 @@ Input_Handler::Input_Handler(sf::RenderWindow& nwindow, Game& game, UI& ui, Menu
             release = std::bind(&World::stopPickupAll, &game.getWorld());
         }
         else if (action.first == "Open Building") {
-            press = std::bind(&UI::checkBuilding, &ui);
+            press = std::bind(&UI::useBuilding, &ui);
             release = [](){};
         }
 

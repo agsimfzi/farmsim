@@ -11,16 +11,18 @@ class Item_Library {
 public:
     Item_Library();
 
-    Item* item(std::string name);
-    Item* item(size_t uid);
+    std::shared_ptr<Item> operator ()(size_t uid)
+    {
+        return std::make_shared<Item>(*uid_shelf[uid]);
+    }
 
-    Item* operator ()(size_t uid) { return uidShelf[uid].get(); }
-    Item* operator ()(std::string name) { return item(name); }
-
-    std::shared_ptr<Item> shared(size_t uid);
-    std::shared_ptr<Item> shared(std::string name);
+    std::shared_ptr<Item> operator ()(std::string name)
+    {
+        std::transform(name.begin(), name.end(), name.begin(), ::tolower);
+        return std::make_shared<Item>(*string_shelf[name]);
+    }
 
 private:
-    std::map<std::string, std::shared_ptr<Item>> stringShelf;
-    std::map<size_t, std::shared_ptr<Item>> uidShelf;
+    std::map<std::string, std::shared_ptr<Item>> string_shelf;
+    std::map<size_t, std::shared_ptr<Item>> uid_shelf;
 };

@@ -16,8 +16,8 @@
 
 //////////////////////////////////////////////////////////////
 
-World::World(Item_Library& item_library)
-    : item_library { item_library }
+World::World(Library& library)
+    : library { library }
 {
     sf::Vector2i size(16, 16);
     size.x *= chunks.chunk_size.x;
@@ -85,83 +85,8 @@ void World::update(Player_Inventory& player_inventory, Player& player, float del
     checkPickup(player_inventory, player, deltaTime);
     chunks.update();
 
-    /*
-    for (auto& m : machines) {
-        //m->update();
-    }
-    */
-
     for (auto& v : vehicles) {
         v->update();
-    }
-}
-
-void World::interact(Player& player, Player_Inventory& player_inventory)
-{
-    if (active_tile) {
-        sf::Vector2i t = *active_tile;
-        Floor* f = chunks.floor(*active_tile);
-        Floor_Info& info = tile_library[t.x][t.y];
-        std::shared_ptr<Vehicle> pv = player.getVehicle();
-        if (pv) { // CHECK FOR VEHICLE DISMOUNT
-            if (emptyTile(info)
-            && (emptyTile(player.getCoordinates(Tile::tile_size)) || pv->type == Vehicle::BOAT)) {
-                player.setVehicle(nullptr);
-                player.setPosition(f->getPosition());
-                vehicles.push_back(pv);
-                pv = nullptr;
-            }
-        }
-        else { // CHECK FOR VEHICLE MOUNT
-            for (auto v = vehicles.begin(); v != vehicles.end();) {
-                if ((*v) && f->getGlobalBounds().contains((*v)->getPosition())) {
-                    player.setVehicle((*v));
-                    vehicles.erase(v);
-                    return;
-                }
-                else {
-                    v++;
-                }
-            }
-
-            // CHECK FOR MACHINE INTERACTION
-
-            // INHERIT "INTERACTABLE" FROM BOTH OBJECTS
-            // IMPLEMENT AN OPTIONAL CALLBACK
-        }
-        if (f) {
-            std::shared_ptr<Item> i = player_inventory.equippedItem();
-            if (info.building && info.building->type == Building::MACHINE) { // PICKUP PRODUCTS
-                auto m = std::dynamic_pointer_cast<Machine>(info.building);
-                std::shared_ptr<Item> p = m->activeProduct();
-                if (p) {
-                    player_inventory.addItem(p);
-                    m->setProduct(p);
-                }
-            } // END PICKUP PRODUCTS
-            else if (f->planted) { // HARVEST
-                if (!crops[t.x].contains(t.y)) {
-                    std::cout << "FAILED TO FIND CROP AT TILE " << t << '\n';
-                }
-                else {
-                    Crop& crop = crops[t.x][t.y];
-                    if (crop.fullyGrown()) {
-                        std::shared_ptr<Item> i = std::make_shared<Item>(*item_library.item(crops[t.x][t.y].harvestUID()));
-                        i->setCount(crop.getQuantity());
-                        player_inventory.addItem(i);
-                        if (i) {
-                            chunks.addItem(i, player.getCoordinates(Tile::tile_size));
-                        }
-                        if (crop.regrows()) {
-                            crop.harvestRegrowable();
-                        }
-                        else {
-                            removeCrop(t);
-                        }
-                    }
-                }
-            } // END HARVEST
-        }
     }
 }
 
@@ -352,7 +277,7 @@ void World::autotile(sf::Vector2i start, sf::Vector2i end, Floor_Type type)
 
 void World::placeWreckage()
 {
-    std::shared_ptr<Item> axe = std::make_shared<Item>(*item_library("axe"));
+    std::shared_ptr<Item> axe = library.item("axe");
     axe->can_pickup = false;
 
     int distance = 1;
@@ -360,19 +285,19 @@ void World::placeWreckage()
     chunks.addItem(axe, axe_coords);
 
     std::vector<std::shared_ptr<Item>> items;
-    items.push_back(item_library.shared("pickaxe"));
+    items.push_back(library.item("pickaxe"));
     items.back()->setCount(1);
-    items.push_back(item_library.shared("hammer"));
+    items.push_back(library.item("hammer"));
     items.back()->setCount(1);
-    items.push_back(item_library.shared("hoe"));
+    items.push_back(library.item("hoe"));
     items.back()->setCount(1);
-    items.push_back(item_library.shared("watering can"));
+    items.push_back(library.item("watering can"));
     items.back()->setCount(1);
-    items.push_back(item_library.shared(1000)); // carrot seeds
+    items.push_back(library.item(1000)); // carrot seeds
     items.back()->setCount(10);
-    items.push_back(item_library.shared(1001)); // melon seeds
+    items.push_back(library.item(1001)); // melon seeds
     items.back()->setCount(10);
-    items.push_back(item_library.shared(1002)); // cotton seeds
+    items.push_back(library.item(1002)); // cotton seeds
     items.back()->setCount(10);
 
     sf::Vector2i coords;
@@ -383,17 +308,12 @@ void World::placeWreckage()
         do {
             coords = randomNearbyEmptyTile(start_coords, distance);
         } while (coords == axe_coords);
-        std::shared_ptr<Lootable> lootable = std::dynamic_pointer_cast<Lootable>((*building_library)("crate"));
+        std::shared_ptr<Lootable> lootable = std::dynamic_pointer_cast<Lootable>(library.building("crate"));
         lootable->addItem(items[i]);
         tile_library[coords.x][coords.y].building = lootable;
         chunks.addBuilding(tile_library[coords.x][coords.y].building, coords);
         distance += prng::number(0, 2);
     }
-}
-
-Building_Library& World::getBuildingLibrary()
-{
-    return *building_library;
 }
 
 sf::Vector2i World::randomNearbyEmptyTile(sf::Vector2i i, int distance)
@@ -548,11 +468,6 @@ bool World::changeActiveTile(Floor_Type prereq, Floor_Type ntype)
     return change;
 }
 
-void World::setBuildingLibrary(Building_Library* b)
-{
-    building_library = b;
-}
-
 void World::removeCrop(sf::Vector2i i)
 {
     tile_library[i.x][i.y].planted = false;
@@ -582,17 +497,12 @@ void World::tick(sf::Vector2i player_coordinates)
             machines.erase(m);
         }
         else {
-            (*m)->tick(item_library);
+            (*m)->tick(library.items);
             m++;
         }
     }
 
     chunks.check(player_coordinates, season);
-}
-
-void World::setInteracting(bool interacting)
-{
-    this->interacting = interacting;
 }
 
 Floor* World::activeFloor(sf::Vector2i i)

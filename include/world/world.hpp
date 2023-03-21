@@ -8,27 +8,23 @@
 
 #include <entity/player.hpp>
 
-#include <item/building_library.hpp>
-#include <item/item.hpp>
-#include <item/item_library.hpp>
+#include <item/library.hpp>
 #include <item/player_inventory.hpp>
 
 #include "biome.hpp"
 #include "crop.hpp"
-#include "crop_library.hpp"
 #include "chunk.hpp"
 #include "chunk_loader.hpp"
 #include "season.hpp"
 #include "tile.hpp"
 #include "tile_info.hpp"
-#include "vehicle_library.hpp"
 
 /////////////////////////////////////////////////////////////
 /// \brief
 ///
 class World {
 public:
-    World(Item_Library& item_library);
+    World(Library& library);
 
     void reset();
     void makeBiomes();
@@ -45,10 +41,6 @@ public:
     sf::Vector2i* checkMouseTarget(sf::Vector2f mpos, sf::Vector2i playerCoords);
 
     void tick(sf::Vector2i player_coordinates);
-
-    void setInteracting(bool interacting);
-
-    void interact(Player& player, Player_Inventory& inventory);
 
     sf::Vector2i posToCoords(sf::Vector2f pos);
 
@@ -73,8 +65,6 @@ public:
     Building* activeBuilding();
 
     int energyDiff();
-
-    Building_Library& getBuildingLibrary();
 
     void nextSeason(Player& player);
     void killUnseasonableCrops();
@@ -107,23 +97,16 @@ public:
 
     bool changeActiveTile(Floor_Type prereq, Floor_Type ntype);
 
-    void setBuildingLibrary(Building_Library* b);
-
 private:
     Building* active_building{ nullptr };
 
-    Item_Library& item_library;
-    Building_Library* building_library = nullptr;
-    Crop_Library crop_library;
-    //Vehicle_Library vehicle_library;
+    Library& library;
 
     Map_Tile<Floor_Info> tile_library;
     Chunk_Loader chunks { tile_library };
 
     sf::Vector2i world_min;
     sf::Vector2i world_max;
-
-    bool interacting = false;
 
     Map_Tile<Crop> crops;
 
