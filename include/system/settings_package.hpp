@@ -4,8 +4,9 @@
 
 #include <audio/volume_type.hpp>
 
-/////////////////////////////////////////////////////////////
-/// \brief
+/// SETTINGS PACKAGE ///
+///
+/// \brief POD for saving and loading settings
 ///
 struct Settings_Package {
     std::map<Volume_Type, float> volume;

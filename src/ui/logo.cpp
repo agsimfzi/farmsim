@@ -1,10 +1,8 @@
-#include <menu/menu_elements.hpp>
+#include <ui/logo.hpp>
 
 #include <resources/texture_manager.hpp>
 
 #include <util/url.hpp>
-
-//////////////////////////////////////////////////////////////
 
 Logo::Logo(std::string nurl, sf::Vector2f pos, std::string key)
     : url { nurl }
@@ -54,3 +52,4 @@ void Logo::unhighlight()
 {
     highlighted = false;
 }
+

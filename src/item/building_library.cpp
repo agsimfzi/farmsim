@@ -75,8 +75,8 @@ Building_Library::Building_Library()
                 std::cout << "\n\t -> " << r.product << ", length " << r.length << '\n';
             }
 
-            uidShelf[b->uid] = b;
-            stringShelf[b->name] = b;
+            uid_shelf[b->uid] = b;
+            string_shelf[b->name] = b;
         }
     } // item loop
 }

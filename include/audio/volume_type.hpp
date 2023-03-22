@@ -2,8 +2,9 @@
 
 #include <string>
 
-/////////////////////////////////////////////////////////////
-/// \brief
+/// VOLUME TYPE ///
+///
+/// \brief enumerated type for audio settings
 ///
 enum class Volume_Type {
     MUSIC,
@@ -12,6 +13,10 @@ enum class Volume_Type {
     NULL_TYPE
 };
 
+/// volumeTypeToString ///
+///
+/// \brief converts the passed enumerated volume type to a string
+///
 inline std::string volumeTypeToString(Volume_Type t)
 {
     switch (t) {
@@ -26,6 +31,9 @@ inline std::string volumeTypeToString(Volume_Type t)
     }
 }
 
+/// stringToVolumeType ///
+///
+/// \brief converts the passed string to an enumerated volume type
 inline Volume_Type stringToVolumeType(std::string s)
 {
     if (s == "MUSIC") {

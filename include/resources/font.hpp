@@ -1,7 +1,8 @@
 #pragma once
 
-/////////////////////////////////////////////////////////////
-/// \brief
+/// FONT ///
+///
+/// \brief enumerated type to use as keys with the font manager
 ///
 enum class Font {
     MENU,
@@ -9,6 +10,10 @@ enum class Font {
     NULL_FONT
 };
 
+/// fontToString ///
+///
+/// \brief converts passed font enumeration to a string
+///
 inline std::string fontToString(Font f)
 {
     switch (f) {
@@ -21,6 +26,10 @@ inline std::string fontToString(Font f)
     }
 }
 
+/// stringToFont
+///
+/// \brief
+/// converts passed string to an enumerated font
 inline Font stringToFont(std::string s)
 {
     if (s == "MENU") {
@@ -29,6 +38,7 @@ inline Font stringToFont(std::string s)
     else if (s == "UI") {
         return Font::UI;
     }
-    else
+    else {
         return Font::NULL_FONT;
+    }
 }

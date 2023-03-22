@@ -34,6 +34,7 @@ void Biome_Generator::clear()
 
 Map_Tile<Biome>& Biome_Generator::generate()
 {
+// please find a way to split this up.
     auto seed = []() { return prng::number(0u, UINT_MAX); };
     Perlin_Noise perlin_biome(seed());
     Perlin_Noise perlin_biome1(seed());

@@ -50,7 +50,7 @@ public:
 ///
     Vehicle_Data vehicle(Vehicle::Type type);
 
-// libraries are public primarily so machines can access them without a circular dependency
+// libraries are provided to avoid circular dependencies
     Item_Library items; /**< stores item prototypes */
     Building_Library buildings; /**< stores building prototypes */
     Crop_Library crops; /**< stores crop prototypes */

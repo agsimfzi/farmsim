@@ -12,8 +12,11 @@ Energy_Bar::Energy_Bar()
 
 void Energy_Bar::update(float energy)
 {
-    fill.setSize(sf::Vector2f(max_size * energy, height));
-    fill.setFillColor(calculateFillColor(energy));
+    if (energy != last_energy) {
+        last_energy = energy;
+        fill.setSize(sf::Vector2f(max_size * energy, height));
+        fill.setFillColor(calculateFillColor(energy));
+    }
 }
 
 void Energy_Bar::setPosition(sf::Vector2f pos)

@@ -1,5 +1,9 @@
 #pragma once
 
+/// ITEM TYPE ///
+///
+/// \brief enumerated item categories
+///
 enum class Item_Type {
     CRAFTING,
     FOOD,
@@ -14,6 +18,10 @@ enum class Item_Type {
     NULL_TYPE
 };
 
+/// stringToItemType ///
+///
+/// \brief converts passed string to Item_Type
+///
 inline Item_Type stringToItemType(std::string s)
 {
     if (s == "CRAFTING") {

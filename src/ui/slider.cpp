@@ -6,15 +6,15 @@
 
 //////////////////////////////////////////////////////////////
 
-const sf::Vector2f Slider::containerSize = sf::Vector2f(384.f, 48.f);
+const sf::Vector2f Slider::container_size = sf::Vector2f(384.f, 48.f);
 
 const float Slider::offset = 3.f;
 
-const float Slider::scrollFactor = 5.f;
+const float Slider::scroll_factor = 5.f;
 
 Slider::Slider(std::string ntitle)
 {
-    container.setSize(containerSize);
+    container.setSize(container_size);
     container.setFillColor(sf::Color::Transparent);
     container.setOutlineThickness(1);
 
@@ -102,10 +102,10 @@ float Slider::getFill() const
 void Slider::scroll(float delta)
 {
     if (delta < 0) {
-        setFill(getFill() - scrollFactor);
+        setFill(getFill() - scroll_factor);
     }
     else if (delta > 0) {
-        setFill(getFill() + scrollFactor);
+        setFill(getFill() + scroll_factor);
     }
 }
 
@@ -123,16 +123,13 @@ void Slider::update()
 
 bool Slider::unclick()
 {
-    if (changing) {
-        changing = false;
-        return true;
-    }
-    return false;
+    changing = false;
+    return changing;
 }
 
 bool Slider::click()
 {
-    if (!changing && checkMouse()) {
+    if (checkMouse()) {
         changing = true;
     }
     return changing;

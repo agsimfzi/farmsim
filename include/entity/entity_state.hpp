@@ -2,8 +2,8 @@
 
 #include <string>
 
-/////////////////////////////////////////////////////////////
-/// \brief
+/// ENTITY STATE ///
+/// \brief tracks current entity state, for logic and animations
 ///
 enum class Entity_State {
     IDLE,
@@ -13,6 +13,10 @@ enum class Entity_State {
     NULL_STATE
 };
 
+/// entityStateToString ///
+///
+/// \brief converts passed Entity_State to a string for pseudo-reflection
+///
 inline std::string entityStateToString(Entity_State s)
 {
     switch (s) {

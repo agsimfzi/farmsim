@@ -21,12 +21,14 @@ Entity::Entity(Entity_Data& data, sf::Texture& texture)
 
     name = data.name;
     sf::Vector2i size = data.size;
-    sprite = Animated_Sprite(texture, size, data.aCount, data.aThreshold);
+    sprite = Animated_Sprite(texture, size
+                           , data.animation_count
+                           , data.animation_threshold);
 
     bounds_y_offset = data.bounds_y_offset;
 
-    bounds.width = data.bounds_x_size;
-    bounds.height = data.bounds_y_size;
+    bounds.width = data.bounds_size.x;
+    bounds.height = data.bounds_size.y;
 }
 
 sf::Vector2f Entity::getPosition()

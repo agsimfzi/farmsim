@@ -4,6 +4,10 @@
 
 #include "building.hpp"
 
+/// CRAFTING TYPE ///
+///
+/// \brief enumerated crafting station type
+///
 enum class Crafting_Type {
     WORKBENCH,
     CARPENTRY_TABLE,
@@ -14,6 +18,9 @@ enum class Crafting_Type {
     NULL_TYPE
 };
 
+/// stringToCraftingType ///
+///
+/// \brief converts passed string to an enumerated crafting station type
 inline Crafting_Type stringToCraftingType(std::string s) {
     std::transform(s.begin(), s.end(), s.begin(), ::toupper);
     if (s == "WORKBENCH") {
@@ -39,8 +46,20 @@ inline Crafting_Type stringToCraftingType(std::string s) {
     }
 }
 
+/// CRAFTING ///
+///
+/// \brief Building specialization for crafting stations
+///
 class Crafting : public Building {
 public:
+
+/// DEFAULT CONSTRUCTOR ///
+///
     Crafting();
+
+/// FULL CONSTRUCTOR ///
+///
+/// \brief invokes base constructor with animation data
+///
     Crafting(Building_Animation_Data ad);
 };

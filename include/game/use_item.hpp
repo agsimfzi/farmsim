@@ -21,21 +21,21 @@ public:
 ///
     Use_Item(World& world, Player& player, Library& library);
 
-/// UPDATE ///
+/// update ///
 /// \brief Uses the item, if ready.
 ///
 /// \param equipped The player's equipped item.
 ///
     void update(std::shared_ptr<Item> equipped);
 
-/// START ///
+/// start ///
 /// \brief Sets an active flag, uses the item, and initializes the use threshold by item type.
 ///
 /// \param equipped The player's equipped item
 ///
     void start(std::shared_ptr<Item> equipped);
 
-/// STOP ///
+/// stop ///
 /// \brief
 ///
     void stop();
@@ -63,106 +63,106 @@ private:
 
     std::map<Item_Type, std::function<void(std::shared_ptr<Item>)>> use_map; /**< stores use functions by item type */
 
-/// USE ///
+/// use ///
 /// \brief
 ///
 /// \return true if the item is used (depending on type)
 ///
     void use(std::shared_ptr<Item> item);
 
-/// EAT ///
+/// eat ///
 /// \brief Eats one item, restoring player energy.
 ///
 /// \return always false
 ///
     void eat(std::shared_ptr<Item> item);
 
-/// CRAFTING ///
+/// crafting ///
 /// \brief unimplemented
 ///
 /// \return always false
 ///
     void crafting(std::shared_ptr<Item> item);
 
-/// TREASURE ///
+/// treasure ///
 /// \brief unimplemented
 ///
 /// \return always false
 ///
     void treasure(std::shared_ptr<Item> item);
 
-/// SEED ///
+/// seed ///
 /// \brief Plants a crop if in-season and the active tile is tilled.
 ///
 /// \return always false
 ///
     void seed(std::shared_ptr<Item> item);
 
-/// PLANT ///
+/// plant ///
 /// \brief unimplemented
 ///
 /// \return always false
 ///
     void plant(std::shared_ptr<Item> item);
 
-/// BUILDING ///
+/// building ///
 /// \brief Places a building, if the active tile is empty.
 ///
 /// \return always returns false
 ///
     void building(std::shared_ptr<Item> item);
 
-/// VEHICLE ///
+/// vehicle ///
 /// \brief Places a vehicle, if the tile is appropriate for the specific vehicle.
 ///
 /// \return true if used
 ///
     void vehicle(std::shared_ptr<Item> item);
 
-/// RAW MATERIAL ///
+/// raw material ///
 /// \brief Adds the item stack to the moused machine, if it's a valid reagant.
 ///
 /// \return always false
 ///
     void rawMaterial(std::shared_ptr<Item> item);
 
-/// WAND ///
+/// wand ///
 /// \brief unimplemented pending magic mechanic
 ///
 /// \return always false
 ///
     void wand(std::shared_ptr<Item> item);
 
-/// NULL TYPE ///
+/// nullType ///
 /// \brief unimplemented
 ///
 /// \return always false
 ///
     void nullType(std::shared_ptr<Item> item);
 
-/// TOOL ///
+/// tool ///
 /// \brief Uses an item of type Tool.
 ///
 /// \return always false
 ///
     void tool(std::shared_ptr<Item> item);
 
-/// HOE ///
+/// hoe ///
 /// \brief Converts grass to dirt, or dirt to tilled soil.
 ///
     void hoe();
 
-/// WATER ///
+/// water ///
 /// \brief Converts tilled soil to watered soil, or fills the can (if used on water).
 ///
     void water(std::shared_ptr<Item> item);
 
-/// AXE ///
+/// axe ///
 /// \brief Uses the axe, which destroys lootables or damages trees.
 ///
     void axe(std::shared_ptr<Item> item);
 
-/// PICK ///
+/// pick ///
 /// \brief Uses the pickaxe, which reverts tilled soil or damages rocks.
 ///
     void pick(std::shared_ptr<Item> item);

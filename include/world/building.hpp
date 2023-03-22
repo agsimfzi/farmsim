@@ -11,19 +11,30 @@
 
 #include "building_data.hpp"
 
+/// BUILDING ///
+///
+/// \brief abstract base class for structures, such as workbenches, machines, and furniture.
+///
 class Building {
 public:
     Building() = default;
     virtual ~Building() = default;
 
+/// FULL CONSTRUCTOR ///
+///
+/// \brief defines the animated sprite
     Building(Building_Animation_Data ad);
 
     std::string name;
-    size_t uid;
-    int value;
+    size_t uid; /**< unique ID */
+    int value; /**< base monetary value */
 
-    bool destructible = true;
+    bool destructible = true; /**< for hammer use */
 
+/// TYPE ///
+///
+/// \brief enumerated building types. each one corresponds to a base class.
+///
     enum Type {
         CONTAINER,
         CRAFTING,
@@ -34,12 +45,12 @@ public:
         NULL_TYPE
     };
 
-    Animated_Sprite<Building_State> sprite;
+    Animated_Sprite<Building_State> sprite; /**< building sprite */
 
     Type type;
-    std::string subtype;
+    std::string subtype; /**< for typed subclasses e.g. machines */
 
-    std::vector<Reaction> reactions;
+    std::vector<Reaction> reactions; /**< building reactions */
 
     std::vector<std::vector<std::shared_ptr<Item>>>& getInventory();
 

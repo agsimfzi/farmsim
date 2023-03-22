@@ -31,17 +31,17 @@ public:
 ///
     Interact(World& world, Player& player, Player_Inventory& inventory, Library& library);
 
-/// UPDATE ///
+/// update ///
 /// \brief Attempts to perform the interaction.
 ///
     void update();
 
-/// START ///
+/// start ///
 /// \brief Sets active flag to true.
 ///
     void start();
 
-/// STOP ///
+/// stop ///
 /// \brief Sets active flag to false.
 ///
     void stop();
@@ -61,34 +61,34 @@ private:
     std::vector<std::shared_ptr<Machine>>& machines; /**< for adding machines. reference to world-level machines */
     std::vector<std::shared_ptr<Vehicle>>& vehicles; /**< for adding vehicles. reference to world-level vehicles */
 
-/// INTERACT ///
+/// interact ///
 ///
 /// \brief Examines the target tile and performs an appropriate interaction
 ///
     void interact();
 
-/// DISMOUNT ///
+/// dismount ///
 ///
 /// \brief Exits a vehicle, if appropriate
 ///
 /// \return true if the operation was performed
     bool dismount(Floor_Info& info, Floor* floor);
 
-/// MOUNT ///
+/// mount ///
 ///
 /// \brief Enters a vehicle, if appropriate
 ///
 /// \return true if the operation was performed
     bool mount(Floor_Info& info, Floor* floor);
 
-/// MACHINE ///
+/// machine ///
 ///
 /// \brief Retrieves products from machine, if appropriate
 ///
 /// \return true if the operation was performed
     bool machine(Floor_Info& info, Floor* floor);
 
-/// HARVEST ///
+/// harvest ///
 ///
 /// \brief Retrieves products from machine, if appropriate
 ///

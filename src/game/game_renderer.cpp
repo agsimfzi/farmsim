@@ -1,19 +1,18 @@
 #include <game/game_renderer.hpp>
 
+const sf::Vector2i Game_Renderer::render_distance = sf::Vector2i(20, 12);
+
 void Game_Renderer::clear()
 {
     drawables.clear();
-    floor.clear();
-    details.clear();
-    trees.clear();
-    rocks.clear();
-    buildings.clear();
     items.clear();
 }
 
 void Game_Renderer::load(World& world, Player& player)
 {
+    clear();
     drawables.clear();
+    items.clear();
     // 0 floor
     // 1 details
     // 2 world bits
@@ -46,12 +45,12 @@ void Game_Renderer::load(World& world, Player& player)
     }
 
     sf::Vector2i p(player.getCoordinates(Tile::tile_size));
-    sf::Vector2i distance(20, 12);
-    sf::Vector2i start = p - distance;
-    sf::Vector2i end = p + distance;
+    //sf::Vector2i distance(20, 12);
+    render_start = p - render_distance;
+    render_end = p + render_distance;
 
-    for (int y = start.y; y <= end.y; y++) {
-        for (int x = start.x; x <= end.x; x++) {
+    for (int y = render_start.y; y <= render_end.y; y++) {
+        for (int x = render_start.x; x <= render_end.x; x++) {
             sf::Vector2i i(x, y);
             Floor* f = loader.floor(i);
             if (f) {
@@ -83,7 +82,7 @@ void Game_Renderer::load(World& world, Player& player)
             drawables[2].push_back(&player);
         }
 
-        for (int x = end.x; x >= start.x; x--) {
+        for (int x = render_end.x; x >= render_start.x; x--) {
             Tree* t = loader.tree(sf::Vector2i(x, y));
             if (t) {
                 drawables[2].push_back(t);

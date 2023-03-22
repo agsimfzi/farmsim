@@ -2,10 +2,18 @@
 
 #include <string>
 
+/// GAME STATE ///
+///
+/// \brief currently unimplemented
+///
 enum Game_State {
     STANDARD
 };
 
+/// gameStateToString ///
+///
+/// \brief converts the passed Game_State to a string
+///
 inline std::string gameStateToString(Game_State s)
 {
     switch (s) {

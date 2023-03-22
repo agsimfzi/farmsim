@@ -1,7 +1,10 @@
 #pragma once
 
-/////////////////////////////////////////////////////////////
-/// \brief
+/// MAIN STATE ///
+///
+/// \brief main program state for high abstraction delegation
+/// (note: move season change to game state)
+/// (also implement a state machine in shell, performance isnt bad but more margin is always good)
 ///
 enum class Main_State {
     MENU,
@@ -13,8 +16,9 @@ enum class Main_State {
     NULL_STATE
 };
 
-/////////////////////////////////////////////////////////////
-/// \brief
+/// MENU STATE ///
+///
+/// \brief tracks the menu that is currently active, or that will be activated on opening
 ///
 enum class Menu_State {
     MAIN,

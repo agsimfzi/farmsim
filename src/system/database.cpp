@@ -217,10 +217,10 @@ Entity_Data Database::readEntity(sqlite3_stmt* statement)
     //moving_count int
     // boat count int
     // broom count int
-    d.aCount[Entity_State::IDLE] = static_cast<unsigned int>(sqlite3_column_int(statement, column++));
-    d.aCount[Entity_State::MOVING] = static_cast<unsigned int>(sqlite3_column_int(statement, column++));
-    d.aCount[Entity_State::BOATING] = static_cast<unsigned int>(sqlite3_column_int(statement, column++));
-    d.aCount[Entity_State::BROOMING] = static_cast<unsigned int>(sqlite3_column_int(statement, column++));
+    d.animation_count[Entity_State::IDLE] = static_cast<unsigned int>(sqlite3_column_int(statement, column++));
+    d.animation_count[Entity_State::MOVING] = static_cast<unsigned int>(sqlite3_column_int(statement, column++));
+    d.animation_count[Entity_State::BOATING] = static_cast<unsigned int>(sqlite3_column_int(statement, column++));
+    d.animation_count[Entity_State::BROOMING] = static_cast<unsigned int>(sqlite3_column_int(statement, column++));
 
 
     //animation thresholds
@@ -228,17 +228,17 @@ Entity_Data Database::readEntity(sqlite3_stmt* statement)
     //moving_threshold int
     // boat threshold int
     // broom threshold int
-    d.aThreshold[Entity_State::IDLE] = sqlite3_column_int(statement, column++);
-    d.aThreshold[Entity_State::MOVING] = sqlite3_column_int(statement, column++);
-    d.aThreshold[Entity_State::BOATING] = sqlite3_column_int(statement, column++);
-    d.aThreshold[Entity_State::BROOMING] = sqlite3_column_int(statement, column++);
+    d.animation_threshold[Entity_State::IDLE] = sqlite3_column_int(statement, column++);
+    d.animation_threshold[Entity_State::MOVING] = sqlite3_column_int(statement, column++);
+    d.animation_threshold[Entity_State::BOATING] = sqlite3_column_int(statement, column++);
+    d.animation_threshold[Entity_State::BROOMING] = sqlite3_column_int(statement, column++);
 
     //bounds y offset
     //bounds x size
     //bounds y size
     d.bounds_y_offset = static_cast<unsigned int>(sqlite3_column_int(statement, column++));
-    d.bounds_x_size = static_cast<unsigned int>(sqlite3_column_int(statement, column++));
-    d.bounds_y_size = static_cast<unsigned int>(sqlite3_column_int(statement, column++));
+    d.bounds_size.x = static_cast<unsigned int>(sqlite3_column_int(statement, column++));
+    d.bounds_size.y = static_cast<unsigned int>(sqlite3_column_int(statement, column++));
 
     return d;
 }

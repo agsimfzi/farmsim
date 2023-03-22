@@ -5,8 +5,6 @@
 #include <map>
 #include <vector>
 
-#include <ai/ai.hpp>
-
 #include <entity/player.hpp>
 
 #include <item/library.hpp>

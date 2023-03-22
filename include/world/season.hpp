@@ -1,5 +1,9 @@
 #pragma once
 
+/// SEASON ///
+///
+/// \brief enumerated season
+///
 enum class Season {
     SPRING = 0,
     SUMMER = 1,
@@ -7,6 +11,10 @@ enum class Season {
     WINTER = 3
 };
 
+/// seasonToString ///
+///
+/// \brief converts passed enumerated season to a string
+///
 inline std::string seasonToString(Season s)
 {
     switch (s) {

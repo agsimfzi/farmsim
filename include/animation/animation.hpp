@@ -3,8 +3,9 @@
 #include <SFML/Graphics.hpp>
 
 
-/////////////////////////////////////////////////////////////
-/// \brief
+/// ANIMATION ///
+///
+/// \brief data class for animated sprites, storing per-frame texture rects
 ///
 class Animation {
 public:
