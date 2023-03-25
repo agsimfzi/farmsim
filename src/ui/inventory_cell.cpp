@@ -4,7 +4,7 @@
 #include <resources/palette.hpp>
 
 const float Inventory_Cell::size = 64.f;
-const float Inventory_Cell::frameOutlineSize = 2.f;
+const float Inventory_Cell::frame_thickness = 2.f;
 const sf::Color Inventory_Cell::colorUseBar = sf::Color(40, 250, 60);
 
 const sf::Vector2f Inventory_Cell::use_bar_size = sf::Vector2f(64.f, 6.f);
@@ -13,15 +13,15 @@ Inventory_Cell::Inventory_Cell(std::shared_ptr<Item> i)
 {
     setItem(i);
     frame.setOutlineColor(Palette::inventory_outline);
-    frame.setOutlineThickness(frameOutlineSize);
+    frame.setOutlineThickness(frame_thickness);
     frame.setSize(sf::Vector2f(size, size));
     frame.setOrigin(size / 2.f, size / 2.f);
     deactivate();
-    numberText.setFont(Font_Manager::get(Font::UI));
-    numberText.setFillColor(Palette::black);
-    numberText.setOutlineColor(Palette::white);
-    numberText.setOutlineThickness(2.f);
-    numberText.setCharacterSize(character_size);
+    count_text.setFont(Font_Manager::get(Font::UI));
+    count_text.setFillColor(Palette::black);
+    count_text.setOutlineColor(Palette::white);
+    count_text.setOutlineThickness(2.f);
+    count_text.setCharacterSize(character_size);
 
     use_bar.setFillColor(colorUseBar);
 }
@@ -35,7 +35,7 @@ void Inventory_Cell::setPosition(sf::Vector2f pos)
     pos.x -= frame.getSize().x * .45f;
     pos.y += frame.getSize().y / 2.f;
     pos.y -= (character_size + 2);
-    numberText.setPosition(pos);
+    count_text.setPosition(pos);
 
     pos = frame.getPosition() - frame.getOrigin();
     pos.y += size - use_bar_size.y;
@@ -44,13 +44,11 @@ void Inventory_Cell::setPosition(sf::Vector2f pos)
 
 void Inventory_Cell::activate()
 {
-    active = true;
     frame.setFillColor(Palette::inventory_bg_active);
 }
 
 void Inventory_Cell::deactivate()
 {
-    active = false;
     frame.setFillColor(Palette::inventory_bg);
 }
 
@@ -70,7 +68,7 @@ void Inventory_Cell::setItem(std::shared_ptr<Item> i)
         if (item->count() > 1) {
             number = std::to_string(item->count());
         }
-        numberText.setString(number);
+        count_text.setString(number);
 
         usable = false;
 
@@ -94,7 +92,7 @@ void Inventory_Cell::calculateUseBarSize(int percent)
 void Inventory_Cell::clearItem()
 {
     item = nullptr;
-    numberText.setString("");
+    count_text.setString("");
 }
 
 std::shared_ptr<Item> Inventory_Cell::getItem()
@@ -122,13 +120,13 @@ void Inventory_Cell::updateCount()
 {
     if (item) {
         if (item->count() == 1) {
-            numberText.setString("");
+            count_text.setString("");
         }
         else if (item->count() == 0) {
             clearItem();
         }
         else {
-            numberText.setString(std::to_string(item->count()));
+            count_text.setString(std::to_string(item->count()));
         }
     }
 }
@@ -148,7 +146,7 @@ void Inventory_Cell::draw(sf::RenderTarget& target, sf::RenderStates states) con
     target.draw(frame, states);
     if (item) {
         target.draw(*item, states);
-        target.draw(numberText, states);
+        target.draw(count_text, states);
         if (usable) {
             target.draw(use_bar, states);
         }

@@ -13,7 +13,7 @@
 std::function<void(std::shared_ptr<Item>)> Inventory_Interface::drop = [](std::shared_ptr<Item>){};
 size_t Inventory_Interface::equippedIndex = 0;
 
-const float Inventory_Interface::cell_padding = Inventory_Cell::frameOutlineSize;
+const float Inventory_Interface::cell_padding = Inventory_Cell::frame_thickness;
 
 Inventory_Interface::Inventory_Interface(Player_Inventory& inventory, sf::View& view)
     : inventory { inventory }

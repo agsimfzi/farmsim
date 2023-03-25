@@ -14,19 +14,19 @@ Shell::Shell()
 
     window.setKeyRepeatEnabled(false);
 
-    viewGame = sf::View(sf::Vector2f(0.f, 0.f), sf::Vector2f(window.getSize()));
-    viewGame.setCenter(sf::Vector2f(0.f, 0.f));
+    view_game = sf::View(sf::Vector2f(0.f, 0.f), sf::Vector2f(window.getSize()));
+    view_game.setCenter(sf::Vector2f(0.f, 0.f));
 
-    viewUI.setSize(sf::Vector2f(window.getSize()));
-    viewUI.setCenter(sf::Vector2f(window.getSize()) / 2.f);
+    view_ui.setSize(sf::Vector2f(window.getSize()));
+    view_ui.setCenter(sf::Vector2f(window.getSize()) / 2.f);
 
-    viewMenu.setSize(sf::Vector2f(window.getSize()));
-    viewMenu.setCenter(sf::Vector2f(window.getSize()) * 0.5f);
+    view_menu.setSize(sf::Vector2f(window.getSize()));
+    view_menu.setCenter(sf::Vector2f(window.getSize()) * 0.5f);
 
-    fpsText.setFont(Font_Manager::get(Font::MENU));
-    fpsText.setString("0");
-    fpsText.setFillColor(sf::Color::Red);
-    fpsText.setPosition(sf::Vector2f(8.f, 8.f));
+    fps_text.setFont(Font_Manager::get(Font::MENU));
+    fps_text.setString("0");
+    fps_text.setFillColor(sf::Color::Red);
+    fps_text.setPosition(sf::Vector2f(8.f, 8.f));
 
     ui.scale(window);
 
@@ -39,9 +39,6 @@ Shell::Shell()
 
 void Shell::run()
 {
-
-    sf::Clock fpsClock;
-
     while (window.isOpen()) {
         input.handle();
         update();
@@ -55,24 +52,24 @@ void Shell::update()
     sound.update();
     music.update(state_main, state_menu, game.getState());
 
-    frameTime = timestepClock.getElapsedTime().asSeconds();
-    timestepClock.restart();
-    deltaTime = frameTime / targetTime;
+    frame_time = timestep_clock.getElapsedTime().asSeconds();
+    timestep_clock.restart();
+    delta_time = frame_time / target_time;
 
     switch (state_main) {
         case Main_State::MENU:
-            menu->update(fMouse(window, viewUI));
+            menu->update(fMouse(window, view_ui));
             break;
         case Main_State::LOADING:
-            if (loadingScreen.update()) {
+            if (loading_screen.update()) {
                 state_main = Main_State::GAME;
             }
             break;
         case Main_State::GAME:
-            game.update(deltaTime);
+            game.update(delta_time);
             ui.update();
-            fpsText.setString(std::to_string((int)(1.f / fpsClock.getElapsedTime().asSeconds())));
-            fpsClock.restart();
+            fps_text.setString(std::to_string((int)(1.f / fps_clock.getElapsedTime().asSeconds())));
+            fps_clock.restart();
             game.prepRenderer();
             break;
         case Main_State::SEASON_CHANGE:
@@ -88,22 +85,22 @@ void Shell::draw()
     window.clear();
     switch (state_main) {
         case Main_State::MENU:
-            window.setView(viewUI);
+            window.setView(view_ui);
             window.draw(*menu);
             break;
         case Main_State::GAME:
-            window.setView(viewGame);
+            window.setView(view_game);
             window.draw(game);
-            window.setView(viewUI);
-            window.draw(fpsText);
+            window.setView(view_ui);
+            window.draw(fps_text);
             window.draw(ui);
             break;
         case Main_State::LOADING:
-            window.setView(viewUI);
-            window.draw(loadingScreen);
+            window.setView(view_ui);
+            window.draw(loading_screen);
             break;
         case Main_State::SEASON_CHANGE:
-            window.setView(viewUI);
+            window.setView(view_ui);
             window.draw(season_changer);
         default:
             break;
@@ -114,36 +111,7 @@ void Shell::draw()
 void Shell::loadNewLevel()
 {
     state_main = Main_State::LOADING;
-    //TODO pass the game to the loader's constructor and do all this there
-
-    std::vector<std::function<void()>> loads;
-    std::vector<std::string> messages;
-
-    //SKIPPING THE FIRST STEP ALLOWS THE RENDERING TO SWAP OVER TO LOADING BEFORE IT BEGINS
-    loads.push_back(std::function<void()>([] {}));
-    messages.push_back("...");
-
-    loads.push_back(std::bind(&World::reset, &game.getWorld()));
-    messages.push_back("resetting world...");
-
-    loads.push_back(std::bind(&World::makeBiomes, &game.getWorld()));
-    messages.push_back("making biomes...");
-
-    loads.push_back(std::bind(&World::makeGrass, &game.getWorld()));
-    messages.push_back("making grass...");
-
-    loads.push_back(std::bind(&UI::init, &ui));
-    messages.push_back("initializing UI.");
-
-    loads.push_back(std::bind(&Game::startGame, &game));
-    messages.push_back("finalizing world!");
-
-    auto grab = [&]() { window.requestFocus(); };
-
-    loads.push_back(grab);
-    messages.push_back("!");
-
-    loadingScreen.prepare(loads, messages);
+    loading_screen.prepare(&game, &ui, window);
 }
 
 void Shell::alignState()

@@ -32,16 +32,24 @@
 
 #define PI 3.14159265359
 
-/////////////////////////////////////////////////////////////
-/// \brief
+/// randomColor ///
+///
+/// \brief returns a random color
+///
+/// \param alpha Transparency
 ///
 sf::Color randomColor(unsigned int alpha);
 
-/////////////////////////////////////////////////////////////
-/// \brief
+/// randomColor ///
+///
+/// \brief returns a random color of full transparency
 ///
 sf::Color randomColor();
 
+/// normalizeVector ///
+///
+/// \brief creates a unit vector (all values -1, 0, or 1)
+///
 template <typename T>
 sf::Vector2<T> normalizeVector(sf::Vector2<T> v)
 {
@@ -64,15 +72,20 @@ sf::Vector2<T> normalizeVector(sf::Vector2<T> v)
     return sf::Vector2<T>(x, y);
 }
 
-/////////////////////////////////////////////////////////////
-/// \brief
+/// centerText ///
+///
+/// \brief modifies the passed text object to have a centered origin
 ///
 void centerText(sf::Text& text);
 
+/// getViewBounds ///
+///
+/// \brief returns a floatrect of the passed viewport's global bounds
 sf::FloatRect getViewBounds(const sf::View& view);
 
-/////////////////////////////////////////////////////////////
-/// \brief Returns the scalar distance between two 2d vectors.
+/// scalarDistance ///
+///
+/// \brief Returns the scalar distance between two vector2's
 ///
 template <typename T>
 T scalarDistance(const sf::Vector2<T> v, sf::Vector2<T> const w)
@@ -82,6 +95,10 @@ T scalarDistance(const sf::Vector2<T> v, sf::Vector2<T> const w)
     return static_cast<T>(sqrt(pow(a, 2) + pow(b, 2)));
 }
 
+/// scalarDistance ///
+///
+/// \brief Returns the scalar distance between a vector2 and the world origin
+///
 template <typename T>
 T scalarDistance(const sf::Vector2<T> v)
 {
@@ -90,7 +107,8 @@ T scalarDistance(const sf::Vector2<T> v)
     return static_cast<T>(sqrt(pow(a, 2) + pow(b, 2)));
 }
 
-/////////////////////////////////////////////////////////////
+/// vectorDistance ///
+///
 /// \brief Returns the 2d vector distance between two 2d vectors.
 ///
 template <typename T>
@@ -99,6 +117,10 @@ sf::Vector2<T> vectorDistance(const sf::Vector2<T> v, const sf::Vector2<T> w)
     return sf::Vector2<T>(w.x - v.x, w.y - v.y);
 }
 
+/// calculateOrientation ///
+///
+/// \brief finds the angle, in degrees, between the passed vector2 and the world origin
+///
 template <typename T>
 double calculateOrientation(sf::Vector2<T> v)
 {
@@ -114,13 +136,18 @@ double calculateOrientation(sf::Vector2<T> v)
     return t;
 }
 
+/// calculateOrientation ///
+///
+/// \brief finds the angle, in degrees, between two passed vector2's
+///
 template <typename T>
 double calculateOrientation(sf::Vector2<T> v, sf::Vector2<T> w)
 {
     return calculateOrientation(w - v);
 }
 
-////////////////////////////////////////////////////////////
+/// calculateAngle ///
+///
 /// \brief Calculates the angle needed to point an object towards
 /// another object or point.
 ///
@@ -133,7 +160,8 @@ double calculateOrientation(sf::Vector2<T> v, sf::Vector2<T> w)
 ///
 float calculateAngle(sf::Vector2f pos1, sf::Vector2f pos2);
 
-////////////////////////////////////////////////////////////
+/// calculateMoveVector ///
+///
 /// \brief Defines a movement vector based on speed and angle.
 ///
 /// \param \b angle in degrees
@@ -143,19 +171,50 @@ float calculateAngle(sf::Vector2f pos1, sf::Vector2f pos2);
 /// \see calculateOrientation(), calculateDistance(), calculateVelocity()
 ///
 void calculateMoveVector(float angle, float velocity, sf::Vector2f& moveVector);
+
+/// calculateMoveVector ///
+///
+/// \brief returns a movement vector based on start pos, end pos, and speed
+///
+/// \param \b start vector2
+/// \param \b end target vector2
+/// \param \b speed max orthogonal velocity
+///
+/// \see calculateOrientation(), calculateDistance(), calculateVelocity()
+///
 sf::Vector2f calculateMoveVector(sf::Vector2f start, sf::Vector2f end, float speed);
 
+/// roundFloat ///
+///
+/// \brief converts a float to an int, rounding it up
+///
 int roundFloat(float f);
 
+/// makeUppercase ///
+///
+/// \brief transforms a string to all uppercase
+///
 std::string makeUppercase(std::string str);
+
+/// equalStrings ///
+///
+/// \brief case-insensitive string comparison
+///
 bool equalStrings(std::string s1, std::string s2);
 
+/// scalarProduct ///
+///
+/// \brief returns the dot product of two vector2's
+///
 template <typename T>
 T scalarProduct(const sf::Vector2<T>& v, const sf::Vector2<T>& w)
 {
     return ((v.x * w.x) + (v.y * w.y));
 }
 
+/// sign ///
+///
+/// \brief returns -1 for negative numbers, +1 for positive numbers
 template <typename T>
 int sign(T val)
 {

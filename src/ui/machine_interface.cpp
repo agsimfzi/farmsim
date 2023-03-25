@@ -78,7 +78,6 @@ void Machine_Interface::readExtension()
     for (size_t i = 0; i < n; i++) {
         cells[r][i].clearItem();
         cells[r][i].setItem(reagants[i]);
-        //cells[r][i].updateCount();
     }
     r++; // shift to product row
     if (!cells[r].front().getItem()) {
