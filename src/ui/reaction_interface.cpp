@@ -20,11 +20,6 @@ Reaction_Panel::Reaction_Panel(Reaction& rxn, Library& library, sf::Vector2f pos
     product_pos += (frame_size / 2.f);
     product->setPosition(product_pos);
 
-    sf::Vector2f name_pos(pos);
-    name_pos.x += 12.f;
-    name_pos.y += (frame_size.y - (name.getLocalBounds().top + name.getLocalBounds().height)) / 2.f;
-    name.setPosition(name_pos);
-
     for (auto& r : rxn.reagants) {
         reagants.push_back(library.item(r.name));
     }
@@ -71,7 +66,6 @@ std::shared_ptr<Item> Reaction_Panel::getProduct()
 void Reaction_Panel::draw(sf::RenderTarget& target, sf::RenderStates states) const
 {
     target.draw(frame, states);
-    target.draw(name, states);
     target.draw(*product, states);
 }
 
@@ -170,13 +164,11 @@ std::pair<Reaction*, std::shared_ptr<Item>> Reaction_Interface::click(sf::Vector
     assert(n == panels.size());
     for (size_t i = 0; i < n; i++) {
         if (panels[i].contains(mpos) && panels[i].isAvailable()) {
-            //r = &reactions[i];
-            //p = panels[i].getProduct();
-            return std::make_pair(&reactions[i], panels[i].getProduct());
+            r = &reactions[i];
+            p = panels[i].getProduct();
+            break;
         }
     }
-    return std::make_pair(nullptr, nullptr);
-    return std::make_pair<Reaction*, std::shared_ptr<Item>>(nullptr, nullptr);
     return std::make_pair(r, p);
 }
 

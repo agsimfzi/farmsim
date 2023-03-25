@@ -74,20 +74,23 @@ private:
 
 /// loadNewLevel ///
 ///
-/// \brief prepares the loading screen
+/// \brief transitions the state to LOADING and prepares the loading screen
 ///
     void loadNewLevel();
 
+/// alignState ///
+///
+/// \brief reads and implements state changes
+///
     void alignState();
 
-    sf::Clock timestep_clock;
-    float frame_time { 0.f };
-    float target_time { 1.f / 60.f };
-    float delta_time { 0.f };
+    sf::Clock timestep_clock; /**< records frame time */
+    float frame_time { 0.f }; /**< stores frame time */
+    float target_time { 1.f / 60.f }; /**< for calculating delta time */
+    float delta_time { 0.f }; /**< frame time as a factor of target time */
 
-    sf::Clock fps_clock;
-    sf::Text fps_text;
+    sf::Text fps_text; /**< displays frames per second */
 
-    Sound_Interface sound;
-    Music_Interface music;
+    Sound_Interface sound; /**< to deprecate */
+    Music_Interface music; /**< to deprecate */
 };

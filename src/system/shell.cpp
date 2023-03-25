@@ -54,6 +54,7 @@ void Shell::update()
 
     frame_time = timestep_clock.getElapsedTime().asSeconds();
     timestep_clock.restart();
+    fps_text.setString(std::to_string((int)(1.f / frame_time)));
     delta_time = frame_time / target_time;
 
     switch (state_main) {
@@ -68,8 +69,6 @@ void Shell::update()
         case Main_State::GAME:
             game.update(delta_time);
             ui.update();
-            fps_text.setString(std::to_string((int)(1.f / fps_clock.getElapsedTime().asSeconds())));
-            fps_clock.restart();
             game.prepRenderer();
             break;
         case Main_State::SEASON_CHANGE:
