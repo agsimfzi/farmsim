@@ -1,7 +1,5 @@
 #include <input/convert_action_trigger.hpp>
 
-//////////////////////////////////////////////////////////////
-
 std::map<sf::Keyboard::Key, std::string> Convert_Action_Trigger::key_to_string;
 std::map<std::string, sf::Keyboard::Key> Convert_Action_Trigger::string_to_key;
 

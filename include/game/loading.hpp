@@ -26,45 +26,50 @@ public:
 
 /// update ///
 ///
-/// \brief checks the thread and
+/// \brief checks for and responds to thread termination
 ///
+/// \return true if state == END
     bool update();
 
-    bool isFinished();
 
+/// prepare ///
+///
+/// \brief loads functions to be performed when loading a game ///
+///
     void prepare(Game* game, UI* ui, sf::RenderWindow& window);
-    void prepare(std::vector<std::function<void()>> toLoad, std::vector<std::string> nmessages);
 
 private:
-    std::thread thread; /**<  */
+    std::thread thread; /**< for running loading operations concurrently */
 
-    unsigned int step; /**<  */
+    unsigned int step; /**< tracks the vector index of the current task */
 
-    sf::RectangleShape backdrop; /**<  */
-    sf::Text text; /**<  */
+    sf::RectangleShape backdrop; /**< background display */
+    sf::Text text; /**< displays information about the current loading step */
 
 /// STATE ///
 ///
-/// \brief
+/// \brief determines whether or not the game has been loaded, and if main state may be advanced
 ///
     enum State {
-        LOADING,
-        WAITING,
-        END
+        LOADING,    // main state, for performing operations
+        WAITING,    // pseudo end state, for final animation and reading "continue" option
+        END         // indicates the state may be changed
     };
 
-    State state; /**<  */
+    State state; /**< current state */
 
-    bool finished; /**<  */
-
+/// doStep ///
+///
+/// \brief runs the next step in the loading process
+///
     void doStep();
 
-    std::vector<std::packaged_task<void()>> tasks; /**<  */
-    std::vector<std::string> messages; /**<  */
+    std::vector<std::packaged_task<void()>> tasks; /**< loading functions. called in order. */
+    std::vector<std::string> messages; /**< for text display during each operation */
 
-    std::future<void> omen; /**<  */
+    std::future<void> omen; /**< reads results of asynchronous loading tasks */
 
-    void finish();
-
+/// draw ///
+///
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
 };

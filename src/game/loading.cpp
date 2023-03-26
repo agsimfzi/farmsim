@@ -31,14 +31,11 @@ bool Loading_Screen::update()
         }
     }
     else if (state == WAITING) {
-        //check for clicks on the continue button
+        //check for clicks on the continue button and perform the final animation
         state = END;
     }
-    else if (state == END) { //TODO: check for the end of the final animation
-        finish();
-    }
 
-    return finished;
+    return (state == END);
 }
 
 void Loading_Screen::doStep()
@@ -49,7 +46,7 @@ void Loading_Screen::doStep()
         text.setString(messages[step]);
     }
     else {
-        state = END;
+        state = WAITING;
     }
 
     step++;
@@ -63,6 +60,9 @@ void Loading_Screen::draw(sf::RenderTarget& target, sf::RenderStates states) con
 
 void Loading_Screen::prepare(Game* game, UI* ui, sf::RenderWindow& window)
 {
+    tasks.clear();
+    messages.clear();
+
     //SKIPPING THE FIRST STEP ALLOWS THE RENDERING TO SWAP OVER TO LOADING BEFORE IT BEGINS
     tasks.push_back(std::packaged_task<void()>([](){}));//std::function<void()>([] {}));
     messages.push_back("...");
@@ -89,13 +89,5 @@ void Loading_Screen::prepare(Game* game, UI* ui, sf::RenderWindow& window)
     messages.push_back("!");
 
     step = 0;
-    finished = false;
     doStep();
-}
-
-void Loading_Screen::finish()
-{
-    tasks.clear();
-    messages.clear();
-    finished = true;
 }

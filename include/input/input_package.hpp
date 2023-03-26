@@ -7,20 +7,38 @@
 
 #include "mouse_event.hpp"
 
-/////////////////////////////////////////////////////////////
-/// \brief
+/// INPUT PACKAGE ///
+///
+/// \brief Contains a complete set of input targets
 ///
 struct Input_Package {
-    Input_Package();
 
-    //keyPressed map contains a name string for the settings menu key mapper
-    std::unordered_map<sf::Keyboard::Key, std::pair<std::string, std::function<void()>>> keyPressed;
-    std::map<sf::Keyboard::Key, std::function<void()>> keyReleased;
-    std::unordered_map<Mouse_Event, std::pair<std::string, std::function<void()>>> mouse;
-    std::function<void(float)> scroll;
-    std::function<void()> focus_lost;
+/// DEFAULT CONSTRUCTOR ///
+///
+    Input_Package()
+    {
+        clear();
+    }
 
-    std::function<void(sf::Keyboard::Key)> special;
+    std::unordered_map<sf::Keyboard::Key, std::pair<std::string, std::function<void()>>> keyPressed; /**< key pressed targets. string is included for settings menu input mapper */
+    std::map<sf::Keyboard::Key, std::function<void()>> keyReleased; /**< key release targets */
+    std::unordered_map<Mouse_Event, std::pair<std::string, std::function<void()>>> mouse; /**< mouse event targets */
+    std::function<void(float)> scroll; /**< mousewheel scroll target */
+    std::function<void()> focus_lost; /**< triggers when window focus is lost */
 
-    void clear();
+    std::function<void(sf::Keyboard::Key)> special; /**< for input mapper */
+
+/// clear ///
+///
+/// \brief empties the maps and initializes lambdas
+///
+    void clear()
+    {
+        keyPressed.clear();
+        keyReleased.clear();
+        mouse.clear();
+
+        scroll = [](float) { return; };
+        focus_lost = [](){};
+    }
 };

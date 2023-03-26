@@ -2,31 +2,14 @@
 
 #include <system/database.hpp>
 
-//////////////////////////////////////////////////////////////
-
-Input_Package::Input_Package()
-{
-    clear();
-}
-
-void Input_Package::clear()
-{
-    keyPressed.clear();
-    keyReleased.clear();
-    mouse.clear();
-
-    scroll = [](float) { return; };
-    focus_lost = [](){};
-}
-
 Input_Handler::Input_Handler(sf::RenderWindow& nwindow, Game& game, UI& ui, Menu_Package menu_package, Season_Changer& season_changer)
     : window { nwindow }
 {
     Player* player = &game.getPlayer();
 
-    /////////////////////////////////////////////////////////////
-    //GAME AND UI INPUTS
-    //
+/////////////////////////////////////////////////////////////
+// GAME AND UI INPUTS
+//
     Input_Package& p_g = context[Main_State::GAME];
 
     p_g.keyReleased[sf::Keyboard::Escape] = [&]()
@@ -131,10 +114,9 @@ Input_Handler::Input_Handler(sf::RenderWindow& nwindow, Game& game, UI& ui, Menu
 
     // some event also should end interaction
 
-    /////////////////////////////////////////////////////////////
-    //MENU INPUTS
-    //
-
+/////////////////////////////////////////////////////////////
+//MENU INPUTS
+//
     std::map<Menu_State, Menu*> menus = {
         { Menu_State::MAIN, menu_package.m_main },
         { Menu_State::PAUSE, menu_package.m_pause },

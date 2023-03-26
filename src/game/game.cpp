@@ -8,6 +8,8 @@
 
 //////////////////////////////////////////////////////////////
 
+const float Game::tick_threshold = 0.1f;
+
 Game::Game(sf::View& nview)
     : view { nview }
 {
@@ -78,9 +80,9 @@ void Game::giveItemToPlayer(size_t uid, size_t count)
     player_inventory.addItem(i);
 }
 
-void Game::update(float deltaTime)
+void Game::update(float delta_time)
 {
-    if (tick_clock.getElapsedTime().asSeconds() >= 0.1f) {
+    if (tick_clock.getElapsedTime().asSeconds() >= tick_threshold) {
         tick_clock.restart();
         tick();
     }
@@ -119,10 +121,10 @@ void Game::update(float deltaTime)
         default:
             break;
     }
-    view.move(player.move(local_blocks, deltaTime));
+    view.move(player.move(local_blocks, delta_time));
 
     player_inventory.update();
-    world.update(player_inventory, player, deltaTime);
+    world.update(player_inventory, player, delta_time);
 
     view.setCenter(player.getPosition());
 
@@ -140,10 +142,6 @@ void Game::prepRenderer()
 Player& Game::getPlayer()
 {
     return player;
-}
-
-void Game::enter()
-{
 }
 
 World& Game::getWorld()
@@ -181,7 +179,7 @@ void Game::releaseRight()
 void Game::escape()
 {
     newMain(Main_State::MENU);
-    player.stop();
+    stopInput();
 }
 
 void Game::stopInput()
@@ -203,6 +201,7 @@ Player_Inventory& Game::getInventory()
 
 Entity* Game::mousedEntity(sf::Vector2f mpos)
 {
+    // check for NPCs BEFORE the player
     if (player.getSprite().getGlobalBounds().contains(mpos)) {
         return &player;
     }
