@@ -29,3 +29,8 @@ Vehicle_Data Library::vehicle(Vehicle::Type type)
 {
     return vehicles(type);
 }
+
+Detail Library::detail(std::string name)
+{
+    return details(name);
+}

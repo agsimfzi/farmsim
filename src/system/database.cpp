@@ -438,29 +438,47 @@ std::vector<Crop_Data> Database::getCropPrototypes()
     return crops;
 }
 
-std::vector<Rock_Data> Database::getRockData()
+std::vector<Detail_Data> Database::getDetails()
 {
-    std::vector<Rock_Data> data;
+    std::vector<Detail_Data> data;
 
     open();
 
     sqlite3_stmt* statement;
 
-    std::string sql = "SELECT * FROM 'ROCKS'";
+    std::string sql = "SELECT * FROM 'DETAILS'";
 
     rc = sqlite3_prepare_v2(db, sql.c_str(), sql.length(), &statement, NULL);
 
     while ((rc = sqlite3_step(statement)) == SQLITE_ROW) {
         int column = 0;
 
-        Rock_Data d;
+        Detail_Data d;
+
+        // name
+        // type
+        // product
+        // quantity_min
+        // quantity_max
+        // texture_size_x
+        // texture_size_y
+        // texture_pos_x
+        // texture_pos_y
+        // health
 
         d.name = reinterpret_cast<const char*>(sqlite3_column_text(statement, column++));
         std::transform(d.name.begin(), d.name.end(), d.name.begin(), ::tolower);
-        d.m_product = reinterpret_cast<const char*>(sqlite3_column_text(statement, column++));
-        std::transform(d.m_product.begin(), d.m_product.end(), d.m_product.begin(), ::tolower);
+        d.type_string = reinterpret_cast<const char*>(sqlite3_column_text(statement, column++));
+        d.product = reinterpret_cast<const char*>(sqlite3_column_text(statement, column++));
+        std::transform(d.product.begin(), d.product.end(), d.product.begin(), ::tolower);
         d.quantity_min = sqlite3_column_int(statement, column++);
         d.quantity_max = sqlite3_column_int(statement, column++);
+        d.texture_rect.width = sqlite3_column_int(statement, column++);
+        d.texture_rect.height = sqlite3_column_int(statement, column++);
+        d.texture_rect.left = sqlite3_column_int(statement, column++);
+        d.texture_rect.top = sqlite3_column_int(statement, column++);
+        d.max_health = sqlite3_column_int(statement, column++);
+        d.health = d.max_health;
 
         data.push_back(d);
     }

@@ -4,6 +4,7 @@
 #include "item_library.hpp"
 
 #include <world/crop_library.hpp>
+#include <world/detail_library.hpp>
 #include <world/vehicle_library.hpp>
 
 /// LIBRARY ///
@@ -50,9 +51,17 @@ public:
 ///
     Vehicle_Data vehicle(Vehicle::Type type);
 
-// libraries are provided to avoid circular dependencies
+/// DETAIL ///
+///
+/// \brief returns a Detail object
+///
+    Detail detail(std::string name);
+
+// libraries are made accessible to avoid circular dependencies
     Item_Library items; /**< stores item prototypes */
     Building_Library buildings; /**< stores building prototypes */
     Crop_Library crops; /**< stores crop prototypes */
     Vehicle_Library vehicles; /**< stores vehicle data */
+
+    Detail_Library details; /**< stores detail prototypes */
 };

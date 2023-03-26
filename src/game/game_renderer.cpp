@@ -1,5 +1,7 @@
 #include <game/game_renderer.hpp>
 
+#include <util/vector2_stream.hpp>
+
 const sf::Vector2i Game_Renderer::render_distance = sf::Vector2i(20, 12);
 
 void Game_Renderer::clear()
@@ -32,7 +34,7 @@ void Game_Renderer::load(World& world, Player& player)
 
 
     for (const auto& v : vehicles) {
-        drawables[1].push_back(v.get());
+        drawables[2].push_back(v.get());
     }
 
     for (auto& i : items) {
@@ -44,7 +46,7 @@ void Game_Renderer::load(World& world, Player& player)
         drawables[3].push_back(&player);
     }
 
-    sf::Vector2i p(player.getCoordinates(Tile::tile_size));
+    sf::Vector2i p(player.getCoordinates(tile_size));
     //sf::Vector2i distance(20, 12);
     render_start = p - render_distance;
     render_end = p + render_distance;
@@ -52,27 +54,28 @@ void Game_Renderer::load(World& world, Player& player)
     for (int y = render_start.y; y <= render_end.y; y++) {
         for (int x = render_start.x; x <= render_end.x; x++) {
             sf::Vector2i i(x, y);
-            Floor* f = loader.floor(i);
+            sf::Sprite* f = loader.floor(i);
             if (f) {
                 drawables[0].push_back(f);
             }
-            Detail* d = loader.detail(i);
+            else {
+                std::cout << "failed to find floor sprite at " << i << "!\n";
+            }
+            sf::Sprite* d = loader.detail(i);
             if (d) {
-                drawables[0].push_back(d);
+                int index = 1;
+                if (world.getTileLibrary()[x][y].detail->getType() == Detail::TREE) {
+                    index = 2;
+                }
+                drawables[index].push_back(d);
             }
 
-            sf::Sprite* r = loader.rock(i);
-            if (r) {
-                drawables[2].push_back(r);
+            std::shared_ptr<Building> b = loader.building(i);
+            if (b) {
+                drawables[2].push_back(&b->sprite);
             }
-            else {
-                std::shared_ptr<Building> b = loader.building(i);
-                if (b) {
-                    drawables[2].push_back(&b->sprite);
-                }
-                else if (crops.contains(x) && crops[x].contains(y)) {
-                    drawables[2].push_back(&crops[x][y]);
-                }
+            else if (crops.contains(x) && crops[x].contains(y)) {
+                drawables[2].push_back(&crops[x][y]);
             }
 
         }
@@ -80,13 +83,6 @@ void Game_Renderer::load(World& world, Player& player)
         if (!flying && y == p.y) {
             flying = true;
             drawables[2].push_back(&player);
-        }
-
-        for (int x = render_end.x; x >= render_start.x; x--) {
-            Tree* t = loader.tree(sf::Vector2i(x, y));
-            if (t) {
-                drawables[2].push_back(t);
-            }
         }
     }
 }

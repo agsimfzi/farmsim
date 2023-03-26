@@ -7,11 +7,7 @@
 #include <item/item.hpp>
 
 #include "biome.hpp"
-#include "rock.hpp"
 #include "tile.hpp"
-#include "tree.hpp"
-
-#include "season.hpp"
 
 /// CHUNK ///
 ///
@@ -25,7 +21,7 @@ public:
 ///
 /// \brief reads the passed tiles into a new chunk
 ///
-    Chunk(sf::Vector2i start, sf::Vector2i size, Map_Tile<Floor_Info>& info, Season s);
+    Chunk(sf::Vector2i start, sf::Vector2i size, Map_Tile<Tile_Info>& info);
 
 /// update ///
 ///
@@ -47,27 +43,15 @@ public:
 
 /// getFloor ///
 ///
-/// \brief returns a pointer to the indexed floor
+/// \brief returns a pointer to the indexed floor sprite
 ///
-    Floor* getFloor(sf::Vector2i i);
+    sf::Sprite* getFloor(sf::Vector2i i);
 
-/// getDetail ///
+/// detail ///
 ///
-/// \brief returns a pointer to the indexed detail
+/// \brief returns a pointer to the indexed detail sprite
 ///
-    Detail* getDetail(sf::Vector2i i);
-
-/// getTree ///
-///
-/// \brief returns a pointer to the indexed tree (to deprecate)
-///
-    Tree* getTree(sf::Vector2i i);
-
-/// getRock ///
-///
-/// \brief returns a pointer to the indexed rock sprite (to deprecate, but the sprite-only behavior is good)
-///
-    sf::Sprite* getRock(sf::Vector2i i);
+    sf::Sprite* detail(sf::Vector2i i);
 
 /// getBuilding ///
 ///
@@ -80,18 +64,6 @@ public:
 /// \brief removes the indexed detail
 ///
     void eraseDetail(sf::Vector2i i);
-
-/// eraseTree ///
-///
-/// \brief removes the indexed tree
-///
-    void eraseTree(sf::Vector2i i);
-
-/// eraseRock ///
-///
-/// \brief removes the indexed rock
-///
-    void eraseRock(sf::Vector2i i);
 
 /// eraseBuilding ///
 ///
@@ -119,29 +91,22 @@ public:
     const sf::Vector2i start; /**< lowest tile index */
     const sf::Vector2i end; /**< highest tile index */
 
+/// readTile ///
+///
+/// \brief reads floor/detail sprites, and buildings
+    void readTile(Tile_Info& info);
+
 /// getFloor ///
 ///
 /// \brief returns all chunk floor tiles
 ///
-    Map_Tile<std::shared_ptr<Floor>>& getFloor();
+    Map_Tile<sf::Sprite>& getFloorMap();
 
 /// getDetails ///
 ///
 /// \brief returns all chunk details
 ///
-    Map_Tile<std::shared_ptr<Detail>>& getDetails();
-
-/// getTrees ///
-///
-/// \brief return all chunk trees (to deprecate)
-///
-    Map_Tile<std::shared_ptr<Tree>>& getTrees();
-
-/// getRocks ///
-///
-/// \brief return all chunk rock sprites (to deprecate, but keep sprite-only behavior)
-///
-    Map_Tile<sf::Sprite>& getRocks();
+    Map_Tile<sf::Sprite>& getDetails();
 
 /// getBuildings ///
 ///
@@ -158,10 +123,8 @@ private:
     sf::FloatRect f_bounds; /**< world position chunk boundaries */
     sf::IntRect i_bounds;/**< coordinate boundaries */
     sf::RectangleShape frame; /**< boundary frame around all tiles */
-    Map_Tile<std::shared_ptr<Floor>> floor; /**< tiles */
-    Map_Tile<std::shared_ptr<Detail>> details; /**< tile details */
-    Map_Tile<std::shared_ptr<Tree>> trees; /**< trees (to become part of details) */
-    Map_Tile<sf::Sprite> rocks; /**< rocks (to become part of details */
+    Map_Tile<sf::Sprite> floor; /**< tiles */
+    Map_Tile<sf::Sprite> details; /**< tile details */
     Map_Tile<std::shared_ptr<Building>> buildings; /**< buildings */
     std::vector<std::shared_ptr<Item>> items; /**< dropped or otherwise loose items */
 };

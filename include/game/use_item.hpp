@@ -57,7 +57,7 @@ private:
 
     Library& library; /**< store prototypes for items, buildings, crops, and vehicles. */
 
-    Map_Tile<Floor_Info>& tile_library; /**< stores tile information. reference to the world-level tile library */
+    Map_Tile<Tile_Info>& tile_library; /**< stores tile information. reference to the world-level tile library */
     std::vector<std::shared_ptr<Machine>>& machines; /**< for adding machines. reference to world-level machines */
     std::vector<std::shared_ptr<Vehicle>>& vehicles; /**< for adding vehicles. reference to world-level vehicles */
 

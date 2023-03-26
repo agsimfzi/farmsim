@@ -5,7 +5,7 @@
 Player_Target::Player_Target()
 {
     float stroke_width = 4.f;
-    frame.setSize(sf::Vector2f(Tile::tile_size - stroke_width, Tile::tile_size - stroke_width));
+    frame.setSize(sf::Vector2f(tile_size - stroke_width, tile_size - stroke_width));
     frame.setOrigin(frame.getSize() / 2.f);
     frame.setFillColor(sf::Color::Transparent);
     frame.setOutlineThickness(stroke_width);

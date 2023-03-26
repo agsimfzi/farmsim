@@ -5,6 +5,7 @@
 #include <SFML/Graphics.hpp>
 
 #include <map>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -30,8 +31,7 @@
 #include <world/crafting.hpp>
 #include <world/machine.hpp>
 #include <world/crop_data.hpp>
-#include <world/rock_data.hpp>
-#include <world/tile.hpp>
+#include <world/detail.hpp>
 #include <world/vehicle_data.hpp>
 
 #include "settings_package.hpp"
@@ -60,7 +60,7 @@ public:
 
     static std::vector<Crop_Data> getCropPrototypes();
 
-    static std::vector<Rock_Data> getRockData();
+    static std::vector<Detail_Data> getDetails();
 
     static std::map<Machine_Type, std::vector<Reaction>> getReactions();
 

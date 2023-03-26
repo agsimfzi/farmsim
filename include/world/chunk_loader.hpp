@@ -8,7 +8,7 @@
 
 #include "chunk.hpp"
 #include "direction.hpp"
-#include "tile_info.hpp"
+#include "tile.hpp"
 
 /// CHUNK LOADER ///
 ///
@@ -22,7 +22,7 @@ public:
 ///
 /// \brief loads tile map reference
 ///
-    Chunk_Loader(Map_Tile<Floor_Info>& info);
+    Chunk_Loader(Map_Tile<Tile_Info>& info);
 
 /// load ///
 ///
@@ -30,13 +30,13 @@ public:
 ///
 /// \param current season, used to select proper tree sprites
 ///
-    void load(Season s);
+    void load();
 
 /// check ///
 ///
 /// \brief reloads chunks if the player is OOB from the center chunk
 ///
-    void check(sf::Vector2i player_coordinates, Season s);
+    void check(sf::Vector2i player_coordinates);
 
 /// getChunks ///
 ///
@@ -88,25 +88,18 @@ public:
 ///
 /// \brief returns a pointer to the floor tile at the passed coordinates
 ///
-    Floor* floor(sf::Vector2i i);
+    sf::Sprite* floor(sf::Vector2i i);
 
 /// detail ///
 ///
 /// \brief returns a pointer to the detail, if any, at the passed coordinates
 ///
-    Detail* detail(sf::Vector2i i);
+    sf::Sprite* detail(sf::Vector2i i);
 
-/// tree ///
+/// updateTile ///
 ///
-/// \brief returns a pointer to the tree, if any, at the passed coordinates
-///
-    Tree* tree(sf::Vector2i i);
-
-/// rock ///
-///
-/// \brief returns a pointer to the rock sprite, if any, at the passed coordinates
-///
-    sf::Sprite* rock(sf::Vector2i i);
+/// \brief reloads passed tile
+    void updateTile(Tile_Info& info);
 
 /// building ///
 ///
@@ -166,7 +159,7 @@ private:
     sf::Vector2i current{ 0, 0 }; /**< chunk which holds the player */
     Map_Tile<std::unique_ptr<Chunk>> chunks; /**< all chunks */
 
-    Map_Tile<Floor_Info>& info; /**< reference to world tile map */
+    Map_Tile<Tile_Info>& info; /**< reference to world tile map */
 
 /// validChunkIndex ///
 ///

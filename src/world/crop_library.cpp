@@ -4,7 +4,7 @@
 
 #include <system/database.hpp>
 
-#include <world/tile.hpp>
+#include <world/tile_size.hpp>
 
 #include <util/vector2_stream.hpp>
 
@@ -31,7 +31,7 @@ Crop_Library::Crop_Library()
         sprite.setTextureRect(sf::IntRect(pos, size));
         sf::Vector2f origin;
         origin.x = size.x / 2;
-        origin.y = size.y - (Tile::tile_size / 2.f);
+        origin.y = size.y - (tile_size / 2.f);
         sprite.setOrigin(origin);
         c.setSprite(sprite);
 

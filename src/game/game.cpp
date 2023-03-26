@@ -89,13 +89,13 @@ void Game::update(float delta_time)
 
     player.update();
     std::vector<sf::FloatRect> local_blocks;
-    std::vector<std::pair<Floor_Info, sf::FloatRect>> local_tiles;
+    std::vector<std::pair<Tile_Info, sf::FloatRect>> local_tiles;
     size_t n;
     Vehicle::Type v = Vehicle::NULL_TYPE;
     if (player.getVehicle()) {
         v = player.getVehicle()->type;
     }
-    sf::Vector2i c = player.getCoordinates(Tile::tile_size);
+    sf::Vector2i c = player.getCoordinates(tile_size);
     switch (v) {
         case Vehicle::NULL_TYPE:
             local_blocks = world.getLocalImpassableTiles(c);
@@ -232,7 +232,7 @@ Library& Game::getLibrary()
 void Game::tick()
 {
     player.tick();
-    world.tick(player.getCoordinates(Tile::tile_size));
+    world.tick(player.getCoordinates(tile_size));
 }
 
 void Game::draw(sf::RenderTarget& target, sf::RenderStates states) const

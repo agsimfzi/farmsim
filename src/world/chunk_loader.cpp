@@ -3,11 +3,11 @@
 #include <util/primordial.hpp>
 
 
-Chunk_Loader::Chunk_Loader(Map_Tile<Floor_Info>& info)
+Chunk_Loader::Chunk_Loader(Map_Tile<Tile_Info>& info)
     : info { info }
 {}
 
-void Chunk_Loader::load(Season s)
+void Chunk_Loader::load()
 {
     for (int x = -1; x <= 1; x++) {
         for (int y = -1; y <= 1; y++) {
@@ -19,13 +19,13 @@ void Chunk_Loader::load(Season s)
                 start.x += world_min.x;
                 start.y *= chunk_size.y;
                 start.y += world_min.y;
-                chunks[i.x][i.y] = std::make_unique<Chunk>(start, chunk_size, info, s);
+                chunks[i.x][i.y] = std::make_unique<Chunk>(start, chunk_size, info);
             }
         }
     }
 }
 
-void Chunk_Loader::check(sf::Vector2i player_coordinates, Season s)
+void Chunk_Loader::check(sf::Vector2i player_coordinates)
 {
     if (!validChunkIndex(current) || !chunks[current.x][current.y]->contains(player_coordinates)) {
         sf::Vector2i new_current = findChunk(player_coordinates);
@@ -46,7 +46,7 @@ void Chunk_Loader::check(sf::Vector2i player_coordinates, Season s)
 
         current = new_current;
 
-        load(s);
+        load();
     }
 }
 
@@ -65,7 +65,7 @@ sf::Vector2i Chunk_Loader::findChunk(sf::Vector2i coords)
 
 sf::Vector2i Chunk_Loader::findChunk(sf::Vector2f pos)
 {
-    return findChunk(sf::Vector2i(pos / Tile::tile_size));
+    return findChunk(sf::Vector2i(pos / tile_size));
 }
 
 Chunk* Chunk_Loader::chunk(sf::Vector2i i)
@@ -103,44 +103,32 @@ void Chunk_Loader::clear()
     current = sf::Vector2i(0, 0);
 }
 
-Floor* Chunk_Loader::floor(sf::Vector2i i)
+sf::Sprite* Chunk_Loader::floor(sf::Vector2i i)
 {
-    Floor* t = nullptr;
+    sf::Sprite* f = nullptr;
     sf::Vector2i c = findChunk(i);
     if (validChunkIndex(c)) {
-        t = chunks[c.x][c.y]->getFloor(i);
+        f = chunks[c.x][c.y]->getFloor(i);
     }
-    return t;
+    return f;
 }
 
-Detail* Chunk_Loader::detail(sf::Vector2i i)
+sf::Sprite* Chunk_Loader::detail(sf::Vector2i i)
 {
-    Detail* t = nullptr;
+    sf::Sprite* d = nullptr;
     sf::Vector2i c = findChunk(i);
     if (validChunkIndex(c)) {
-        t = chunks[c.x][c.y]->getDetail(i);
+        d = chunks[c.x][c.y]->detail(i);
     }
-    return t;
+    return d;
 }
 
-Tree* Chunk_Loader::tree(sf::Vector2i i)
+void Chunk_Loader::updateTile(Tile_Info& info)
 {
-    Tree* t = nullptr;
-    sf::Vector2i c = findChunk(i);
+    sf::Vector2i c = findChunk(info.coordinates);
     if (validChunkIndex(c)) {
-        t = chunks[c.x][c.y]->getTree(i);
+        chunks[c.x][c.y]->readTile(info);
     }
-    return t;
-}
-
-sf::Sprite* Chunk_Loader::rock(sf::Vector2i i)
-{
-    sf::Sprite* r = nullptr;
-    sf::Vector2i c = findChunk(i);
-    if (validChunkIndex(c)) {
-        r = chunks[c.x][c.y]->getRock(i);
-    }
-    return r;
 }
 
 std::shared_ptr<Building> Chunk_Loader::building(sf::Vector2i i)
@@ -158,22 +146,6 @@ void Chunk_Loader::eraseDetail(sf::Vector2i i)
     sf::Vector2i c = findChunk(i);
     if (validChunkIndex(c)) {
         chunks[c.x][c.y]->eraseDetail(i);
-    }
-}
-
-void Chunk_Loader::eraseTree(sf::Vector2i i)
-{
-    sf::Vector2i c = findChunk(i);
-    if (validChunkIndex(c)) {
-        chunks[c.x][c.y]->eraseTree(i);
-    }
-}
-
-void Chunk_Loader::eraseRock(sf::Vector2i i)
-{
-    sf::Vector2i c = findChunk(i);
-    if (validChunkIndex(c)) {
-        chunks[c.x][c.y]->eraseRock(i);
     }
 }
 

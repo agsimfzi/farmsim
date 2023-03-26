@@ -17,7 +17,6 @@
 #include "chunk_loader.hpp"
 #include "season.hpp"
 #include "tile.hpp"
-#include "tile_info.hpp"
 
 /////////////////////////////////////////////////////////////
 /// \brief
@@ -34,7 +33,7 @@ public:
     Map_Tile<Crop>& getCrops();
 
     std::vector<sf::FloatRect> getLocalImpassableTiles(sf::Vector2i p);
-    std::vector<std::pair<Floor_Info, sf::FloatRect>> getLocalTiles(sf::Vector2i p);
+    std::vector<std::pair<Tile_Info, sf::FloatRect>> getLocalTiles(sf::Vector2i p);
 
     void update(Player_Inventory& inventory, Player& player, float deltaTime);
 
@@ -47,9 +46,7 @@ public:
     sf::Vector2i worldMin();
     sf::Vector2i worldMax();
 
-    Map_Tile<Floor_Info>& getTileLibrary();
-
-    Floor* activeFloor(sf::Vector2i i);
+    Map_Tile<Tile_Info>& getTileLibrary();
 
     void checkPickup(Player_Inventory& inventory, Player& player, float deltaTime);
 
@@ -79,19 +76,16 @@ public:
     std::vector<std::shared_ptr<Machine>>& getMachines();
     std::vector<std::shared_ptr<Vehicle>>& getVehicles();
 
-    void tileToLibrary(sf::Vector2i i);
-    void tileToLibrary(Floor* f);
-
     bool emptyTile(sf::Vector2i i);
-    bool emptyTile(Floor_Info& info);
+    bool emptyTile(Tile_Info& info);
 
     bool buildableTile(sf::Vector2i i);
     bool plantableTile(sf::Vector2i i);
     bool passableTile(sf::Vector2i i);
 
-    bool buildableTile(Floor_Info& info);
-    bool plantableTile(Floor_Info& info);
-    bool passableTile(Floor_Info& info);
+    bool buildableTile(Tile_Info& info);
+    bool plantableTile(Tile_Info& info);
+    bool passableTile(Tile_Info& info);
 
     void autotile(sf::Vector2i start, sf::Vector2i end, Floor_Type type);
 
@@ -102,7 +96,7 @@ private:
 
     Library& library;
 
-    Map_Tile<Floor_Info> tile_library;
+    Map_Tile<Tile_Info> tile_library;
     Chunk_Loader chunks { tile_library };
 
     sf::Vector2i world_min;
@@ -120,8 +114,6 @@ private:
 
     std::vector<std::shared_ptr<Vehicle>> vehicles;
 
-    std::map<Rock::Type, Rock_Data> rock_data;
-
     sf::Vector2i start_coords;
 
     bool pickup_all = false;
@@ -129,7 +121,7 @@ private:
     int autotileX(sf::Vector2i i, Floor_Type type);
     int autotileX(bool n, bool w, bool s, bool e);
 
-    bool adjacentDetailMatch(sf::Vector2i i, Detail_Type type);
+    bool adjacentDetailMatch(sf::Vector2i i, Detail::Type type);
     bool adjacentFloorMatch(sf::Vector2i i, Floor_Type type);
     bool adjacentBiomeMatch(sf::Vector2i i, Biome type);
     bool validLibraryTile(int x, int y);

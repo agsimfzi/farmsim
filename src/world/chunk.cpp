@@ -4,7 +4,7 @@
 
 #include <util/primordial.hpp>
 
-Chunk::Chunk(sf::Vector2i start, sf::Vector2i size, Map_Tile<Floor_Info>& info, Season s)
+Chunk::Chunk(sf::Vector2i start, sf::Vector2i size, Map_Tile<Tile_Info>& info)
     : start { start }
     , end { start + size }
 {
@@ -12,50 +12,52 @@ Chunk::Chunk(sf::Vector2i start, sf::Vector2i size, Map_Tile<Floor_Info>& info, 
         for (int y = 0; y < size.y; y++) {
             sf::Vector2i c(x, y);
             c += start;
-            if (info[c.x][c.y].floor == Floor_Type::NULL_TYPE) {
-                info[c.x][c.y].texture_pos = sf::Vector2i(0, (static_cast<int>(info[x][y].floor)) * roundFloat(Tile::tile_size));
-                info[c.x][c.y].detail_pos = sf::Vector2i(0, 0);
-            }
-            std::string tkey = "FLOOR";
-            Floor_Info& i = info[c.x][c.y];
-            auto& f = floor[c.x][c.y];
-            f = std::make_shared<Floor>(c, Texture_Manager::get(tkey));
-            f->planted = i.planted;
-            f->detail = i.detail;
-            f->setType(i.floor);
-            f->setTextureRect(sf::IntRect(i.texture_pos, sf::Vector2i(Tile::tile_size, Tile::tile_size)));
-
-            if (i.detail != Detail_Type::NULL_TYPE) {
-                tkey = detailTypeToString(i.detail);
-                details[c.x][c.y] = std::make_shared<Detail>(c, i.detail, Texture_Manager::get(tkey), sf::IntRect(i.detail_pos, sf::Vector2i(Tile::tile_size, Tile::tile_size)));
-            }
-            if (i.tree != Tree::NULL_TYPE) {
-                tkey = "TREES";
-                trees[c.x][c.y] = std::make_shared<Tree>(c, Texture_Manager::get(tkey), i.tree);
-                trees[c.x][c.y]->setSeason(s);
-            }
-            else if (i.rock) {
-                tkey = "ROCKS";
-                rocks[c.x][c.y] = i.rock->sprite;
-            }
-            else if (i.building) {
-                addBuilding(i.building, c);
-            }
+            readTile(info[c.x][c.y]);
         }
     }
-    sf::Vector2f f_offset(Tile::tile_size / 2.f, Tile::tile_size / 2.f);
-    f_bounds = sf::FloatRect(sf::Vector2f(start) - f_offset, sf::Vector2f(size) * Tile::tile_size);
+    sf::Vector2f f_offset(tile_size / 2.f, tile_size / 2.f);
+    f_bounds = sf::FloatRect(sf::Vector2f(start) - f_offset, sf::Vector2f(size) * tile_size);
     i_bounds = sf::IntRect(start, size);
 
-    sf::Vector2f frame_pos(floor[start.x][start.y]->getPosition());
+    sf::Vector2f frame_pos(floor[start.x][start.y].getPosition());
     frame_pos -= f_offset;
     sf::Vector2f frame_size(size);
-    frame_size *= Tile::tile_size;
+    frame_size *= tile_size;
     frame.setPosition(frame_pos);
     frame.setSize(frame_size);
     frame.setFillColor(sf::Color::Transparent);
     frame.setOutlineThickness(2.f);
     frame.setOutlineColor(sf::Color::Red);
+}
+
+void Chunk::readTile(Tile_Info& info)
+{
+    sf::Vector2i c = info.coordinates;
+    sf::Vector2f pos(info.coordinates);
+    pos *= tile_size;
+    if (info.floor == Floor_Type::NULL_TYPE) {
+        info.texture_pos = sf::Vector2i(0, (static_cast<int>(info.floor)) * roundFloat(tile_size));
+    }
+    std::string tkey = "FLOOR";
+    auto& f = floor[c.x][c.y];
+    f.setTexture(Texture_Manager::get(tkey));
+    f.setTextureRect(sf::IntRect(info.texture_pos, sf::Vector2i(tile_size, tile_size)));
+    f.setOrigin(sf::Vector2f(tile_size / 2.f, tile_size / 2.f));
+    f.setPosition(pos);
+
+    if (info.building) {
+        addBuilding(info.building, c);
+    }
+    else if (info.detail) {
+        tkey = Detail::typeToString(info.detail->getType());
+        details[c.x][c.y].setTexture(Texture_Manager::get(tkey));
+        details[c.x][c.y].setTextureRect(info.detail->getTextureRect());
+        sf::Vector2f origin;
+        origin.x = info.detail->getTextureRect().width / 2;
+        origin.y = info.detail->getTextureRect().height - (tile_size / 2.f);
+        details[c.x][c.y].setOrigin(origin);
+        details[c.x][c.y].setPosition(pos);
+    }
 }
 
 void Chunk::update()
@@ -80,40 +82,22 @@ bool Chunk::contains(sf::Vector2i coords)
     return i_bounds.contains(coords);
 }
 
-Floor* Chunk::getFloor(sf::Vector2i i)
+sf::Sprite* Chunk::getFloor(sf::Vector2i i)
 {
-    Floor* t = nullptr;
+    sf::Sprite* f = nullptr;
     if (floor.contains(i.x) && floor[i.x].contains(i.y)) {
-        t = floor[i.x][i.y].get();
+        f = &floor[i.x][i.y];
     }
-    return t;
+    return f;
 }
 
-Detail* Chunk::getDetail(sf::Vector2i i)
+sf::Sprite* Chunk::detail(sf::Vector2i i)
 {
-    Detail* t = nullptr;
+    sf::Sprite* d = nullptr;
     if (details.contains(i.x) && details[i.x].contains(i.y)) {
-        t = details[i.x][i.y].get();
+        d = &details[i.x][i.y];
     }
-    return t;
-}
-
-Tree* Chunk::getTree(sf::Vector2i i)
-{
-    Tree* t = nullptr;
-    if (trees.contains(i.x) && trees[i.x].contains(i.y)) {
-        t = trees[i.x][i.y].get();
-    }
-    return t;
-}
-
-sf::Sprite* Chunk::getRock(sf::Vector2i i)
-{
-    sf::Sprite* r = nullptr;
-    if (rocks.contains(i.x) && rocks[i.x].contains(i.y)) {
-        r = &rocks[i.x][i.y];
-    }
-    return r;
+    return d;
 }
 
 std::shared_ptr<Building> Chunk::getBuilding(sf::Vector2i i)
@@ -125,20 +109,6 @@ void Chunk::eraseDetail(sf::Vector2i i)
 {
     if (details.contains(i.x) && details[i.x].contains(i.y)) {
         details[i.x].erase(i.y);
-    }
-}
-
-void Chunk::eraseTree(sf::Vector2i i)
-{
-    if (trees.contains(i.x) && trees[i.x].contains(i.y)) {
-        trees[i.x].erase(i.y);
-    }
-}
-
-void Chunk::eraseRock(sf::Vector2i i)
-{
-    if (rocks.contains(i.x) && rocks[i.x].contains(i.y)) {
-        rocks[i.x].erase(i.y);
     }
 }
 
@@ -156,7 +126,7 @@ std::vector<std::shared_ptr<Item>>& Chunk::getItems()
 
 void Chunk::addBuilding(std::shared_ptr<Building> b, sf::Vector2i c)
 {
-    b->sprite.setPosition(floor[c.x][c.y]->getPosition());
+    b->sprite.setPosition(floor[c.x][c.y].getPosition());
     buildings[c.x][c.y] = b;
 }
 
@@ -168,24 +138,14 @@ void Chunk::addItem(std::shared_ptr<Item> item, sf::Vector2f pos)
     }
 }
 
-Map_Tile<std::shared_ptr<Floor>>& Chunk::getFloor()
+Map_Tile<sf::Sprite>& Chunk::getFloorMap()
 {
     return floor;
 }
 
-Map_Tile<std::shared_ptr<Detail>>& Chunk::getDetails()
+Map_Tile<sf::Sprite>& Chunk::getDetails()
 {
     return details;
-}
-
-Map_Tile<std::shared_ptr<Tree>>& Chunk::getTrees()
-{
-    return trees;
-}
-
-Map_Tile<sf::Sprite>& Chunk::getRocks()
-{
-    return rocks;
 }
 
 Map_Tile<std::shared_ptr<Building>>& Chunk::getBuildings()

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "radial_noise.hpp"
-#include "tile.hpp"
+#include "biome.hpp"
 #include "world.hpp"
 
 /// BIOME GENERATOR ///

@@ -28,12 +28,6 @@ World::World(Library& library)
     chunks.world_min = world_min;
     chunks.world_max = world_max;
 
-    std::vector<Rock_Data> rd = Database::getRockData();
-    for (auto& d : rd) {
-        Rock::Type t = Rock::stringToType(d.name);
-        rock_data[t] = d;
-    }
-
     std::cout << "WORLD BOUNDS CALCULATED:\n\t" << world_min << " to " << world_max << "!\n";
 }
 
@@ -50,7 +44,7 @@ void World::nextSeason(Player& player)
     std::cout << " TO " << seasonToString(season) << "!\n";
     killUnseasonableCrops();
     seasonalIteration();
-    chunks.check(player.getCoordinates(Tile::tile_size), season);
+    chunks.check(player.getCoordinates(tile_size));
     // reset all timers
 }
 
@@ -69,7 +63,10 @@ void World::seasonalIteration()
 {
     for (int x = world_min.x; x <= world_max.x; x++) {
         for (int y = world_min.y; y <= world_max.y; y++) {
-            Floor_Info& info = tile_library[x][y];
+            Tile_Info& info = tile_library[x][y];
+            if (info.detail) {
+                info.detail->setSeasonalTextureRect(season);
+            }
         }
     }
 }
@@ -103,10 +100,10 @@ sf::Vector2i World::worldMax()
 sf::Vector2i* World::checkMouseTarget(sf::Vector2f mpos, sf::Vector2i playerCoords)
 {
     // future: pass player coordinates + tool distance
-    mpos += sf::Vector2f(sign(mpos.x) * (Tile::tile_size / 2.f), sign(mpos.y) * (Tile::tile_size / 2.f));
+    mpos += sf::Vector2f(sign(mpos.x) * (tile_size / 2.f), sign(mpos.y) * (tile_size / 2.f));
     sf::Vector2i coords;
-    coords.x = mpos.x / Tile::tile_size;
-    coords.y = mpos.y / Tile::tile_size;
+    coords.x = mpos.x / tile_size;
+    coords.y = mpos.y / tile_size;
 
     // check for tile at coordinates
     if (inRange(coords, playerCoords) && chunks.floor(coords)) {
@@ -133,85 +130,85 @@ void World::makeBiomes()
     Biome_Generator biome_gen(world_min, world_max);
     Map_Tile<Biome>& biomes = biome_gen.generate();
 
-    // reading tile_info from biome map
+    // reading tile from biome map
     for (int x = world_min.x; x <= world_max.x; x++) {
         for (int y = world_min.y; y <= world_max.y; y++) {
-            sf::Vector2i coords(x, y);
-            Floor_Info& info = tile_library[x][y];
-            info.coordinates = coords;
+            sf::Vector2i c(x, y);
+            Tile_Info& info = tile_library[x][y];
+            info.coordinates = c;
             info.planted = false;
             info.biome = biomes[x][y];
-            info.detail_pos = sf::Vector2i(0, 0);
-
-            Rock::Type rock = Rock::NULL_TYPE;
-            Tree::Type tree = Tree::NULL_TYPE;
 
             if (info.biome == Biome::NULL_TYPE) {
-                info.floor = Floor_Type::NULL_TYPE;
+                info.setFloor(Floor_Type::NULL_TYPE);
             }
             else if (info.biome == Biome::OCEAN || info.biome == Biome::LAKE || info.biome == Biome::RIVER) {
-                info.floor = Floor_Type::WATER;
+                info.setFloor(Floor_Type::WATER);
             }
             else if (info.biome == Biome::BEACH) {
-                info.floor = Floor_Type::SAND;
+                info.setFloor(Floor_Type::SAND);
                 // palm trees
             }
             else if (info.biome == Biome::VOLCANO) {
-                info.floor = Floor_Type::BASALT;
+                info.setFloor(Floor_Type::BASALT);
 
                 if (prng::boolean(0.008f)) {
-                    rock = Rock::BASALT;
+                    info.detail = std::make_unique<Detail>(library.detail("BASALT"));
+                    info.detail->coordinates = c;
                 }
                 else if (prng::boolean(0.006f)) {
-                    rock = Rock::GOLD;
+                    info.detail = std::make_unique<Detail>(library.detail("GOLD"));
+                    info.detail->coordinates = c;
                 }
             }
             else if (info.biome == Biome::CALDERA) {
-                info.floor = Floor_Type::LAVA;
+                info.setFloor(Floor_Type::LAVA);
             }
             else {
                 info.floor = Floor_Type::DIRT;
 
                 if (info.biome == Biome::GRASSLAND) {
                     if (prng::boolean(0.003f)) {
-                        tree = Tree::BIRCH;
+                        info.detail = std::make_unique<Detail>(library.detail("BIRCH"));
+                        info.detail->coordinates = c;
                     }
                     else if (prng::boolean(0.003f)) {
-                        rock = Rock::LIMESTONE;
+                        info.detail = std::make_unique<Detail>(library.detail("LIMESTONE"));
+                        info.detail->coordinates = c;
                     }
                     else if (prng::boolean(0.002f)) {
                         if (prng::boolean(.6f)) {
-                            rock = Rock::COPPER;
+                            info.detail = std::make_unique<Detail>(library.detail("COPPER"));
+                            info.detail->coordinates = c;
                         }
                         else {
-                            rock = Rock::IRON;
+                            info.detail = std::make_unique<Detail>(library.detail("IRON"));
+                            info.detail->coordinates = c;
                         }
                     }
                 }
                 else if (info.biome == Biome::FOREST) {
                     if (prng::boolean(0.2f)) {
-                        tree = Tree::PINE;
+                        info.detail = std::make_unique<Detail>(library.detail("PINE"));
+                        info.detail->coordinates = c;
                     }
                     else if (prng::boolean(0.002f)) {
-                        rock = Rock::GRANITE;
+                        info.detail = std::make_unique<Detail>(library.detail("GRANITE"));
+                        info.detail->coordinates = c;
                     }
                     else if (prng::boolean(0.001f)) {
                         if (prng::boolean(.7f)) {
-                            rock = Rock::COPPER;
+                            info.detail = std::make_unique<Detail>(library.detail("COPPER"));
+                            info.detail->coordinates = c;
                         }
                         else {
-                            rock = Rock::IRON;
+                            info.detail = std::make_unique<Detail>(library.detail("IRON"));
+                            info.detail->coordinates = c;
                         }
                     }
                 }
             }
-            info.texture_pos = sf::Vector2i(0, (static_cast<int>(info.floor)) * roundFloat(Tile::tile_size));
-            info.detail_pos = sf::Vector2i(0, 0);
-
-            info.tree = tree;
-            if (rock != Rock::NULL_TYPE) {
-                info.rock = std::make_shared<Rock>(coords, Texture_Manager::get("ROCKS"), rock, rock_data[rock]);
-            }
+            info.texture_pos = sf::Vector2i(0, (static_cast<int>(info.floor)) * roundFloat(tile_size));
         }
     }
     autotile(world_min, world_max, Floor_Type::WATER);
@@ -235,7 +232,6 @@ void World::makeGrass()
         for (int y = world_min.y; y <= world_max.y; y++) {
             if (validLibraryTile(x, y)
             && tile_library[x][y].floor == Floor_Type::DIRT
-            && !(tile_library[x][y].tree != Tree::Type::NULL_TYPE)
             && grass[x][y]) {
                 if (tile_library[x][y].biome == Biome::FOREST && prng::boolean(0.5f)) {
                     grass[x][y] = false;
@@ -243,7 +239,7 @@ void World::makeGrass()
                 }
                 tile_library[x][y].floor = Floor_Type::GRASS;
                 tile_library[x][y].texture_pos.x = autotileX(sf::Vector2i(x, y), Floor_Type::GRASS);
-                tile_library[x][y].texture_pos.y = static_cast<int>(Floor_Type::GRASS) * Tile::tile_size;
+                tile_library[x][y].texture_pos.y = static_cast<int>(Floor_Type::GRASS) * tile_size;
             }
         }
     }
@@ -253,7 +249,7 @@ void World::makeGrass()
 
 void World::finalize()
 {
-    chunks.check(start_coords, season);
+    chunks.check(start_coords);
     placeWreckage();
 }
 
@@ -267,9 +263,10 @@ void World::autotile(sf::Vector2i start, sf::Vector2i end, Floor_Type type)
     for (int x = start.x; x <= end.x; x++) {
         for (int y = start.y; y <= end.y; y++) {
             if (tile_library[x][y].floor == type) {
-                Floor_Info& info = tile_library[x][y];
+                Tile_Info& info = tile_library[x][y];
                 sf::Vector2i c(x, y);
                 info.texture_pos.x = autotileX(c, type);
+                chunks.updateTile(info);
             }
         }
     }
@@ -360,13 +357,13 @@ int World::autotileX(bool n, bool w, bool s, bool e)
         sum += 8;
     }
 
-    return (sum * roundFloat(Tile::tile_size));
+    return (sum * roundFloat(tile_size));
 }
 
-bool World::adjacentDetailMatch(sf::Vector2i i, Detail_Type type)
+bool World::adjacentDetailMatch(sf::Vector2i i, Detail::Type type)
 {
     return (validLibraryTile(i.x, i.y)
-        && (tile_library[i.x][i.y].detail == type || tile_library[i.x][i.y].biome == Biome::NULL_TYPE));
+        && (tile_library[i.x][i.y].detail->getType() == type || tile_library[i.x][i.y].biome == Biome::NULL_TYPE));
 }
 
 bool World::adjacentBiomeMatch(sf::Vector2i i, Biome type)
@@ -384,7 +381,7 @@ bool World::validLibraryTile(int x, int y)
     return (tile_library.contains(x) && tile_library[x].contains(y));
 }
 
-Map_Tile<Floor_Info>& World::getTileLibrary()
+Map_Tile<Tile_Info>& World::getTileLibrary()
 {
     return tile_library;
 }
@@ -413,7 +410,7 @@ std::vector<sf::FloatRect> World::getLocalImpassableTiles(sf::Vector2i p)
     for (int x = p.x - depth; x <= p.x + depth; ++x) {
         for (int y = p.y - depth; y <= p.y + depth; ++y) {
             sf::Vector2i c(x, y);
-            Floor* f = chunks.floor(c);
+            sf::Sprite* f = chunks.floor(c);
             if (f && !passableTile(c)) {
                 local_tiles.push_back(f->getGlobalBounds());
             }
@@ -423,18 +420,18 @@ std::vector<sf::FloatRect> World::getLocalImpassableTiles(sf::Vector2i p)
     return local_tiles;
 }
 
-std::vector<std::pair<Floor_Info, sf::FloatRect>> World::getLocalTiles(sf::Vector2i p)
+std::vector<std::pair<Tile_Info, sf::FloatRect>> World::getLocalTiles(sf::Vector2i p)
 {
-    std::vector<std::pair<Floor_Info, sf::FloatRect>> local_tiles;
+    std::vector<std::pair<Tile_Info, sf::FloatRect>> local_tiles;
 
     const static int depth = 1;
 
     for (int x = p.x - depth; x <= p.x + depth; ++x) {
         for (int y = p.y - depth; y <= p.y + depth; ++y) {
             sf::Vector2i c(x, y);
-            Floor* f = chunks.floor(c);
+            sf::Sprite* f = chunks.floor(c);
             if (f) {
-                local_tiles.push_back(std::make_pair(tile_library[x][y], f->getGlobalBounds()));
+                local_tiles.push_back(std::make_pair(Tile_Info(tile_library[x][y]), f->getGlobalBounds()));
             }
         }
     }
@@ -453,15 +450,15 @@ bool World::changeActiveTile(Floor_Type prereq, Floor_Type ntype)
     bool change = false;
 
     if (active_tile) {
-        Floor* f = chunks.floor(*active_tile);
-        change = (f->type == prereq);
+        Tile_Info& info = tile_library[active_tile->x][active_tile->y];
+        change = info.floor == prereq;
         if (change) {
-            if (f->planted && ntype != Floor_Type::WATERED) {
-                f->planted = false;
+            if (info.planted && ntype != Floor_Type::WATERED) {
+                info.planted = false;
                 removeCrop(*active_tile);
             }
-            f->setType(ntype);
-            tileToLibrary(f);
+            info.setFloor(ntype);
+            chunks.updateTile(info);
         }
     }
 
@@ -471,7 +468,6 @@ bool World::changeActiveTile(Floor_Type prereq, Floor_Type ntype)
 void World::removeCrop(sf::Vector2i i)
 {
     tile_library[i.x][i.y].planted = false;
-    chunks.floor(i)->planted = false;
     crops[i.x].erase(i.y);
     if (crops[i.x].size() == 0) {
         crops.erase(i.x);
@@ -488,7 +484,7 @@ void World::tick(sf::Vector2i player_coordinates)
     for (auto& x : crops) {
         for (auto& y : x.second) {
             sf::Vector2i c = y.second.getCoordinates();
-            y.second.tick(chunks.floor(c)->type == Floor_Type::WATERED);
+            y.second.tick(tile_library[c.x][c.y].floor == Floor_Type::WATERED);
         }
     }
 
@@ -502,18 +498,7 @@ void World::tick(sf::Vector2i player_coordinates)
         }
     }
 
-    chunks.check(player_coordinates, season);
-}
-
-Floor* World::activeFloor(sf::Vector2i i)
-{
-    Floor* f = nullptr;
-
-    if (active_tile) {
-        f = chunks.floor(*active_tile);
-    }
-
-    return f;
+    chunks.check(player_coordinates);
 }
 
 void World::checkPickup(Player_Inventory& inventory, Player& player, float deltaTime)
@@ -565,37 +550,12 @@ Building* World::activeBuilding()
     return active_building;
 }
 
-void World::tileToLibrary(sf::Vector2i i)
-{
-    tileToLibrary(chunks.floor(i));
-}
-
-void World::tileToLibrary(Floor* f)
-{
-    if (f) {
-        sf::Vector2i c = f->coordinates;
-        Floor_Info& info = tile_library[c.x][c.y];
-        info.planted = f->planted;
-        info.floor = f->type;
-        info.detail = f->detail;
-        info.texture_pos.x = f->getTextureRect().left;
-        info.texture_pos.y = f->getTextureRect().top;
-
-        if (info.detail != Detail_Type::NULL_TYPE) {
-            Detail* d = chunks.detail(c);
-            if (d) {
-                info.detail_pos.x = d->getTextureRect().left;
-                info.detail_pos.y = d->getTextureRect().top;
-            }
-        }
-    }
-}
-
 bool World::adjacentTree(sf::Vector2i i)
 {
     for (int x = -1; x <= 1; x++) {
         for (int y = -1; y <= 1; y++) {
-            if (tile_library[i.x + x][i.y + y].tree != Tree::Type::NULL_TYPE) {
+            Detail* d = tile_library[i.x + x][i.y + y].detail.get();
+            if (d && d->getType() == Detail::TREE) {
                 return true;
             }
         }
@@ -608,10 +568,9 @@ bool World::emptyTile(sf::Vector2i i)
     return emptyTile(tile_library[i.x][i.y]);
 }
 
-bool World::emptyTile(Floor_Info& info)
+bool World::emptyTile(Tile_Info& info)
 {
-    return (!(info.tree != Tree::Type::NULL_TYPE)
-         && !info.rock
+    return (!info.detail
          && !info.building
          && info.floor != Floor_Type::WATER
          && info.floor != Floor_Type::LAVA
@@ -623,7 +582,7 @@ bool World::buildableTile(sf::Vector2i i)
     return buildableTile(tile_library[i.x][i.y]);
 }
 
-bool World::buildableTile(Floor_Info& info)
+bool World::buildableTile(Tile_Info& info)
 {
     return (emptyTile(info) && !plantableTile(info));
 }
@@ -633,7 +592,7 @@ bool World::plantableTile(sf::Vector2i i)
     return plantableTile(tile_library[i.x][i.y]);
 }
 
-bool World::plantableTile(Floor_Info& info)
+bool World::plantableTile(Tile_Info& info)
 {
     return (!info.planted && (info.floor == Floor_Type::TILLED || info.floor == Floor_Type::WATERED));
 }
@@ -643,7 +602,7 @@ bool World::passableTile(sf::Vector2i i)
     return passableTile(tile_library[i.x][i.y]);
 }
 
-bool World::passableTile(Floor_Info& info)
+bool World::passableTile(Tile_Info& info)
 {
     bool passable = emptyTile(info);
     if (info.planted && !crops[info.coordinates.x][info.coordinates.y].passable())

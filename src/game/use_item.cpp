@@ -100,8 +100,9 @@ void Use_Item::seed(std::shared_ptr<Item> item)
 
         auto unwater = [&](sf::Vector2i c)
         {
-            world.getChunks().floor(c)->setType(Floor_Type::TILLED);
-            world.tileToLibrary(c);
+            Tile_Info& tile = world.getTileLibrary()[c.x][c.y];
+            tile.setFloor(Floor_Type::TILLED);
+            world.getChunks().updateTile(tile);
         };
         crop.unwater = unwater;
         world.addCrop(*target, crop);
@@ -115,7 +116,7 @@ void Use_Item::plant(std::shared_ptr<Item> item)
 
 void Use_Item::building(std::shared_ptr<Item> item)
 {
-    Floor_Info& info = tile_library[target->x][target->y];
+    Tile_Info& info = tile_library[target->x][target->y];
     if (world.buildableTile(info)) {
         info.building = library.building(item->getUID());
         world.getChunks().addBuilding(info.building, *target);
@@ -150,7 +151,7 @@ void Use_Item::vehicle(std::shared_ptr<Item> item)
 
 void Use_Item::rawMaterial(std::shared_ptr<Item> item)
 {
-    Floor_Info& info = tile_library[target->x][target->y];
+    Tile_Info& info = tile_library[target->x][target->y];
     if (info.building && info.building->type == Building::MACHINE) {
         auto m = std::dynamic_pointer_cast<Machine>(info.building);
         m->addReagant(item);
@@ -221,20 +222,18 @@ void Use_Item::water(std::shared_ptr<Item> item)
 
 void Use_Item::axe(std::shared_ptr<Item> item)
 {
-    Floor_Info& info = tile_library[target->x][target->y];
-    if (info.tree != Tree::Type::NULL_TYPE) {
-        Tree* tree = world.getChunks().tree(*target);
+    Tile_Info& info = tile_library[target->x][target->y];
+    if (info.detail && info.detail->getType() == Detail::TREE) {
+        Detail* tree = info.detail.get();
         tree->hit(item->useFactor());
         if (tree->dead()) {
             // create logs on ground
             // create stump
-            info.tree = Tree::Type::NULL_TYPE;
-            world.getChunks().eraseTree(*target);
-            std::string type = tree->typeToString(tree->type);
-            size_t count = prng::number(7, 13);
-            std::shared_ptr<Item> item = library.item(type + " wood");
-            item->setCount(count);
+            std::shared_ptr<Item> item = library.item(tree->getName() + " wood");
+            item->setCount(tree->quantity());
             world.getChunks().addItem(item, *target);
+            info.detail = nullptr;
+            world.getChunks().eraseDetail(*target);
         }
     }
     else if (info.building) {
@@ -256,24 +255,23 @@ void Use_Item::pick(std::shared_ptr<Item> item)
 {
     if (!world.changeActiveTile(Floor_Type::TILLED, Floor_Type::DIRT)
     && !world.changeActiveTile(Floor_Type::WATERED, Floor_Type::DIRT)) {
-        if (tile_library[target->x][target->y].rock) {
-            Rock* rock = tile_library[target->x][target->y].rock.get();
-            if (rock) {
-                rock->hit(item->useFactor());
-                if (rock->dead()) {
-                    if (prng::boolean()) { // INDEPENDENT COAL-SPAWN CHANCE
-                        std::shared_ptr<Item> item = library.item("coal");
-                        item->setCount(prng::number(3, 7));
-                        world.getChunks().addItem(item, *target);
-                    }
-
-                    std::shared_ptr<Item> i = library.item(rock->product());
-                    i->setCount(rock->quantity());
-                    world.getChunks().addItem(i, *target);
-
-                    tile_library[target->x][target->y].rock = nullptr;
-                    world.getChunks().eraseRock(*target);
+        Tile_Info& info = tile_library[target->x][target->y];
+        if (info.detail && info.detail->getType() == Detail::ROCK) {
+            Detail* rock = info.detail.get();
+            rock->hit(item->useFactor());
+            if (rock->dead()) {
+                if (prng::boolean()) { // INDEPENDENT COAL-SPAWN CHANCE
+                    std::shared_ptr<Item> item = library.item("coal");
+                    item->setCount(prng::number(3, 7));
+                    world.getChunks().addItem(item, *target);
                 }
+
+                std::shared_ptr<Item> i = library.item(rock->getProduct());
+                i->setCount(rock->quantity());
+                world.getChunks().addItem(i, *target);
+
+                tile_library[target->x][target->y].detail = nullptr;
+                world.getChunks().eraseDetail(*target);
             }
         }
     }

@@ -8,8 +8,6 @@
 
 #include <util/fmouse.hpp>
 
-#include <world/tile.hpp>
-
 std::function<void(std::shared_ptr<Item>)> Inventory_Interface::drop = [](std::shared_ptr<Item>){};
 size_t Inventory_Interface::equippedIndex = 0;
 

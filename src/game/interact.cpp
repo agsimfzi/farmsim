@@ -30,35 +30,34 @@ void Interact::interact()
 {
     target = world.activeTile();
     if (target) {
-        Floor_Info& info = tile_library[target->x][target->y];
-        Floor* floor = world.getChunks().floor(*target);
-        if (dismount(info, floor) || mount(info, floor)) {
+        Tile_Info& info = tile_library[target->x][target->y];
+        if (dismount(info) || mount(info)) {
             stop();
         }
-        else if (harvest(info, floor)) {}
-        else if (machine(info, floor)) {}
+        else if (harvest(info)) {}
+        else if (machine(info)) {}
     }
 }
 
-bool Interact::dismount(Floor_Info& info, Floor* floor)
+bool Interact::dismount(Tile_Info& info)
 {
     bool performed = false;
     if (player.getVehicle()
     && world.emptyTile(info)
-    && (world.emptyTile(player.getCoordinates(Tile::tile_size)) || player.getVehicle()->type == Vehicle::BOAT)) {
+    && (world.emptyTile(player.getCoordinates(tile_size)) || player.getVehicle()->type == Vehicle::BOAT)) {
         vehicles.push_back(player.getVehicle());
-        player.setPosition(floor->getPosition());
+        player.setPosition(world.getChunks().floor(*target)->getPosition());
         player.setVehicle(nullptr);
         performed = true;
     }
     return performed;
 }
 
-bool Interact::mount(Floor_Info& info, Floor* floor)
+bool Interact::mount(Tile_Info& info)
 {
     bool performed = false;
     for (auto v = vehicles.begin(); v != vehicles.end();) {
-        if ((*v) && floor->getGlobalBounds().contains((*v)->getPosition())) {
+        if ((*v) && world.getChunks().floor(*target)->getGlobalBounds().contains((*v)->getPosition())) {
             player.setVehicle((*v));
             vehicles.erase(v);
             performed = true;
@@ -71,7 +70,7 @@ bool Interact::mount(Floor_Info& info, Floor* floor)
     return performed;
 }
 
-bool Interact::machine(Floor_Info& info, Floor* floor)
+bool Interact::machine(Tile_Info& info)
 {
     bool performed = false;
     if (info.building && info.building->type == Building::MACHINE) {
@@ -82,7 +81,7 @@ bool Interact::machine(Floor_Info& info, Floor* floor)
     return performed;
 }
 
-bool Interact::harvest(Floor_Info& info, Floor* floor)
+bool Interact::harvest(Tile_Info& info)
 {
     bool performed = false;
     if (info.planted) {
@@ -92,7 +91,7 @@ bool Interact::harvest(Floor_Info& info, Floor* floor)
             i->setCount(crop.getQuantity());
             inventory.addItem(i);
             if (i) {
-                world.getChunks().addItem(i, player.getCoordinates(Tile::tile_size));
+                world.getChunks().addItem(i, player.getCoordinates(tile_size));
             }
             if (crop.regrows()) {
                 crop.harvestRegrowable();
@@ -100,6 +99,8 @@ bool Interact::harvest(Floor_Info& info, Floor* floor)
             else {
                 world.removeCrop(*target);
             }
+            performed = true;
+            world.getChunks().updateTile(info);
         }
     }
     return performed;

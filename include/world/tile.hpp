@@ -1,69 +1,37 @@
 #pragma once
 
-#include <deque>
+#include <map>
+#include <memory>
 
-#include <SFML/Graphics.hpp>
-
-#include "tile_info.hpp"
+#include "biome.hpp"
+#include "building.hpp"
+#include "detail.hpp"
+#include "tile_type.hpp"
+#include "tile_size.hpp"
 
 template <class T>
 using Map_Tile = std::map<int, std::map<int, T>>;
 
-class Tile : public sf::Sprite {
-public:
-    Tile() = default;
-    Tile(sf::Vector2i ncoord, const sf::Texture& texture);
+/// TILE INFO ///
+///
+/// \brief POD defining a world tile
+/// rename this when you get a chance
+///
+struct Tile_Info {
+    Tile_Info() = default;
 
-    const static float tile_size;
-    sf::Vector2i coordinates;
-};
+    Tile_Info(const Tile_Info& i);
 
-class Wall : public Tile {
-public:
-    Wall(sf::Vector2i ncoord, const sf::Texture& texture);
-};
+    sf::Vector2i coordinates; /**< world coordinates */
 
-class Detail : public Tile {
-public:
-    Detail() = default;
-    //Detail(sf::Vector2i ncoord, Detail_Type type, const sf::Texture& texture);
-    Detail(sf::Vector2i ncoord, Detail_Type type, const sf::Texture& texture, sf::IntRect texture_rect);
+    bool planted = false; /**< tracks crops */
+    Biome biome{ Biome::NULL_TYPE }; /**< base tile biome. null type makes an empty tile. */
 
+    std::unique_ptr<Detail> detail;
+    std::shared_ptr<Building> building { nullptr }; /**< stores a pointer to a local building */
 
-    Detail_Type type;
-};
+    Floor_Type floor{ Floor_Type::NULL_TYPE }; /**< base tile type */
+    sf::Vector2i texture_pos{ 0, 0 }; /**< textureRect pos */
 
-class Floor : public Tile {
-public:
-    Floor() = default;
-    Floor(sf::Vector2i ncoord, const sf::Texture& texture);
-    Floor(Floor_Info info, const sf::Texture& texture);
-
-    Floor_Type type{ Floor_Type::NULL_TYPE };
-
-    bool planted = false;
-
-    Detail_Type detail{ Detail_Type::NULL_TYPE };
-
-    void setType(Floor_Type ntype);
-};
-
-class Door : public Wall {
-public:
-    Door(sf::Vector2i ncoord, const sf::Texture& texture, sf::Vector2i openCoord);
-
-    void open();
-    void close();
-    void toggleOpened();
-
-    void update();
-
-    void setLocked(bool locked);
-
-private:
-    bool opened { false };
-    bool locked { false };
-
-    sf::Vector2f closePos;
-    sf::Vector2f openPos;
+    void setFloor(Floor_Type t);
 };
