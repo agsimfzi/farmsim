@@ -190,6 +190,8 @@ sf::Vector2f calculateMoveVector(sf::Vector2f start, sf::Vector2f end, float spe
 ///
 int roundFloat(float f);
 
+int signAwareRoundFloat(float f);
+
 /// makeUppercase ///
 ///
 /// \brief transforms a string to all uppercase

@@ -30,7 +30,7 @@ void Interact::interact()
 {
     target = world.activeTile();
     if (target) {
-        Tile_Info& info = tile_library[target->x][target->y];
+        Tile& info = tile_library[target->x][target->y];
         if (dismount(info) || mount(info)) {
             stop();
         }
@@ -39,25 +39,25 @@ void Interact::interact()
     }
 }
 
-bool Interact::dismount(Tile_Info& info)
+bool Interact::dismount(Tile& info)
 {
     bool performed = false;
     if (player.getVehicle()
     && world.emptyTile(info)
     && (world.emptyTile(player.getCoordinates(tile_size)) || player.getVehicle()->type == Vehicle::BOAT)) {
         vehicles.push_back(player.getVehicle());
-        player.setPosition(world.getChunks().floor(*target)->getPosition());
+        player.setPosition(sf::Vector2f(tile_library[target->x][target->y].coordinates) * tile_size);
         player.setVehicle(nullptr);
         performed = true;
     }
     return performed;
 }
 
-bool Interact::mount(Tile_Info& info)
+bool Interact::mount(Tile& info)
 {
     bool performed = false;
     for (auto v = vehicles.begin(); v != vehicles.end();) {
-        if ((*v) && world.getChunks().floor(*target)->getGlobalBounds().contains((*v)->getPosition())) {
+        if ((*v) && tile_library[target->x][target->y].bounds.contains((*v)->getPosition())) {
             player.setVehicle((*v));
             vehicles.erase(v);
             performed = true;
@@ -70,7 +70,7 @@ bool Interact::mount(Tile_Info& info)
     return performed;
 }
 
-bool Interact::machine(Tile_Info& info)
+bool Interact::machine(Tile& info)
 {
     bool performed = false;
     if (info.building && info.building->type == Building::MACHINE) {
@@ -81,7 +81,7 @@ bool Interact::machine(Tile_Info& info)
     return performed;
 }
 
-bool Interact::harvest(Tile_Info& info)
+bool Interact::harvest(Tile& info)
 {
     bool performed = false;
     if (info.planted) {

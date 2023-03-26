@@ -11,8 +11,6 @@ Item::Item(Item_Data d)
 void Item::setSprite(sf::Sprite sprite)
 {
     this->sprite = sprite;
-    sf::Vector2f size(sprite.getGlobalBounds().width, sprite.getGlobalBounds().height);
-    sprite.setOrigin(size / 2.f);
 }
 
 sf::Vector2f Item::getPosition()

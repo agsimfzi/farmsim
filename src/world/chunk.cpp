@@ -4,23 +4,19 @@
 
 #include <util/primordial.hpp>
 
-Chunk::Chunk(sf::Vector2i start, sf::Vector2i size, Map_Tile<Tile_Info>& info)
+Chunk::Chunk(sf::Vector2i start, sf::Vector2i size, Map_Tile<Tile>& info)
     : start { start }
     , end { start + size }
+    , size { size }
 {
-    for (int x = 0; x < size.x; x++) {
-        for (int y = 0; y < size.y; y++) {
-            sf::Vector2i c(x, y);
-            c += start;
-            readTile(info[c.x][c.y]);
-        }
-    }
-    sf::Vector2f f_offset(tile_size / 2.f, tile_size / 2.f);
-    f_bounds = sf::FloatRect(sf::Vector2f(start) - f_offset, sf::Vector2f(size) * tile_size);
+    floor.load(info, start, size);
+    f_bounds = sf::FloatRect(sf::Vector2f(start) * tile_size, sf::Vector2f(size) * tile_size);
     i_bounds = sf::IntRect(start, size);
 
-    sf::Vector2f frame_pos(floor[start.x][start.y].getPosition());
-    frame_pos -= f_offset;
+    sf::Vector2f frame_pos;//(floor[start.x][start.y].getPosition());
+    sf::Vertex* quad = &floor.vertices[0];
+
+    frame_pos = quad[0].position + (sf::Vector2f(start) * tile_size);
     sf::Vector2f frame_size(size);
     frame_size *= tile_size;
     frame.setPosition(frame_pos);
@@ -28,9 +24,15 @@ Chunk::Chunk(sf::Vector2i start, sf::Vector2i size, Map_Tile<Tile_Info>& info)
     frame.setFillColor(sf::Color::Transparent);
     frame.setOutlineThickness(2.f);
     frame.setOutlineColor(sf::Color::Red);
+
+    for (int x = start.x; x < end.x; x++) {
+        for (int y = start.y; y < end.y; y++) {
+            readTile(info[x][y]);
+        }
+    }
 }
 
-void Chunk::readTile(Tile_Info& info)
+void Chunk::readTile(Tile& info)
 {
     sf::Vector2i c = info.coordinates;
     sf::Vector2f pos(info.coordinates);
@@ -39,11 +41,9 @@ void Chunk::readTile(Tile_Info& info)
         info.texture_pos = sf::Vector2i(0, (static_cast<int>(info.floor)) * roundFloat(tile_size));
     }
     std::string tkey = "FLOOR";
-    auto& f = floor[c.x][c.y];
-    f.setTexture(Texture_Manager::get(tkey));
-    f.setTextureRect(sf::IntRect(info.texture_pos, sf::Vector2i(tile_size, tile_size)));
-    f.setOrigin(sf::Vector2f(tile_size / 2.f, tile_size / 2.f));
-    f.setPosition(pos);
+    sf::Vector2i i = info.coordinates - start;
+
+    floor.change(i.x + i.y * size.x, info.texture_pos, size);
 
     if (info.building) {
         addBuilding(info.building, c);
@@ -53,8 +53,8 @@ void Chunk::readTile(Tile_Info& info)
         details[c.x][c.y].setTexture(Texture_Manager::get(tkey));
         details[c.x][c.y].setTextureRect(info.detail->getTextureRect());
         sf::Vector2f origin;
-        origin.x = info.detail->getTextureRect().width / 2;
-        origin.y = info.detail->getTextureRect().height - (tile_size / 2.f);
+        origin.x = (info.detail->getTextureRect().width - tile_size) / 2.f;
+        origin.y = info.detail->getTextureRect().height - tile_size;
         details[c.x][c.y].setOrigin(origin);
         details[c.x][c.y].setPosition(pos);
     }
@@ -78,17 +78,7 @@ bool Chunk::contains(sf::Vector2f pos)
 
 bool Chunk::contains(sf::Vector2i coords)
 {
-    return (floor.contains(coords.x) && floor[coords.x].contains(coords.y));
     return i_bounds.contains(coords);
-}
-
-sf::Sprite* Chunk::getFloor(sf::Vector2i i)
-{
-    sf::Sprite* f = nullptr;
-    if (floor.contains(i.x) && floor[i.x].contains(i.y)) {
-        f = &floor[i.x][i.y];
-    }
-    return f;
 }
 
 sf::Sprite* Chunk::detail(sf::Vector2i i)
@@ -126,7 +116,7 @@ std::vector<std::shared_ptr<Item>>& Chunk::getItems()
 
 void Chunk::addBuilding(std::shared_ptr<Building> b, sf::Vector2i c)
 {
-    b->sprite.setPosition(floor[c.x][c.y].getPosition());
+    b->sprite.setPosition(sf::Vector2f(c) * tile_size);
     buildings[c.x][c.y] = b;
 }
 
@@ -138,7 +128,7 @@ void Chunk::addItem(std::shared_ptr<Item> item, sf::Vector2f pos)
     }
 }
 
-Map_Tile<sf::Sprite>& Chunk::getFloorMap()
+Floor_Map& Chunk::getFloor()
 {
     return floor;
 }

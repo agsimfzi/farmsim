@@ -62,7 +62,6 @@ void UI::update()
                   + std::to_string(game.getPlayer().getCoordinates(tile_size).y);
 
     player_pos.setString(p);
-
     sf::Vector2i* coords = game.getWorld().checkMouseTarget(fMouse(window, game.getView()), game.getPlayer().getCoordinates(tile_size));
     if (coords) {
         sf::Vector2i c = window.mapCoordsToPixel(sf::Vector2f(*coords) * tile_size, game.getView());
@@ -74,9 +73,9 @@ void UI::update()
 
     minimap.update(game.getPlayer().getCoordinates(tile_size));
 
-    int nrg = game.playerEnergy();
-    if (last_player_energy != nrg) {
-        last_player_energy = nrg;
+    int energy = game.playerEnergy();
+    if (last_player_energy != energy) {
+        last_player_energy = energy;
         energy_bar.update(game.energyPercent());
     }
 

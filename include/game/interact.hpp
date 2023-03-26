@@ -56,7 +56,7 @@ private:
 
     Library& library; /**< store prototypes for items, buildings, crops, and vehicles. */
 
-    Map_Tile<Tile_Info>& tile_library; /**< stores tile information. reference to the world-level tile library */
+    Map_Tile<Tile>& tile_library; /**< stores tile information. reference to the world-level tile library */
     Map_Tile<Crop>& crops;
     std::vector<std::shared_ptr<Machine>>& machines; /**< for adding machines. reference to world-level machines */
     std::vector<std::shared_ptr<Vehicle>>& vehicles; /**< for adding vehicles. reference to world-level vehicles */
@@ -72,26 +72,26 @@ private:
 /// \brief Exits a vehicle, if appropriate
 ///
 /// \return true if the operation was performed
-    bool dismount(Tile_Info& info);
+    bool dismount(Tile& info);
 
 /// mount ///
 ///
 /// \brief Enters a vehicle, if appropriate
 ///
 /// \return true if the operation was performed
-    bool mount(Tile_Info& info);
+    bool mount(Tile& info);
 
 /// machine ///
 ///
 /// \brief Retrieves products from machine, if appropriate
 ///
 /// \return true if the operation was performed
-    bool machine(Tile_Info& info);
+    bool machine(Tile& info);
 
 /// harvest ///
 ///
 /// \brief Retrieves products from machine, if appropriate
 ///
 /// \return true if the operation was performed
-    bool harvest(Tile_Info& info);
+    bool harvest(Tile& info);
 };

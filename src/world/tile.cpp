@@ -1,6 +1,6 @@
 #include <world/tile.hpp>
 
-Tile_Info::Tile_Info(const Tile_Info& i)
+Tile::Tile(const Tile& i)
     : coordinates { i.coordinates }
     , planted { i.planted }
     , biome { i.biome }
@@ -8,9 +8,10 @@ Tile_Info::Tile_Info(const Tile_Info& i)
     , building { i.building }
     , floor { i.floor }
     , texture_pos { i.texture_pos }
+    , bounds { i.bounds }
 {}
 
-void Tile_Info::setFloor(Floor_Type t)
+void Tile::setFloor(Floor_Type t)
 {
     floor = t;
     texture_pos.y = static_cast<int>(t) * tile_size;

@@ -17,10 +17,10 @@ using Map_Tile = std::map<int, std::map<int, T>>;
 /// \brief POD defining a world tile
 /// rename this when you get a chance
 ///
-struct Tile_Info {
-    Tile_Info() = default;
+struct Tile {
+    Tile() = default;
 
-    Tile_Info(const Tile_Info& i);
+    Tile(const Tile& i);
 
     sf::Vector2i coordinates; /**< world coordinates */
 
@@ -32,6 +32,8 @@ struct Tile_Info {
 
     Floor_Type floor{ Floor_Type::NULL_TYPE }; /**< base tile type */
     sf::Vector2i texture_pos{ 0, 0 }; /**< textureRect pos */
+
+    sf::FloatRect bounds;
 
     void setFloor(Floor_Type t);
 };

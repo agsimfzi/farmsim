@@ -1,12 +1,14 @@
 #include <ui/player_target.hpp>
 
-#include <world/tile.hpp>
+#include <world/tile_size.hpp>
+
+#include <util/vector2_stream.hpp>
 
 Player_Target::Player_Target()
 {
     float stroke_width = 4.f;
     frame.setSize(sf::Vector2f(tile_size - stroke_width, tile_size - stroke_width));
-    frame.setOrigin(frame.getSize() / 2.f);
+    frame.setOrigin(sf::Vector2f(-stroke_width, -stroke_width));
     frame.setFillColor(sf::Color::Transparent);
     frame.setOutlineThickness(stroke_width);
     frame.setOutlineColor(sf::Color(200, 50, 50));

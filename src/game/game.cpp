@@ -89,7 +89,7 @@ void Game::update(float delta_time)
 
     player.update();
     std::vector<sf::FloatRect> local_blocks;
-    std::vector<std::pair<Tile_Info, sf::FloatRect>> local_tiles;
+    std::vector<std::pair<Tile, sf::FloatRect>> local_tiles;
     size_t n;
     Vehicle::Type v = Vehicle::NULL_TYPE;
     if (player.getVehicle()) {
@@ -121,12 +121,11 @@ void Game::update(float delta_time)
         default:
             break;
     }
-    view.move(player.move(local_blocks, delta_time));
+    sf::Vector2f offset(player.move(local_blocks, delta_time));
+    view.move(offset);
 
     player_inventory.update();
     world.update(player_inventory, player, delta_time);
-
-    view.setCenter(player.getPosition());
 
     use_item.update(player_inventory.equippedItem());
 

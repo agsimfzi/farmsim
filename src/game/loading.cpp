@@ -90,4 +90,5 @@ void Loading_Screen::prepare(Game* game, UI* ui, sf::RenderWindow& window)
 
     step = 0;
     doStep();
+    state = LOADING;
 }

@@ -100,7 +100,7 @@ void Use_Item::seed(std::shared_ptr<Item> item)
 
         auto unwater = [&](sf::Vector2i c)
         {
-            Tile_Info& tile = world.getTileLibrary()[c.x][c.y];
+            Tile& tile = world.getTileLibrary()[c.x][c.y];
             tile.setFloor(Floor_Type::TILLED);
             world.getChunks().updateTile(tile);
         };
@@ -116,7 +116,7 @@ void Use_Item::plant(std::shared_ptr<Item> item)
 
 void Use_Item::building(std::shared_ptr<Item> item)
 {
-    Tile_Info& info = tile_library[target->x][target->y];
+    Tile& info = tile_library[target->x][target->y];
     if (world.buildableTile(info)) {
         info.building = library.building(item->getUID());
         world.getChunks().addBuilding(info.building, *target);
@@ -129,19 +129,20 @@ void Use_Item::building(std::shared_ptr<Item> item)
 
 void Use_Item::vehicle(std::shared_ptr<Item> item)
 {
+    Tile& tile = tile_library[target->x][target->y];
+    sf::Vector2f pos(tile.coordinates);
+    pos *= tile_size;
     switch (item->getUID()) {
         default:
             break;
         case 10000: // boat
-            if (tile_library[target->x][target->y].floor == Floor_Type::WATER) {
-                sf::Vector2f pos = world.getChunks().floor(*target)->getPosition();
+            if (tile.floor == Floor_Type::WATER) {
                 vehicles.push_back(std::make_shared<Vehicle>(pos, library.vehicle(Vehicle::BOAT)));
                 item->take(1);
             }
             break;
         case 10001: // broom
             if (world.emptyTile(*target)) {
-                sf::Vector2f pos = world.getChunks().floor(*target)->getPosition();
                 vehicles.push_back(std::make_shared<Vehicle>(pos, library.vehicle(Vehicle::BROOM)));
                 item->take(1);
             }
@@ -151,7 +152,7 @@ void Use_Item::vehicle(std::shared_ptr<Item> item)
 
 void Use_Item::rawMaterial(std::shared_ptr<Item> item)
 {
-    Tile_Info& info = tile_library[target->x][target->y];
+    Tile& info = tile_library[target->x][target->y];
     if (info.building && info.building->type == Building::MACHINE) {
         auto m = std::dynamic_pointer_cast<Machine>(info.building);
         m->addReagant(item);
@@ -222,7 +223,7 @@ void Use_Item::water(std::shared_ptr<Item> item)
 
 void Use_Item::axe(std::shared_ptr<Item> item)
 {
-    Tile_Info& info = tile_library[target->x][target->y];
+    Tile& info = tile_library[target->x][target->y];
     if (info.detail && info.detail->getType() == Detail::TREE) {
         Detail* tree = info.detail.get();
         tree->hit(item->useFactor());
@@ -255,7 +256,7 @@ void Use_Item::pick(std::shared_ptr<Item> item)
 {
     if (!world.changeActiveTile(Floor_Type::TILLED, Floor_Type::DIRT)
     && !world.changeActiveTile(Floor_Type::WATERED, Floor_Type::DIRT)) {
-        Tile_Info& info = tile_library[target->x][target->y];
+        Tile& info = tile_library[target->x][target->y];
         if (info.detail && info.detail->getType() == Detail::ROCK) {
             Detail* rock = info.detail.get();
             rock->hit(item->useFactor());

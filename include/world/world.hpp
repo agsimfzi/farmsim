@@ -33,7 +33,7 @@ public:
     Map_Tile<Crop>& getCrops();
 
     std::vector<sf::FloatRect> getLocalImpassableTiles(sf::Vector2i p);
-    std::vector<std::pair<Tile_Info, sf::FloatRect>> getLocalTiles(sf::Vector2i p);
+    std::vector<std::pair<Tile, sf::FloatRect>> getLocalTiles(sf::Vector2i p);
 
     void update(Player_Inventory& inventory, Player& player, float deltaTime);
 
@@ -46,7 +46,7 @@ public:
     sf::Vector2i worldMin();
     sf::Vector2i worldMax();
 
-    Map_Tile<Tile_Info>& getTileLibrary();
+    Map_Tile<Tile>& getTileLibrary();
 
     void checkPickup(Player_Inventory& inventory, Player& player, float deltaTime);
 
@@ -77,15 +77,15 @@ public:
     std::vector<std::shared_ptr<Vehicle>>& getVehicles();
 
     bool emptyTile(sf::Vector2i i);
-    bool emptyTile(Tile_Info& info);
+    bool emptyTile(Tile& info);
 
     bool buildableTile(sf::Vector2i i);
     bool plantableTile(sf::Vector2i i);
     bool passableTile(sf::Vector2i i);
 
-    bool buildableTile(Tile_Info& info);
-    bool plantableTile(Tile_Info& info);
-    bool passableTile(Tile_Info& info);
+    bool buildableTile(Tile& info);
+    bool plantableTile(Tile& info);
+    bool passableTile(Tile& info);
 
     void autotile(sf::Vector2i start, sf::Vector2i end, Floor_Type type);
 
@@ -96,7 +96,7 @@ private:
 
     Library& library;
 
-    Map_Tile<Tile_Info> tile_library;
+    Map_Tile<Tile> tile_library;
     Chunk_Loader chunks { tile_library };
 
     sf::Vector2i world_min;

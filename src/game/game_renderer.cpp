@@ -1,8 +1,6 @@
 #include <game/game_renderer.hpp>
 
-#include <util/vector2_stream.hpp>
-
-const sf::Vector2i Game_Renderer::render_distance = sf::Vector2i(20, 12);
+const sf::Vector2i Game_Renderer::render_distance = sf::Vector2i(24, 16);
 
 void Game_Renderer::clear()
 {
@@ -23,11 +21,11 @@ void Game_Renderer::load(World& world, Player& player)
 
     Chunk_Loader& loader = world.getChunks();
     std::vector<Chunk*> chunks = loader.localChunks();
-    size_t n = chunks.size();
     std::vector<std::shared_ptr<Item>> items;
-    for (size_t i = 0; i < n; i++) {
-        items.insert(items.end(), chunks[i]->getItems().begin(), chunks[i]->getItems().end());
-        drawables[3].push_back(&chunks[i]->getFrame());
+    for (const auto& c : chunks) {
+        drawables[0].push_back(&c->getFloor());
+        items.insert(items.end(), c->getItems().begin(), c->getItems().end());
+        drawables[3].push_back(&c->getFrame());
     }
     Map_Tile<Crop>& crops = world.getCrops();
     std::vector<std::shared_ptr<Vehicle>>& vehicles = world.getVehicles();
@@ -47,20 +45,13 @@ void Game_Renderer::load(World& world, Player& player)
     }
 
     sf::Vector2i p(player.getCoordinates(tile_size));
-    //sf::Vector2i distance(20, 12);
     render_start = p - render_distance;
     render_end = p + render_distance;
 
     for (int y = render_start.y; y <= render_end.y; y++) {
         for (int x = render_start.x; x <= render_end.x; x++) {
             sf::Vector2i i(x, y);
-            sf::Sprite* f = loader.floor(i);
-            if (f) {
-                drawables[0].push_back(f);
-            }
-            else {
-                std::cout << "failed to find floor sprite at " << i << "!\n";
-            }
+
             sf::Sprite* d = loader.detail(i);
             if (d) {
                 int index = 1;

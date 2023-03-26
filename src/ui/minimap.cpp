@@ -54,7 +54,7 @@ void Minimap::load(World& world)
         colors[Biome::CALDERA] = sf::Color(220, 108, 16);
         colors[Biome::NULL_TYPE] = sf::Color::White;
 
-    Map_Tile<Tile_Info>& tiles = world.getTileLibrary();
+    Map_Tile<Tile>& tiles = world.getTileLibrary();
     sf::Vector2i min = world.worldMin();
     sf::Vector2i max = world.worldMax();
     sf::Vector2i size;

@@ -2,8 +2,7 @@
 
 #include <util/primordial.hpp>
 
-
-Chunk_Loader::Chunk_Loader(Map_Tile<Tile_Info>& info)
+Chunk_Loader::Chunk_Loader(Map_Tile<Tile>& info)
     : info { info }
 {}
 
@@ -103,16 +102,6 @@ void Chunk_Loader::clear()
     current = sf::Vector2i(0, 0);
 }
 
-sf::Sprite* Chunk_Loader::floor(sf::Vector2i i)
-{
-    sf::Sprite* f = nullptr;
-    sf::Vector2i c = findChunk(i);
-    if (validChunkIndex(c)) {
-        f = chunks[c.x][c.y]->getFloor(i);
-    }
-    return f;
-}
-
 sf::Sprite* Chunk_Loader::detail(sf::Vector2i i)
 {
     sf::Sprite* d = nullptr;
@@ -123,7 +112,7 @@ sf::Sprite* Chunk_Loader::detail(sf::Vector2i i)
     return d;
 }
 
-void Chunk_Loader::updateTile(Tile_Info& info)
+void Chunk_Loader::updateTile(Tile& info)
 {
     sf::Vector2i c = findChunk(info.coordinates);
     if (validChunkIndex(c)) {
@@ -169,7 +158,8 @@ void Chunk_Loader::addItem(std::shared_ptr<Item> item, sf::Vector2i coords)
 {
     sf::Vector2i ci = findChunk(coords);
     if (chunks.contains(ci.x) && chunks[ci.x].contains(ci.y)) {
-        sf::Vector2f pos = chunks[ci.x][ci.y]->getFloor(coords)->getPosition();
+        sf::Vector2f pos(coords);
+        pos *= tile_size;
         chunks[ci.x][ci.y]->addItem(item, pos);
     }
 }

@@ -94,6 +94,11 @@ int roundFloat(float f)
     return static_cast<int>(f + 0.5f);
 }
 
+int signAwareRoundFloat(float f)
+{
+    return static_cast<int>(f + (sign(f) / 2.f));
+}
+
 std::string makeUppercase(std::string str){
     std::transform(str.begin(), str.end(), str.begin(), ::toupper);
     return str;

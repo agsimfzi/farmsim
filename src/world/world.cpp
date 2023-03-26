@@ -14,6 +14,8 @@
 #include <world/automaton.hpp>
 #include <world/biome_generator.hpp>
 
+#include <util/vector2_stream.hpp>
+
 //////////////////////////////////////////////////////////////
 
 World::World(Library& library)
@@ -22,6 +24,7 @@ World::World(Library& library)
     sf::Vector2i size(16, 16);
     size.x *= chunks.chunk_size.x;
     size.y *= chunks.chunk_size.y;
+    //size.x -= 1;
     size.y -= 1;
     world_min = -(size / 2);
     world_max = (size / 2);
@@ -63,7 +66,7 @@ void World::seasonalIteration()
 {
     for (int x = world_min.x; x <= world_max.x; x++) {
         for (int y = world_min.y; y <= world_max.y; y++) {
-            Tile_Info& info = tile_library[x][y];
+            Tile& info = tile_library[x][y];
             if (info.detail) {
                 info.detail->setSeasonalTextureRect(season);
             }
@@ -100,19 +103,19 @@ sf::Vector2i World::worldMax()
 sf::Vector2i* World::checkMouseTarget(sf::Vector2f mpos, sf::Vector2i playerCoords)
 {
     // future: pass player coordinates + tool distance
-    mpos += sf::Vector2f(sign(mpos.x) * (tile_size / 2.f), sign(mpos.y) * (tile_size / 2.f));
-    sf::Vector2i coords;
-    coords.x = mpos.x / tile_size;
-    coords.y = mpos.y / tile_size;
+    //mpos += sf::Vector2f(sign(mpos.x) * tile_size, sign(mpos.y) * tile_size);
 
-    // check for tile at coordinates
-    if (inRange(coords, playerCoords) && chunks.floor(coords)) {
-        active_tile = std::make_unique<sf::Vector2i>(coords);
-    }
-    else if (active_tile) {
-        active_tile = nullptr;
+    for (int x = playerCoords.x - 1; x <= playerCoords.x + 1; x++) {
+        for (int y = playerCoords.y - 1; y <= playerCoords.y + 1; y++) {
+            if (tile_library[x][y].bounds.contains(mpos)) {
+                active_tile = std::make_unique<sf::Vector2i>(x, y);
+                //std::cout << "setting active tile to " << *active_tile << '\n';
+                return active_tile.get();
+            }
+        }
     }
 
+    active_tile = nullptr;
     return active_tile.get();
 }
 
@@ -134,7 +137,7 @@ void World::makeBiomes()
     for (int x = world_min.x; x <= world_max.x; x++) {
         for (int y = world_min.y; y <= world_max.y; y++) {
             sf::Vector2i c(x, y);
-            Tile_Info& info = tile_library[x][y];
+            Tile& info = tile_library[x][y];
             info.coordinates = c;
             info.planted = false;
             info.biome = biomes[x][y];
@@ -157,8 +160,14 @@ void World::makeBiomes()
                     info.detail->coordinates = c;
                 }
                 else if (prng::boolean(0.006f)) {
-                    info.detail = std::make_unique<Detail>(library.detail("GOLD"));
-                    info.detail->coordinates = c;
+                    if (prng::boolean(.6f)) {
+                        info.detail = std::make_unique<Detail>(library.detail("GOLD"));
+                        info.detail->coordinates = c;
+                    }
+                    else {
+                        info.detail = std::make_unique<Detail>(library.detail("IRON"));
+                        info.detail->coordinates = c;
+                    }
                 }
             }
             else if (info.biome == Biome::CALDERA) {
@@ -167,48 +176,55 @@ void World::makeBiomes()
             else {
                 info.floor = Floor_Type::DIRT;
 
-                if (info.biome == Biome::GRASSLAND) {
-                    if (prng::boolean(0.003f)) {
-                        info.detail = std::make_unique<Detail>(library.detail("BIRCH"));
-                        info.detail->coordinates = c;
-                    }
-                    else if (prng::boolean(0.003f)) {
-                        info.detail = std::make_unique<Detail>(library.detail("LIMESTONE"));
-                        info.detail->coordinates = c;
-                    }
-                    else if (prng::boolean(0.002f)) {
-                        if (prng::boolean(.6f)) {
-                            info.detail = std::make_unique<Detail>(library.detail("COPPER"));
+                if (!adjacentTree(c)) {
+                    if (info.biome == Biome::GRASSLAND) {
+                        if (prng::boolean(0.003f)) {
+                            info.detail = std::make_unique<Detail>(library.detail("BIRCH"));
                             info.detail->coordinates = c;
                         }
-                        else {
-                            info.detail = std::make_unique<Detail>(library.detail("IRON"));
+                        else if (prng::boolean(0.003f)) {
+                            info.detail = std::make_unique<Detail>(library.detail("LIMESTONE"));
                             info.detail->coordinates = c;
                         }
+                        else if (prng::boolean(0.002f)) {
+                            if (prng::boolean(.6f)) {
+                                info.detail = std::make_unique<Detail>(library.detail("COPPER"));
+                                info.detail->coordinates = c;
+                            }
+                            else {
+                                info.detail = std::make_unique<Detail>(library.detail("IRON"));
+                                info.detail->coordinates = c;
+                            }
+                        }
                     }
-                }
-                else if (info.biome == Biome::FOREST) {
-                    if (prng::boolean(0.2f)) {
-                        info.detail = std::make_unique<Detail>(library.detail("PINE"));
-                        info.detail->coordinates = c;
-                    }
-                    else if (prng::boolean(0.002f)) {
-                        info.detail = std::make_unique<Detail>(library.detail("GRANITE"));
-                        info.detail->coordinates = c;
-                    }
-                    else if (prng::boolean(0.001f)) {
-                        if (prng::boolean(.7f)) {
-                            info.detail = std::make_unique<Detail>(library.detail("COPPER"));
+                    else if (info.biome == Biome::FOREST) {
+                        if (prng::boolean(0.2f)) {
+                            info.detail = std::make_unique<Detail>(library.detail("PINE"));
                             info.detail->coordinates = c;
                         }
-                        else {
-                            info.detail = std::make_unique<Detail>(library.detail("IRON"));
+                        else if (prng::boolean(0.002f)) {
+                            info.detail = std::make_unique<Detail>(library.detail("GRANITE"));
                             info.detail->coordinates = c;
+                        }
+                        else if (prng::boolean(0.001f)) {
+                            if (prng::boolean(.7f)) {
+                                info.detail = std::make_unique<Detail>(library.detail("COPPER"));
+                                info.detail->coordinates = c;
+                            }
+                            else {
+                                info.detail = std::make_unique<Detail>(library.detail("IRON"));
+                                info.detail->coordinates = c;
+                            }
                         }
                     }
                 }
             }
             info.texture_pos = sf::Vector2i(0, (static_cast<int>(info.floor)) * roundFloat(tile_size));
+
+            info.bounds.left = c.x * tile_size;
+            info.bounds.top = c.y * tile_size;
+            info.bounds.width = tile_size;
+            info.bounds.height = tile_size;
         }
     }
     autotile(world_min, world_max, Floor_Type::WATER);
@@ -255,7 +271,7 @@ void World::finalize()
 
 sf::Vector2f World::startPosition()
 {
-    return chunks.floor(start_coords)->getPosition();
+    return sf::Vector2f(tile_library[start_coords.x][start_coords.y].coordinates) * tile_size;
 }
 
 void World::autotile(sf::Vector2i start, sf::Vector2i end, Floor_Type type)
@@ -263,7 +279,7 @@ void World::autotile(sf::Vector2i start, sf::Vector2i end, Floor_Type type)
     for (int x = start.x; x <= end.x; x++) {
         for (int y = start.y; y <= end.y; y++) {
             if (tile_library[x][y].floor == type) {
-                Tile_Info& info = tile_library[x][y];
+                Tile& info = tile_library[x][y];
                 sf::Vector2i c(x, y);
                 info.texture_pos.x = autotileX(c, type);
                 chunks.updateTile(info);
@@ -381,7 +397,7 @@ bool World::validLibraryTile(int x, int y)
     return (tile_library.contains(x) && tile_library[x].contains(y));
 }
 
-Map_Tile<Tile_Info>& World::getTileLibrary()
+Map_Tile<Tile>& World::getTileLibrary()
 {
     return tile_library;
 }
@@ -405,14 +421,13 @@ std::vector<sf::FloatRect> World::getLocalImpassableTiles(sf::Vector2i p)
 {
     std::vector<sf::FloatRect> local_tiles;
 
-    const static int depth = 1;
+    const static int depth = 2;
 
     for (int x = p.x - depth; x <= p.x + depth; ++x) {
         for (int y = p.y - depth; y <= p.y + depth; ++y) {
             sf::Vector2i c(x, y);
-            sf::Sprite* f = chunks.floor(c);
-            if (f && !passableTile(c)) {
-                local_tiles.push_back(f->getGlobalBounds());
+            if (!passableTile(c)) {
+                local_tiles.push_back(tile_library[c.x][c.y].bounds);
             }
         }
     }
@@ -420,19 +435,16 @@ std::vector<sf::FloatRect> World::getLocalImpassableTiles(sf::Vector2i p)
     return local_tiles;
 }
 
-std::vector<std::pair<Tile_Info, sf::FloatRect>> World::getLocalTiles(sf::Vector2i p)
+std::vector<std::pair<Tile, sf::FloatRect>> World::getLocalTiles(sf::Vector2i p)
 {
-    std::vector<std::pair<Tile_Info, sf::FloatRect>> local_tiles;
+    std::vector<std::pair<Tile, sf::FloatRect>> local_tiles;
 
-    const static int depth = 1;
+    const static int depth = 2;
 
     for (int x = p.x - depth; x <= p.x + depth; ++x) {
         for (int y = p.y - depth; y <= p.y + depth; ++y) {
             sf::Vector2i c(x, y);
-            sf::Sprite* f = chunks.floor(c);
-            if (f) {
-                local_tiles.push_back(std::make_pair(Tile_Info(tile_library[x][y]), f->getGlobalBounds()));
-            }
+            local_tiles.push_back(std::make_pair(tile_library[c.x][c.y], tile_library[c.x][c.y].bounds));
         }
     }
 
@@ -442,7 +454,7 @@ std::vector<std::pair<Tile_Info, sf::FloatRect>> World::getLocalTiles(sf::Vector
 void World::addCrop(sf::Vector2i c, Crop crop)
 {
     crops[active_tile->x][active_tile->y] = crop;
-    crops[active_tile->x][active_tile->y].place(c, chunks.floor(c)->getPosition());
+    crops[active_tile->x][active_tile->y].place(c, sf::Vector2f(c) * tile_size);
 }
 
 bool World::changeActiveTile(Floor_Type prereq, Floor_Type ntype)
@@ -450,7 +462,7 @@ bool World::changeActiveTile(Floor_Type prereq, Floor_Type ntype)
     bool change = false;
 
     if (active_tile) {
-        Tile_Info& info = tile_library[active_tile->x][active_tile->y];
+        Tile& info = tile_library[active_tile->x][active_tile->y];
         change = info.floor == prereq;
         if (change) {
             if (info.planted && ntype != Floor_Type::WATERED) {
@@ -568,7 +580,7 @@ bool World::emptyTile(sf::Vector2i i)
     return emptyTile(tile_library[i.x][i.y]);
 }
 
-bool World::emptyTile(Tile_Info& info)
+bool World::emptyTile(Tile& info)
 {
     return (!info.detail
          && !info.building
@@ -582,7 +594,7 @@ bool World::buildableTile(sf::Vector2i i)
     return buildableTile(tile_library[i.x][i.y]);
 }
 
-bool World::buildableTile(Tile_Info& info)
+bool World::buildableTile(Tile& info)
 {
     return (emptyTile(info) && !plantableTile(info));
 }
@@ -592,7 +604,7 @@ bool World::plantableTile(sf::Vector2i i)
     return plantableTile(tile_library[i.x][i.y]);
 }
 
-bool World::plantableTile(Tile_Info& info)
+bool World::plantableTile(Tile& info)
 {
     return (!info.planted && (info.floor == Floor_Type::TILLED || info.floor == Floor_Type::WATERED));
 }
@@ -602,7 +614,7 @@ bool World::passableTile(sf::Vector2i i)
     return passableTile(tile_library[i.x][i.y]);
 }
 
-bool World::passableTile(Tile_Info& info)
+bool World::passableTile(Tile& info)
 {
     bool passable = emptyTile(info);
     if (info.planted && !crops[info.coordinates.x][info.coordinates.y].passable())

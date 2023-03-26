@@ -11,8 +11,10 @@ Building::Building(Building_Animation_Data ad)
     sf::Vector2i size(48, 64);
     sprite = Animated_Sprite<Building_State>(Texture_Manager::get(ad.tkey), size, ad.counts, ad.thresholds, ad.start, true);
     sf::Vector2f origin;
-    origin.x = size.x / 2;
-    origin.y = size.y - (tile_size / 2);
+    origin.x = size.x - tile_size;
+    origin.y = size.y - tile_size;
+    //origin.x = size.x / 2;
+    //origin.y = size.y - (tile_size / 2);
     sprite.setOrigin(origin);
     sprite.unsetRepeat(Building_State::IDLE);
     sprite.unsetRepeat(Building_State::STARTING);

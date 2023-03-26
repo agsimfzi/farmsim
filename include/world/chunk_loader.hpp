@@ -22,7 +22,7 @@ public:
 ///
 /// \brief loads tile map reference
 ///
-    Chunk_Loader(Map_Tile<Tile_Info>& info);
+    Chunk_Loader(Map_Tile<Tile>& info);
 
 /// load ///
 ///
@@ -84,12 +84,6 @@ public:
 ///
     void clear();
 
-/// floor ///
-///
-/// \brief returns a pointer to the floor tile at the passed coordinates
-///
-    sf::Sprite* floor(sf::Vector2i i);
-
 /// detail ///
 ///
 /// \brief returns a pointer to the detail, if any, at the passed coordinates
@@ -99,7 +93,7 @@ public:
 /// updateTile ///
 ///
 /// \brief reloads passed tile
-    void updateTile(Tile_Info& info);
+    void updateTile(Tile& info);
 
 /// building ///
 ///
@@ -159,7 +153,7 @@ private:
     sf::Vector2i current{ 0, 0 }; /**< chunk which holds the player */
     Map_Tile<std::unique_ptr<Chunk>> chunks; /**< all chunks */
 
-    Map_Tile<Tile_Info>& info; /**< reference to world tile map */
+    Map_Tile<Tile>& info; /**< reference to world tile map */
 
 /// validChunkIndex ///
 ///

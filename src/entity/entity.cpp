@@ -157,11 +157,9 @@ sf::Vector2f Entity::getVelocity()
 
 sf::Vector2i Entity::getCoordinates(float tile_size)
 {
-    sf::Vector2f pos = getPosition();
-    pos += sf::Vector2f(sign(pos.x) * (tile_size / 2.f), sign(pos.y) * (tile_size / 2.f));
-    sf::Vector2i c;
-    c.x = pos.x / tile_size;
-    c.y = pos.y / tile_size;
+    sf::Vector2i c(getPosition() / tile_size);
+    c.x -= (getPosition().x < 0.f);
+    c.y -= (getPosition().y < 0.f);
     return c;
 }
 

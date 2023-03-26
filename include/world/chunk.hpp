@@ -7,6 +7,7 @@
 #include <item/item.hpp>
 
 #include "biome.hpp"
+#include "floor_map.hpp"
 #include "tile.hpp"
 
 /// CHUNK ///
@@ -21,7 +22,7 @@ public:
 ///
 /// \brief reads the passed tiles into a new chunk
 ///
-    Chunk(sf::Vector2i start, sf::Vector2i size, Map_Tile<Tile_Info>& info);
+    Chunk(sf::Vector2i start, sf::Vector2i size, Map_Tile<Tile>& info);
 
 /// update ///
 ///
@@ -40,12 +41,6 @@ public:
 /// \brief returns true if the passed tile coordinates are inside the chunk
 ///
     bool contains(sf::Vector2i coords);
-
-/// getFloor ///
-///
-/// \brief returns a pointer to the indexed floor sprite
-///
-    sf::Sprite* getFloor(sf::Vector2i i);
 
 /// detail ///
 ///
@@ -94,13 +89,13 @@ public:
 /// readTile ///
 ///
 /// \brief reads floor/detail sprites, and buildings
-    void readTile(Tile_Info& info);
+    void readTile(Tile& info);
 
 /// getFloor ///
 ///
 /// \brief returns all chunk floor tiles
 ///
-    Map_Tile<sf::Sprite>& getFloorMap();
+    Floor_Map& getFloor();
 
 /// getDetails ///
 ///
@@ -123,8 +118,10 @@ private:
     sf::FloatRect f_bounds; /**< world position chunk boundaries */
     sf::IntRect i_bounds;/**< coordinate boundaries */
     sf::RectangleShape frame; /**< boundary frame around all tiles */
-    Map_Tile<sf::Sprite> floor; /**< tiles */
+    //Map_Tile<sf::Sprite> floor; /**< tiles */
+    Floor_Map floor;
     Map_Tile<sf::Sprite> details; /**< tile details */
     Map_Tile<std::shared_ptr<Building>> buildings; /**< buildings */
     std::vector<std::shared_ptr<Item>> items; /**< dropped or otherwise loose items */
+    const sf::Vector2i size;
 };
