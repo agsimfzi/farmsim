@@ -36,16 +36,16 @@ UI::UI(sf::RenderWindow& window, Game& game, sf::View& view)
     player_pos.setOutlineThickness(2.f);
     player_pos.setOutlineColor(Palette::black);
 
-    season_display.setTexture(&Texture_Manager::get("SEASONS"));
-    season_display.setSize(sf::Vector2f(64.f, 32.f));
-    season_display.setOutlineThickness(1.f);
-    season_display.setOutlineColor(Palette::black);
-    season_display.setPosition(sf::Vector2f(1700.f, 404.f));
+    game_info.season.setTexture(&Texture_Manager::get("SEASONS"));
+    game_info.season.setSize(sf::Vector2f(64.f, 32.f));
+    game_info.season.setOutlineThickness(1.f);
+    game_info.season.setOutlineColor(Palette::black);
+    game_info.season.setPosition(sf::Vector2f(1700.f, 404.f));
     readSeasonChange();
 
-    energy_bar.setPosition(sf::Vector2f(1600.f, 980.f));
+    game_info.energy.setPosition(sf::Vector2f(1600.f, 980.f));
 
-    auto update_wallet = std::bind(&Wallet_Inspector::update, &wallet_inspector, std::placeholders::_1);
+    auto update_wallet = std::bind(&Wallet_Inspector::update, &game_info.wallet, std::placeholders::_1);
     game.getPlayer().getWallet().update_ui = update_wallet;
 }
 
@@ -77,9 +77,9 @@ void UI::update()
     minimap.update(game.getPlayer().getCoordinates(tile_size));
 
     int energy = game.playerEnergy();
-    if (last_player_energy != energy) {
-        last_player_energy = energy;
-        energy_bar.update(game.energyPercent());
+    if (game_info.last_player_energy != energy) {
+        game_info.last_player_energy = energy;
+        game_info.energy.update(game.energyPercent());
     }
 
 }
@@ -282,16 +282,11 @@ void UI::useBuilding()
     }
 }
 
-void UI::loadInterface(Building* b)
-{
-
-}
-
 void UI::readSeasonChange()
 {
     sf::IntRect trect(0, 0, 64, 32);
     trect.left = static_cast<int>(game.getWorld().getSeason()) * 64;
-    season_display.setTextureRect(trect);
+    game_info.season.setTextureRect(trect);
 }
 
 void UI::draw(sf::RenderTarget& target, sf::RenderStates states) const
@@ -306,11 +301,7 @@ void UI::draw(sf::RenderTarget& target, sf::RenderStates states) const
 
     target.draw(player_pos, states);
 
-    target.draw(season_display, states);
-
-    target.draw(energy_bar, states);
-
-    target.draw(wallet_inspector, states);
+    target.draw(game_info, states);
 
     target.draw(*inventory_interface, states); // reaction_interface view
 

@@ -91,6 +91,8 @@ public:
 
     bool changeActiveTile(Floor_Type prereq, Floor_Type ntype);
 
+    unsigned int getYear();
+
 private:
     Building* active_building{ nullptr };
 
@@ -137,4 +139,6 @@ private:
     sf::Vector2i randomNearbyEmptyTile(sf::Vector2i i, int distance = 1);
 
     void seasonalIteration();
+
+    unsigned int year = 0;
 };

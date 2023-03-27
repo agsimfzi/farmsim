@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string>
+
 /// SEASON ///
 ///
 /// \brief enumerated season

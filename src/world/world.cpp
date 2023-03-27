@@ -42,6 +42,7 @@ void World::nextSeason(Player& player)
     s++;
     if (s > 3) {
         s = 0;
+        year++;
     }
     season = static_cast<Season>(s);
     std::cout << " TO " << seasonToString(season) << "!\n";

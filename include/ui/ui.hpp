@@ -50,9 +50,6 @@ public:
 
     void loadDefaultReactions();
 
-    void loadInterface(Building* b);
-    void closeInterface();
-
     void readSeasonChange();
 
 private:
@@ -66,8 +63,6 @@ private:
 
     sf::RectangleShape overlay;
 
-    sf::RectangleShape season_display;
-
     std::unique_ptr<Inventory_Interface> inventory_interface;
 
     Player_Target player_target;
@@ -76,10 +71,7 @@ private:
 
     Minimap minimap;
 
-    int last_player_energy{ -1 };
-    Energy_Bar energy_bar;
-
-    Wallet_Inspector wallet_inspector;
+    Game_Info game_info;
 
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
 };

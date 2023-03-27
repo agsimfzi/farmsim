@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string>
+
 /// ITEM TYPE ///
 ///
 /// \brief enumerated item categories

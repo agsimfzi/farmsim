@@ -44,6 +44,7 @@ private:
     Map_Tile<bool> rivers; /**< stores rivers */
     Map_Tile<bool> beach; /**< stores beaches */
     Map_Tile<bool> empty; /**< tracks empty tiles */
+    Map_Tile<bool> grass; /**< tracks grass tiles */
 
     std::vector<std::vector<sf::Vector2i>> beaches; /**< stores beaches as discrete contiguous regions */
 
