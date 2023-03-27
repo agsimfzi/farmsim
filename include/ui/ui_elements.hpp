@@ -4,6 +4,7 @@
 #include "energy_bar.hpp"
 #include "minimap.hpp"
 #include "player_target.hpp"
+#include "wallet_inspector.hpp"
 
 #include "inventory_interface.hpp"
 #include "container_interface.hpp"

@@ -121,8 +121,10 @@ void Game::update(float delta_time)
         default:
             break;
     }
-    sf::Vector2f offset(player.move(local_blocks, delta_time));
-    view.move(offset);
+    player.move(local_blocks, delta_time);
+    view.setCenter(sf::Vector2f(roundVector(player.getPosition())));
+
+    //view.move(offset);
 
     player_inventory.update();
     world.update(player_inventory, player, delta_time);
@@ -153,6 +155,7 @@ void Game::startGame()
     world.finalize();
     player.setPosition(world.startPosition());
     view.setCenter(player.getPosition());
+    player.getWallet().setBalance(999999);
 }
 
 void Game::clickLeft()

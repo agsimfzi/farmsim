@@ -190,7 +190,11 @@ sf::Vector2f calculateMoveVector(sf::Vector2f start, sf::Vector2f end, float spe
 ///
 int roundFloat(float f);
 
-int signAwareRoundFloat(float f);
+/// roundFloat2 ///
+///
+/// \brief sign-aware roundFloat
+///
+int roundFloat2(float f);
 
 /// makeUppercase ///
 ///
@@ -222,3 +226,9 @@ int sign(T val)
 {
     return (T(0) < val) - (val < T(0));
 }
+
+/// roundVector ///
+///
+/// \brief converts sf::Vector2f to sf::Vector2i, rounding the components in the process
+///
+sf::Vector2i roundVector(sf::Vector2f v);

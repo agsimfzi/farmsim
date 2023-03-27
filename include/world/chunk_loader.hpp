@@ -141,7 +141,7 @@ public:
 ///
 /// \brief moves items toward the player and adds them to the inventory if applicable
 ///
-    void checkPickup(Player_Inventory& inventory, Player& player, bool pickup_all, float deltaTime);
+    void checkPickup(Player_Inventory& inventory, Player& player, bool pickup_all, float delta_time);
 
 /// update ///
 ///

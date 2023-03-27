@@ -143,6 +143,11 @@ void Player::rightEnd()
     }
 }
 
+Wallet& Player::getWallet()
+{
+    return wallet;
+}
+
 void Player::resetItemUseIndex()
 {
     item_use_index = 0;

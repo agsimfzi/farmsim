@@ -48,6 +48,7 @@ void Entity::move()
 {
     if (state == Entity_State::MOVING || movingVehicle()) {
         move(velocity);
+        placeBounds();
     }
 }
 
@@ -128,6 +129,7 @@ void Entity::unmoveY()
 void Entity::move(sf::Vector2f v)
 {
     sprite.move(v);
+    placeBounds();
 }
 
 Animated_Sprite<Entity_State>& Entity::getSprite()
@@ -148,6 +150,7 @@ void Entity::stop()
 void Entity::setPosition(sf::Vector2f pos)
 {
     sprite.setPosition(pos);
+    placeBounds();
 }
 
 sf::Vector2f Entity::getVelocity()

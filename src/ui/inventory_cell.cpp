@@ -58,6 +58,10 @@ void Inventory_Cell::setItem(std::shared_ptr<Item> i)
         if (!item) {
             item = i;
             item->setPosition(frame.getPosition());
+            sf::Vector2f origin;
+            origin.x = item->getSprite().getGlobalBounds().width / 2.f;
+            origin.y = item->getSprite().getGlobalBounds().height / 2.f;
+            item->getSprite().setOrigin(origin);
         }
         else if (item->getUID() == i->getUID()) {
             item->setCount(i->count());

@@ -44,6 +44,9 @@ UI::UI(sf::RenderWindow& window, Game& game, sf::View& view)
     readSeasonChange();
 
     energy_bar.setPosition(sf::Vector2f(1600.f, 980.f));
+
+    auto update_wallet = std::bind(&Wallet_Inspector::update, &wallet_inspector, std::placeholders::_1);
+    game.getPlayer().getWallet().update_ui = update_wallet;
 }
 
 void UI::init()
@@ -306,6 +309,8 @@ void UI::draw(sf::RenderTarget& target, sf::RenderStates states) const
     target.draw(season_display, states);
 
     target.draw(energy_bar, states);
+
+    target.draw(wallet_inspector, states);
 
     target.draw(*inventory_interface, states); // reaction_interface view
 

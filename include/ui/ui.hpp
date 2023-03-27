@@ -79,5 +79,7 @@ private:
     int last_player_energy{ -1 };
     Energy_Bar energy_bar;
 
+    Wallet_Inspector wallet_inspector;
+
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
 };

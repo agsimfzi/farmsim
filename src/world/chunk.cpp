@@ -125,6 +125,10 @@ void Chunk::addItem(std::shared_ptr<Item> item, sf::Vector2f pos)
     if (item) {
         items.push_back(item);
         items.back()->setPosition(pos);
+        sf::Vector2f origin;
+        origin.x = item->getSprite().getGlobalBounds().width / 2.f;
+        origin.y = item->getSprite().getGlobalBounds().height / 2.f;
+        items.back()->getSprite().setOrigin(origin);
     }
 }
 

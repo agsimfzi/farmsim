@@ -1,5 +1,7 @@
 #pragma once
 
+#include <game/wallet.hpp>
+
 #include <world/direction.hpp>
 
 #include "entity.hpp"
@@ -37,6 +39,8 @@ public:
     void rightStart();
     void rightEnd();
 
+    Wallet& getWallet();
+
 private:
     unsigned int equipped = 0;
 
@@ -58,4 +62,6 @@ private:
     void checkEnergyFactor();
 
     void resetItemUseIndex();
+
+    Wallet wallet;
 };

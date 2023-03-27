@@ -94,7 +94,7 @@ int roundFloat(float f)
     return static_cast<int>(f + 0.5f);
 }
 
-int signAwareRoundFloat(float f)
+int roundFloat2(float f)
 {
     return static_cast<int>(f + (sign(f) / 2.f));
 }
@@ -106,4 +106,9 @@ std::string makeUppercase(std::string str){
 
 bool equalStrings(std::string s1, std::string s2){
     return makeUppercase(s1) == makeUppercase(s2);
+}
+
+sf::Vector2i roundVector(sf::Vector2f v)
+{
+    return sf::Vector2i(roundFloat2(v.x), roundFloat2(v.y));
 }
