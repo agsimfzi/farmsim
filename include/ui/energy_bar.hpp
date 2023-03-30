@@ -26,6 +26,8 @@ public:
 ///
     void update(float energy);
 
+    sf::Vector2f getSize();
+
 private:
     sf::RectangleShape frame; /**< the shell the meter fills */
     sf::RectangleShape fill; /**< represents the meter itself */

@@ -1,5 +1,7 @@
 #include <game/game.hpp>
 
+#include <limits>
+
 #include <system/database.hpp>
 
 #include <util/fmouse.hpp>
@@ -44,11 +46,92 @@ Game::Game(sf::View& nview)
     giveItemToPlayer(1202, 100);
 
     giveItemToPlayer("bed");
+
+    fade.setSize(sf::Vector2f(2000.f, 1200.f));
+    fade.setOrigin(fade.getSize() / 2.f);
+
+    setState(Game_State::FADE_IN);
+}
+
+void Game::setState(Game_State state)
+{
+    this->state = state;
+    switch (state) {
+        case Game_State::PLAY:
+            showUI();
+            update = std::bind(&Game::play, this, std::placeholders::_1);
+            enableInput();
+            break;
+        case Game_State::SEASON_CHANGE:
+            newMain(Main_State::SEASON_CHANGE);
+            //update = std::bind(&Season_Changer::update, &season_changer, std::placeholders::_1);
+            break;
+        case Game_State::FADE_OUT:
+            hideUI();
+            update = std::bind(&Game::fadeOut, this, std::placeholders::_1);
+            fade_alpha = std::numeric_limits<uint8_t>::min();
+            setFade();
+            fade_timer.restart();
+            fade.setPosition(view.getCenter());
+            disableInput();
+            break;
+        case Game_State::FADE_IN:
+            update = std::bind(&Game::fadeIn, this, std::placeholders::_1);
+            fade_alpha = std::numeric_limits<uint8_t>::max();
+            setFade();
+            fade.setPosition(view.getCenter());
+            fade_timer.restart();
+            break;
+    }
+}
+
+void Game::fadeIn(float delta_time)
+{
+    if (fade_alpha > std::numeric_limits<uint8_t>::min()) {
+        if (checkFadeTimer()) {
+            fade_alpha--;
+            setFade();
+        }
+    }
+    else {
+        setState(Game_State::PLAY);
+    }
+}
+
+void Game::fadeOut(float delta_time)
+{
+    if (fade_alpha < std::numeric_limits<uint8_t>::max()) {
+        if (checkFadeTimer()) {
+            fade_alpha++;
+            setFade();
+        }
+    }
+    else {
+        setState(Game_State::SEASON_CHANGE);
+    }
+}
+
+bool Game::checkFadeTimer()
+{
+    if (fade_timer.getElapsedTime().asSeconds() >= fade_threshold) { [[unlikely]]
+        fade_timer.restart();
+        return true;
+    }
+
+    return false;
+}
+
+void Game::setFade()
+{
+    sf::Color fade_color(sf::Color::Black);
+    fade_color.a = fade_alpha;
+    fade.setFillColor(fade_color);
 }
 
 void Game::changeSeason()
 {
-    newMain(Main_State::SEASON_CHANGE);
+    //newMain(Main_State::SEASON_CHANGE);
+    state = Game_State::FADE_OUT;
 }
 
 void Game::nextSeason()
@@ -64,6 +147,8 @@ void Game::nextSeason()
     sf::Clock test_timer;
 
     while (test_timer.getElapsedTime().asSeconds() < 2.f);
+
+
 }
 
 void Game::giveItemToPlayer(std::string name, size_t count)
@@ -80,7 +165,7 @@ void Game::giveItemToPlayer(size_t uid, size_t count)
     player_inventory.addItem(i);
 }
 
-void Game::update(float delta_time)
+void Game::play(float delta_time)
 {
     if (tick_clock.getElapsedTime().asSeconds() >= tick_threshold) {
         tick_clock.restart();
@@ -156,6 +241,7 @@ void Game::startGame()
     player.setPosition(world.startPosition());
     view.setCenter(player.getPosition());
     player.getWallet().setBalance(999999);
+    enableInput();
 }
 
 void Game::clickLeft()
@@ -237,7 +323,30 @@ void Game::tick()
     world.tick(player.getCoordinates(tile_size));
 }
 
+const bool& Game::inputEnabled()
+{
+    return input_enabled;
+}
+
+void Game::enableInput()
+{
+    input_enabled = true;
+}
+
+void Game::disableInput()
+{
+    input_enabled = false;
+    stopInput();
+}
+
+void Game::stopUse()
+{
+    use_item.stop();
+    interact.stop();
+}
+
 void Game::draw(sf::RenderTarget& target, sf::RenderStates states) const
 {
     target.draw(renderer, states);
+    target.draw(fade, states);
 }

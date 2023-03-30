@@ -10,7 +10,7 @@ Season_Changer::Season_Changer(Game& game, UI& ui)
     : task { std::bind(&Game::nextSeason, &game) }
 {
     change = [&]() { game.nextSeason(); };
-    auto func = [&]() { newMain(Main_State::GAME); state = WAITING; };
+    auto func = [&]() { newMain(Main_State::GAME); game.setState(Game_State::FADE_IN); state = WAITING; };
     b_continue = Button("continue", Font_Manager::get(Font::MENU), func, 56);
     b_continue.setPosition(sf::Vector2f(1660.f, 960.f));
 

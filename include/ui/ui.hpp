@@ -52,6 +52,9 @@ public:
 
     void readSeasonChange();
 
+    void show();
+    void hide();
+
 private:
     sf::RenderWindow& window;
     Game& game;
@@ -72,6 +75,8 @@ private:
     Minimap minimap;
 
     Game_Info game_info;
+
+    bool hidden = true;
 
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
 };

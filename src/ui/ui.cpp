@@ -40,8 +40,19 @@ UI::UI(sf::RenderWindow& window, Game& game, sf::View& view)
     game_info.season.setSize(sf::Vector2f(64.f, 32.f));
     game_info.season.setOutlineThickness(1.f);
     game_info.season.setOutlineColor(Palette::black);
-    game_info.season.setPosition(sf::Vector2f(1700.f, 404.f));
+    sf::Vector2f pos;
+    pos.x = window.getSize().x - game_info.season.getSize().x - 8.f;
+    pos.y = minimap.getSize().y + 8.f;
+    game_info.season.setPosition(pos);
     readSeasonChange();
+
+    pos.x += game_info.season.getSize().x;
+    pos.y += game_info.season.getSize().y + (game_info.wallet.getSize().y / 2.f) + 4.f;
+
+    game_info.wallet.setPosition(pos);
+
+    pos = sf::Vector2f(window.getSize()) - sf::Vector2f(8.f, 8.f);
+    pos -= game_info.energy.getSize();
 
     game_info.energy.setPosition(sf::Vector2f(1600.f, 980.f));
 
@@ -95,7 +106,7 @@ void UI::scroll(float delta)
         // parse "reverse inventory_interface scroll" setting (invert delta's sign)
         if (inventory_interface->scroll(delta, window)) {
             game.getInventory().setEquipped(inventory_interface->getEquippedIndex());
-            game.stopInput();
+            game.stopUse();
         }
     }
 }
@@ -266,7 +277,7 @@ void UI::useBuilding()
                     break;
                 case Building::FURNITURE:
                     if (equalStrings(b->name, "bed")) {
-                        game.changeSeason();
+                        game.setState(Game_State::FADE_OUT);
                     }
                     return;
             }
@@ -289,21 +300,32 @@ void UI::readSeasonChange()
     game_info.season.setTextureRect(trect);
 }
 
+void UI::hide()
+{
+    hidden = true;
+}
+
+void UI::show()
+{
+    hidden = false;
+}
+
 void UI::draw(sf::RenderTarget& target, sf::RenderStates states) const
 {
+    if (!hidden) {
+        if (overlay_active) {
+            target.draw(overlay, states);
+        }
+        else {
+            target.draw(player_target, states);
+        }
 
-    if (overlay_active) {
-        target.draw(overlay, states);
+        target.draw(player_pos, states);
+
+        target.draw(game_info, states);
+
+        target.draw(*inventory_interface, states); // reaction_interface view
+
+        target.draw(minimap, states); // MUST BE LAST AS IT DEFINES ITS OWN VIEW!
     }
-    else {
-        target.draw(player_target, states);
-    }
-
-    target.draw(player_pos, states);
-
-    target.draw(game_info, states);
-
-    target.draw(*inventory_interface, states); // reaction_interface view
-
-    target.draw(minimap, states); // MUST BE LAST AS IT DEFINES ITS OWN VIEW!
 }

@@ -37,20 +37,22 @@ void Use_Item::update(std::shared_ptr<Item> equipped)
 void Use_Item::start(std::shared_ptr<Item> equipped)
 {
 // set use threshold by item type
-    switch (equipped->getType()) {
-        case Item_Type::SEED:
-            use_threshold = min_threshold;
-            break;
-        case Item_Type::TOOL:
-            use_threshold = tool_threshold;
-            break;
-        default:
-            use_threshold = base_threshold;
-    }
+    if (equipped) {
+        switch (equipped->getType()) {
+            case Item_Type::SEED:
+                use_threshold = min_threshold;
+                break;
+            case Item_Type::TOOL:
+                use_threshold = tool_threshold;
+                break;
+            default:
+                use_threshold = base_threshold;
+        }
 
-    use(equipped);
-    active = true;
-    use_timer.restart();
+        use(equipped);
+        active = true;
+        use_timer.restart();
+    }
 }
 
 void Use_Item::stop()

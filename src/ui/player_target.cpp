@@ -2,8 +2,6 @@
 
 #include <world/tile_size.hpp>
 
-#include <util/vector2_stream.hpp>
-
 Player_Target::Player_Target()
 {
     float stroke_width = 4.f;

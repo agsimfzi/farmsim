@@ -34,14 +34,6 @@ public:
 ///
     Game(sf::View& nview);
 
-/// update ///
-///
-/// \brief performs world and entity updates; and tick, if threshold is reached
-///
-/// \param \b delta_time Frame time factor
-///
-    void update(float delta_time);
-
 /// prepRenderer ///
 ///
 /// \brief clears and loads the game_renderer
@@ -59,14 +51,6 @@ public:
 /// \brief returns a reference to the game world
 ///
     World& getWorld();
-
-/// changeSeason ///
-///
-/// \brief effects state change for next season
-///
-/// \see nextSeason
-///
-    void changeSeason(); // effects state change
 
 /// nextSeason ///
 ///
@@ -182,6 +166,19 @@ public:
 ///
     void tick();
 
+    const bool& inputEnabled();
+    void enableInput();
+    void disableInput();
+
+    void stopUse();
+
+    std::function<void(float)> update;
+
+    void setState(Game_State state);
+
+    std::function<void()> hideUI;
+    std::function<void()> showUI;
+
 private:
     Library library; /**< prototype library for items, buildings, crops, and vehicles */
 
@@ -192,7 +189,7 @@ private:
 
     sf::View& view; /**< game's viewport, owned by Shell */
 
-    Game_State state { Game_State::STANDARD }; /**< game state. currently unimplemented, but expected to be used for season change */
+    Game_State state { Game_State::PLAY }; /**< game state. currently unimplemented, but expected to be used for season change */
 
     sf::Clock tick_clock; /**< time since last tick */
     const static float tick_threshold; /**< time between ticks */
@@ -201,6 +198,35 @@ private:
 
     Use_Item use_item{ world, player, library }; /**< uses the player's equipped item */
     Interact interact{ world, player, player_inventory, library }; /**< interacts with the world (for harvesting, conversation, etc) */
+
+    bool input_enabled = false;
+
+/// changeSeason ///
+///
+/// \brief effects state change for next season
+///
+/// \see nextSeason
+///
+    void changeSeason(); // effects state change
+
+/// play ///
+///
+/// \brief State::PLAY update. performs world and entity updates; and tick, if threshold is reached
+///
+/// \param \b delta_time Frame time factor
+///
+    void play(float delta_time);
+
+    void fadeIn(float delta_time);
+    void fadeOut(float delta_time);
+    bool checkFadeTimer();
+    void setFade();
+
+    sf::Clock fade_timer;
+    constexpr static float fade_threshold = 0.005f;
+
+    sf::RectangleShape fade;
+    uint8_t fade_alpha;
 
 /// draw ///
 ///

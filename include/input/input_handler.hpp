@@ -41,5 +41,7 @@ private:
     std::map<Main_State, Input_Package> context;
     std::map<Menu_State, Input_Package> context_menu;
 
+    const bool& game_input_enabled;
+
     void placeActionTrigger(const std::pair<std::string, Action_Trigger>& action, std::function<void()> press, std::function<void()> release);
 };

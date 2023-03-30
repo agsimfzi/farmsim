@@ -6,9 +6,11 @@
 ///
 /// \brief currently unimplemented
 ///
-enum Game_State {
-    STANDARD,
-    SEASON_CHANGE
+enum class Game_State {
+    PLAY,
+    SEASON_CHANGE,
+    FADE_IN,
+    FADE_OUT
 };
 
 /// gameStateToString ///
@@ -18,10 +20,14 @@ enum Game_State {
 inline std::string gameStateToString(Game_State s)
 {
     switch (s) {
-        case Game_State::STANDARD:
-            return "STANDARD";
+        case Game_State::PLAY:
+            return "PLAY";
         case Game_State::SEASON_CHANGE:
             return "SEASON_CHANGE";
+        case Game_State::FADE_IN:
+            return "FADE_IN";
+        case Game_State::FADE_OUT:
+            return "FADE_OUT";
         default:
             return "INEXPLICABLE GAME_STATE NULL VALUE";
     }

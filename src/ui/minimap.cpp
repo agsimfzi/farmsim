@@ -190,6 +190,16 @@ void Minimap::zoom(float delta)
     }
 }
 
+sf::Vector2f Minimap::getPosition()
+{
+    return mini_frame.getPosition();
+}
+
+sf::Vector2f Minimap::getSize()
+{
+    return mini_frame.getSize();
+}
+
 void Minimap::draw(sf::RenderTarget& target, sf::RenderStates states) const
 {
     target.draw(*active_frame, states);

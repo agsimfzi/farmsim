@@ -4,15 +4,11 @@
 
 #include <util/prng.hpp>
 
-#include <iostream>
-
 Detail::Detail(sf::Vector2i coordinates, Detail_Data data)
     : Detail_Data(data)
     , coordinates { coordinates }
 {
     type = stringToType(type_string);
-    std::cout << "constructing detail, name " << name << ", type " << type_string << " ("
-              << static_cast<int>(type) << ", " << typeToString(type) << ")\n";
 }
 
 Detail::Type Detail::stringToType(std::string s)

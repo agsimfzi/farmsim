@@ -14,6 +14,8 @@ Shell::Shell()
 
     window.setKeyRepeatEnabled(false);
 
+    window.setVerticalSyncEnabled(true);
+
     view_game = sf::View(sf::Vector2f(0.f, 0.f), sf::Vector2f(window.getSize()));
     view_game.setCenter(sf::Vector2f(0.f, 0.f));
 
@@ -27,6 +29,9 @@ Shell::Shell()
     fps_text.setString("0");
     fps_text.setFillColor(sf::Color::Red);
     fps_text.setPosition(sf::Vector2f(8.f, 8.f));
+
+    game.hideUI = std::bind(&UI::hide, &ui);
+    game.showUI = std::bind(&UI::show, &ui);
 
     ui.scale(window);
 
@@ -63,7 +68,8 @@ void Shell::update()
             break;
         case Main_State::LOADING:
             if (loading_screen.update()) {
-                state_main = Main_State::GAME;
+                newMain(Main_State::GAME);
+                //state_main = Main_State::GAME;
             }
             break;
         case Main_State::GAME:
@@ -123,6 +129,8 @@ void Shell::alignState()
                 break;
             case Main_State::NEWGAME:
                 loadNewLevel();
+                [[fallthrough]];
+            case Main_State::GAME:
                 break;
             default:
                 break;

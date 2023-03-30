@@ -4,6 +4,7 @@
 
 Input_Handler::Input_Handler(sf::RenderWindow& nwindow, Game& game, UI& ui, Menu_Package menu_package, Season_Changer& season_changer)
     : window { nwindow }
+    , game_input_enabled { game.inputEnabled() }
 {
     Player* player = &game.getPlayer();
 
@@ -58,6 +59,10 @@ Input_Handler::Input_Handler(sf::RenderWindow& nwindow, Game& game, UI& ui, Menu
         }
         else if (action.first == "Open Building") {
             press = std::bind(&UI::useBuilding, &ui);
+            release = [](){};
+        }
+        else if (action.first == "Spell Menu") {
+            press = [](){};
             release = [](){};
         }
 
@@ -242,7 +247,8 @@ void Input_Handler::handle()
             if (state_main == Main_State::LOADING
                 || state_main == Main_State::NEWGAME
                 || state_main == Main_State::NULL_STATE
-                || state_main == Main_State::QUIT) {
+                || state_main == Main_State::QUIT
+                || (state_main == Main_State::GAME && !game_input_enabled)) {
                 continue;
             }
 

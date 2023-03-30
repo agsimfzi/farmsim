@@ -8,6 +8,10 @@ public:
 
     void update(int count);
 
+    void setPosition(sf::Vector2f pos);
+
+    sf::Vector2f getSize();
+
 private:
     sf::RectangleShape frame;
     sf::Sprite icon;

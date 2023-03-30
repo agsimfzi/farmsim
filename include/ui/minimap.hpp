@@ -22,6 +22,9 @@ public:
 
     void zoom(float delta);
 
+    sf::Vector2f getPosition();
+    sf::Vector2f getSize();
+
 private:
     sf::Sprite map;
     sf::Texture texture;

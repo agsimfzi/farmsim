@@ -8,7 +8,6 @@ Wallet_Inspector::Wallet_Inspector()
 {
     frame.setSize(sf::Vector2f(256.f, 72.f));
     frame.setOrigin(sf::Vector2f(frame.getSize().x, frame.getSize().y / 2.f));
-    frame.setPosition(sf::Vector2f(1904.f, 560.f));
     frame.setFillColor(Palette::inventory_bg);
     frame.setOutlineColor(Palette::inventory_outline);
     frame.setOutlineThickness(1.f);
@@ -16,7 +15,6 @@ Wallet_Inspector::Wallet_Inspector()
     icon.setOrigin(sf::Vector2f(-16.f, 32.f));
     // icon.setTexture(Texture_Manager::get()
     // icon.setTextureRect()
-    icon.setPosition(frame.getPosition() - sf::Vector2f(frame.getSize().x, 0.f));
 
     text.setFont(Font_Manager::get(Font::UI));
     text.setFillColor(Palette::black);
@@ -33,6 +31,18 @@ void Wallet_Inspector::update(int count)
     origin.y = trect.top + trect.height / 2.f;
     text.setOrigin(origin);
     text.setPosition(frame.getPosition());
+}
+
+sf::Vector2f Wallet_Inspector::getSize()
+{
+    return frame.getSize();
+}
+
+void Wallet_Inspector::setPosition(sf::Vector2f pos)
+{
+    frame.setPosition(pos);
+    text.setPosition(pos);
+    icon.setPosition(frame.getPosition() - sf::Vector2f(frame.getSize().x, 0.f));
 }
 
 void Wallet_Inspector::draw(sf::RenderTarget& target, sf::RenderStates states) const

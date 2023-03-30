@@ -9,7 +9,6 @@
 
 #include <util/primordial.hpp>
 #include <util/prng.hpp>
-#include <util/vector2_stream.hpp>
 
 #include <world/automaton.hpp>
 #include <world/biome_generator.hpp>
@@ -110,7 +109,6 @@ sf::Vector2i* World::checkMouseTarget(sf::Vector2f mpos, sf::Vector2i playerCoor
         for (int y = playerCoords.y - 1; y <= playerCoords.y + 1; y++) {
             if (tile_library[x][y].bounds.contains(mpos)) {
                 active_tile = std::make_unique<sf::Vector2i>(x, y);
-                //std::cout << "setting active tile to " << *active_tile << '\n';
                 return active_tile.get();
             }
         }
@@ -238,6 +236,7 @@ void World::makeBiomes()
 
 void World::makeGrass()
 {
+    return;
     std::cout << "\n\nmaking grass!\n";
     size_t iterations = 0;
     float chance = 0.8f;

@@ -19,6 +19,11 @@ void Energy_Bar::update(float energy)
     }
 }
 
+sf::Vector2f Energy_Bar::getSize()
+{
+    return frame.getSize();
+}
+
 void Energy_Bar::setPosition(sf::Vector2f pos)
 {
     frame.setPosition(pos);
