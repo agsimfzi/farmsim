@@ -1,4 +1,4 @@
-prototype farm sim, alpha 0.03
+prototype farm sim, alpha 0.03. working title "Fairy Farm"
  
 compiled with GCC 11.2, using SFML 2.5.1 and the C amalgamation of SQLite 3.39.4.
 
@@ -17,3 +17,7 @@ planned features:
 - dynamic weather
 - magic, primarily for weather manipulation
 - fishing
+- dialogue
+- trading (currently, seeds are only obtained via the seed sifter machine)
+
+this project is currently dormant pending engine upgrades
