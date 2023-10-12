@@ -36,6 +36,8 @@
 
 #include "settings_package.hpp"
 
+// please don't tell anyone how i live
+
 /////////////////////////////////////////////////////////////
 /// \brief
 ///

@@ -10,6 +10,7 @@ inline void floodFill(int x, int y, Map_Tile<bool>& to_flood, Map_Tile<bool>& fl
 {
     // BE *VERY* CAREFUL ABOUT USING THIS RECURSIVE FLOOD FILL
     // IT ***WILL*** CAUSE A STACK OVERFLOW!!!!!!!!!
+    // prefer floodCheck() for large-scale floods
     flooding[x][y] = true;
 
     if (!flooding[x - 1][y] && to_flood[x - 1][y]) {
