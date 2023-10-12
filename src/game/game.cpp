@@ -1,7 +1,5 @@
 #include <game/game.hpp>
 
-#include <limits>
-
 #include <system/database.hpp>
 
 #include <util/fmouse.hpp>
@@ -16,6 +14,9 @@ Game::Game(sf::View& nview)
     : view { nview }
 {
     player = Player(Database::getPlayerData(), Texture_Manager::get("PLAYER"));
+
+    giveItemToPlayer("chest");
+    giveItemToPlayer("tool bench");
 
     giveItemToPlayer("pine wood", 100);
     giveItemToPlayer("birch wood", 100);
@@ -50,7 +51,7 @@ Game::Game(sf::View& nview)
     fade.setSize(sf::Vector2f(2000.f, 1200.f));
     fade.setOrigin(fade.getSize() / 2.f);
 
-    setState(Game_State::FADE_IN);
+    //setState(Game_State::FADE_IN);
 }
 
 void Game::setState(Game_State state)
@@ -69,38 +70,44 @@ void Game::setState(Game_State state)
         case Game_State::FADE_OUT:
             hideUI();
             update = std::bind(&Game::fadeOut, this, std::placeholders::_1);
-            fade_alpha = std::numeric_limits<uint8_t>::min();
+            fade_alpha = 0;
             setFade();
             fade_timer.restart();
             fade.setPosition(view.getCenter());
             disableInput();
+            renderer.startFade(&fade);
             break;
         case Game_State::FADE_IN:
             update = std::bind(&Game::fadeIn, this, std::placeholders::_1);
-            fade_alpha = std::numeric_limits<uint8_t>::max();
+            fade_alpha = 255;
             setFade();
             fade.setPosition(view.getCenter());
             fade_timer.restart();
+            disableInput();
+            renderer.startFade(&fade);
             break;
     }
 }
 
 void Game::fadeIn(float delta_time)
 {
-    if (fade_alpha > std::numeric_limits<uint8_t>::min()) {
+    if (fade_alpha >= 0) {
         if (checkFadeTimer()) {
             fade_alpha--;
             setFade();
         }
     }
     else {
+        fade.setFillColor(sf::Color::Transparent);
         setState(Game_State::PLAY);
+        enableInput();
+        renderer.endFade();
     }
 }
 
 void Game::fadeOut(float delta_time)
 {
-    if (fade_alpha < std::numeric_limits<uint8_t>::max()) {
+    if (fade_alpha < 256) {
         if (checkFadeTimer()) {
             fade_alpha++;
             setFade();
@@ -108,6 +115,7 @@ void Game::fadeOut(float delta_time)
     }
     else {
         setState(Game_State::SEASON_CHANGE);
+        renderer.endFade();
     }
 }
 
@@ -221,7 +229,6 @@ void Game::play(float delta_time)
 
 void Game::prepRenderer()
 {
-    renderer.clear();
     renderer.load(world, player);
 }
 
@@ -240,8 +247,10 @@ void Game::startGame()
     world.finalize();
     player.setPosition(world.startPosition());
     view.setCenter(player.getPosition());
-    player.getWallet().setBalance(999999);
+    fade.setPosition(view.getCenter());
+    player.getWallet().setBalance(1000);
     enableInput();
+    setState(Game_State::FADE_IN);
 }
 
 void Game::clickLeft()
@@ -348,5 +357,4 @@ void Game::stopUse()
 void Game::draw(sf::RenderTarget& target, sf::RenderStates states) const
 {
     target.draw(renderer, states);
-    target.draw(fade, states);
 }

@@ -42,6 +42,7 @@ public:
         MACHINE,
         LOOTABLE,
         STRUCTURE,
+        TRADER,
         NULL_TYPE
     };
 
@@ -79,6 +80,9 @@ public:
         else if (s == "STRUCTURE") {
             return STRUCTURE;
         }
+        else if (s == "TRADER") {
+            return TRADER;
+        }
         else {
             return Type::NULL_TYPE;
         }
@@ -105,6 +109,8 @@ public:
             case STRUCTURE:
                 return "STRUCTURE";
                 break;
+            case TRADER:
+                return "TRADER";
             default:
                 return "";
                 break;

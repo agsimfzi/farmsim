@@ -5,6 +5,7 @@
 #include <map>
 #include <vector>
 
+#include <entity/npc.hpp>
 #include <entity/player.hpp>
 
 #include <item/library.hpp>
@@ -226,7 +227,7 @@ private:
     constexpr static float fade_threshold = 0.005f;
 
     sf::RectangleShape fade;
-    uint8_t fade_alpha;
+    int fade_alpha;
 
 /// draw ///
 ///

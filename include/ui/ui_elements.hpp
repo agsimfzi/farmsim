@@ -9,3 +9,5 @@
 #include "machine_interface.hpp"
 
 #include "game_info.hpp"
+
+#include "dialogue.hpp"

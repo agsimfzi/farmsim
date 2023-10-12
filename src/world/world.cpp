@@ -538,6 +538,16 @@ sf::Vector2i* World::activeTile()
     return active_tile.get();
 }
 
+void World::setInteractable()
+{
+    if (active_tile) {
+        setActiveBuilding();
+        if (!active_building) {
+            setActiveNPC();
+        }
+    }
+}
+
 void World::setActiveBuilding()
 {
     if (active_tile) {
@@ -552,6 +562,18 @@ void World::setActiveBuilding()
     }
 }
 
+void World::setActiveNPC()
+{
+    const auto& t = *active_tile;
+    for (const auto& npc : npcs) {
+        if (t == npc->getCoordinates(tile_size)) {
+            active_npc = npc.get();
+            return;
+        }
+    }
+    active_npc = nullptr;
+}
+
 void World::closeActiveBuilding()
 {
     active_building = nullptr;
@@ -560,6 +582,11 @@ void World::closeActiveBuilding()
 Building* World::activeBuilding()
 {
     return active_building;
+}
+
+NPC* World::activeNPC()
+{
+    return active_npc;
 }
 
 bool World::adjacentTree(sf::Vector2i i)

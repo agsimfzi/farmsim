@@ -27,6 +27,9 @@ public:
 ///
     void load(World& world, Player& player);
 
+    void startFade(sf::RectangleShape* fade);
+    void endFade();
+
 private:
     std::vector<std::shared_ptr<Item>> items; /**< intermediate world item storage */
 
@@ -40,7 +43,17 @@ private:
     sf::Vector2i render_start; /**< minimum tile to be drawn */
     sf::Vector2i render_end; /**< maximum tile to be drawn */
 
-    std::vector<std::vector<sf::Drawable*>> drawables; /**< packaged and layered drawables */
+    enum Layer {
+        FLOOR = 0,
+        DETAILS = 1,
+        BITS = 2,
+        EXTRA = 3,
+        WEATHER = 4,
+        FADE = 5,
+        LAYER_COUNT
+    };
+
+    std::map<Layer, std::vector<sf::Drawable*>> drawables; /**< packaged and layered drawables */
 
 /// draw ///
 ///

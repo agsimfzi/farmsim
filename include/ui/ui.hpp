@@ -2,11 +2,13 @@
 
 #include <SFML/Graphics.hpp>
 
+#include <deque>
 #include <memory>
 
 #include <game/game.hpp>
 
 #include "ui_elements.hpp"
+#include "ui_render.hpp"
 
 /////////////////////////////////////////////////////////////
 /// \brief
@@ -46,7 +48,9 @@ public:
     bool clickRight();
     bool releaseRight();
 
+    void interact();
     void useBuilding();
+    void useNPC();
 
     void loadDefaultReactions();
 
@@ -54,6 +58,13 @@ public:
 
     void show();
     void hide();
+
+    void showLayer(UI_Render layer);
+    void hideLayer(UI_Render layer);
+
+    bool layerHidden(UI_Render layer);
+
+    void loadInventory();
 
 private:
     sf::RenderWindow& window;
@@ -76,7 +87,11 @@ private:
 
     Game_Info game_info;
 
+    Dialogue dialogue;
+
     bool hidden = true;
+
+    std::map<UI_Render, std::deque<sf::Drawable*>> renderer;
 
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
 };

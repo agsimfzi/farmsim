@@ -6,6 +6,7 @@
 #include <memory>
 #include <variant>
 
+#include <entity/npc.hpp>
 #include <entity/player.hpp>
 
 #include <item/library.hpp>
@@ -57,9 +58,12 @@ public:
     void pickupAll();
     void stopPickupAll();
 
+    void setInteractable();
     void setActiveBuilding();
     void closeActiveBuilding();
     Building* activeBuilding();
+    void setActiveNPC();
+    NPC* activeNPC();
 
     int energyDiff();
 
@@ -95,6 +99,9 @@ public:
 
 private:
     Building* active_building{ nullptr };
+    NPC* active_npc { nullptr };
+
+    std::vector<std::unique_ptr<NPC>> npcs; /**< active npcs */
 
     Library& library;
 

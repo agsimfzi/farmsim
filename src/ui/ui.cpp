@@ -8,6 +8,8 @@
 #include <util/primordial.hpp>
 #include <util/shift_pressed.hpp>
 
+#include <iostream>
+
 //////////////////////////////////////////////////////////////
 
 UI::UI(sf::RenderWindow& window, Game& game, sf::View& view)
@@ -17,6 +19,7 @@ UI::UI(sf::RenderWindow& window, Game& game, sf::View& view)
     , view{ view }
 {
     inventory_interface = std::make_unique<Inventory_Interface>(Inventory_Interface(game.getInventory(), view));
+    loadInventory();
     auto drop = [&](std::shared_ptr<Item> i)
         {
             i->can_pickup = false;
@@ -25,8 +28,10 @@ UI::UI(sf::RenderWindow& window, Game& game, sf::View& view)
 
     inventory_interface->loadDrop(drop);
 
+    const sf::Vector2f w_size(window.getSize());
+
     overlay.setPosition(sf::Vector2f(0.f, 0.f));
-    overlay.setSize(sf::Vector2f(1920.f, 1080.f));
+    overlay.setSize(w_size);
     overlay.setFillColor(sf::Color(50, 50, 50, 120));
 
     player_pos.setPosition(sf::Vector2f(1800.f, 1000.f));
@@ -58,6 +63,14 @@ UI::UI(sf::RenderWindow& window, Game& game, sf::View& view)
 
     auto update_wallet = std::bind(&Wallet_Inspector::update, &game_info.wallet, std::placeholders::_1);
     game.getPlayer().getWallet().update_ui = update_wallet;
+
+    const sf::Vector2f& dialogue_size = dialogue.frameSize();
+    sf::Vector2f dialogue_pos = w_size;
+    dialogue_pos.x -= (w_size.x / 2.f);
+    dialogue_pos.x -= (dialogue_size.x / 2.f);
+    dialogue_pos.y -= dialogue_size.y;
+    dialogue_pos.y -= 32.f;
+    dialogue.setPosition(dialogue_pos);
 }
 
 void UI::init()
@@ -152,10 +165,12 @@ void UI::toggleInventory()
         overlay_active = false;
         game.getWorld().closeActiveBuilding();
         inventory_interface = std::make_unique<Inventory_Interface>(Inventory_Interface(game.getInventory(), view));
+        loadInventory();
     }
     else if (!overlay_active) {
         inventory_interface->open = true;
         inventory_interface = std::make_unique<Inventory_Interface>(Inventory_Interface(game.getInventory(), view));
+        loadInventory();
         loadDefaultReactions();
         inventory_interface->open = true;
         overlay_active = true;
@@ -180,6 +195,7 @@ void UI::closeOverlay()
     if (inventory_interface->open) {
         inventory_interface->close();
         inventory_interface = std::make_unique<Inventory_Interface>(*inventory_interface);
+        loadInventory();
     }
     else if(minimap.isExpanded()) {
         minimap.close();
@@ -251,38 +267,17 @@ bool UI::releaseRight()
     return parsed;
 }
 
-void UI::useBuilding()
+void UI::interact()
 {
     if (!overlay_active) {
-        game.getWorld().setActiveBuilding();
-        Building* b = game.getWorld().activeBuilding();
-        if (b) {
-            switch(b->type) {
-                default:
-                    return;
-                case Building::CONTAINER:
-                    inventory_interface = std::make_unique<Container_Interface>(game.getInventory(), view, dynamic_cast<Container*>(b));
-                    inventory_interface->open = true;
-                    loadDefaultReactions();
-                    break;
-                case Building::CRAFTING:
-                    inventory_interface = std::make_unique<Inventory_Interface>(Inventory_Interface(game.getInventory(), view));
-                    inventory_interface->loadReactions(b->reactions, game.getLibrary());
-                    inventory_interface->open = true;
-                    break;
-                case Building::MACHINE:
-                    inventory_interface = std::make_unique<Machine_Interface>(game.getInventory(), view, dynamic_cast<Machine*>(b));
-                    inventory_interface->loadReactions(b->reactions, game.getLibrary());
-                    inventory_interface->open = true;
-                    break;
-                case Building::FURNITURE:
-                    if (equalStrings(b->name, "bed")) {
-                        game.setState(Game_State::FADE_OUT);
-                    }
-                    return;
-            }
-            inventory_interface->open = true;
-            overlay_active = true;
+        game.getWorld().setInteractable();
+        if (game.getWorld().activeBuilding()) {
+            useBuilding();
+        }
+        else if (game.getWorld().activeNPC()) {
+            useNPC();
+        }
+        else {
         }
     }
     else {
@@ -291,6 +286,47 @@ void UI::useBuilding()
         overlay_active = false;
         game.getWorld().closeActiveBuilding();
     }
+}
+
+void UI::useBuilding()
+{
+    Building* b = game.getWorld().activeBuilding();
+        switch(b->type) {
+            default:
+                return;
+            case Building::CONTAINER:
+                inventory_interface = std::make_unique<Container_Interface>(game.getInventory(), view, dynamic_cast<Container*>(b));
+                loadInventory();
+                inventory_interface->open = true;
+                loadDefaultReactions();
+                break;
+            case Building::CRAFTING:
+                inventory_interface = std::make_unique<Inventory_Interface>(Inventory_Interface(game.getInventory(), view));
+                loadInventory();
+                inventory_interface->loadReactions(b->reactions, game.getLibrary());
+                inventory_interface->open = true;
+                break;
+            case Building::MACHINE:
+                inventory_interface = std::make_unique<Machine_Interface>(game.getInventory(), view, dynamic_cast<Machine*>(b));
+                loadInventory();
+                inventory_interface->loadReactions(b->reactions, game.getLibrary());
+                inventory_interface->open = true;
+                break;
+            case Building::FURNITURE:
+                if (equalStrings(b->name, "bed")) {
+                    game.setState(Game_State::FADE_OUT);
+                }
+                return;
+        }
+        inventory_interface->open = true;
+        overlay_active = true;
+}
+
+void UI::useNPC()
+{
+    overlay_active = true;
+    renderer[UI_Render::DIALOGUE].push_back(&dialogue);
+    dialogue.load(game.getWorld().activeNPC());
 }
 
 void UI::readSeasonChange()
@@ -303,15 +339,72 @@ void UI::readSeasonChange()
 void UI::hide()
 {
     hidden = true;
+    renderer.clear();
 }
 
 void UI::show()
 {
     hidden = false;
+    showLayer(UI_Render::PLAYER_TARGET);
+    showLayer(UI_Render::HUD);
+    showLayer(UI_Render::INVENTORY);
+    if (inventory_interface != nullptr) {
+        loadInventory();
+    }
+}
+
+void UI::hideLayer(UI_Render layer)
+{
+    renderer[layer].clear();
+}
+
+void UI::showLayer(UI_Render layer)
+{
+    if (!layerHidden(layer)) {
+        hideLayer(layer); // avoid redundant additions
+    }
+    switch (layer) {
+        case UI_Render::PLAYER_TARGET:
+            renderer[layer].push_back(&player_target);
+            break;
+        case UI_Render::INVENTORY:
+            break;
+        case UI_Render::HUD:
+            renderer[layer].push_back(&game_info);
+            renderer[layer].push_back(&minimap);
+            break;
+        case UI_Render::MESSAGE:
+            // hmmm.....
+            break;
+        case UI_Render::DIALOGUE:
+            renderer[layer].push_back(&dialogue);
+            break;
+        default:
+            // log this
+            break;
+    }
+}
+
+void UI::loadInventory()
+{
+    renderer[UI_Render::INVENTORY].clear();
+    renderer[UI_Render::INVENTORY].push_back(inventory_interface.get());
+}
+
+bool UI::layerHidden(UI_Render layer)
+{
+    return (renderer[layer].size() == 0);
 }
 
 void UI::draw(sf::RenderTarget& target, sf::RenderStates states) const
 {
+    for (const auto& r : renderer) {
+        for (const auto& d : r.second) {
+            target.setView(view);
+            target.draw(*d, states);
+        }
+    }
+    /*
     if (!hidden) {
         if (overlay_active) {
             target.draw(overlay, states);
@@ -328,4 +421,5 @@ void UI::draw(sf::RenderTarget& target, sf::RenderStates states) const
 
         target.draw(minimap, states); // MUST BE LAST AS IT DEFINES ITS OWN VIEW!
     }
+    */
 }

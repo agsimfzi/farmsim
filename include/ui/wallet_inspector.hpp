@@ -2,6 +2,8 @@
 
 #include <SFML/Graphics.hpp>
 
+/// WALLET INSPECTOR ///
+/// \brief displays the player's financial information
 class Wallet_Inspector : public sf::Drawable {
 public:
     Wallet_Inspector();

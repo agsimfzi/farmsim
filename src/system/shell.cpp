@@ -129,7 +129,7 @@ void Shell::alignState()
                 break;
             case Main_State::NEWGAME:
                 loadNewLevel();
-                [[fallthrough]];
+                break;
             case Main_State::GAME:
                 break;
             default:
